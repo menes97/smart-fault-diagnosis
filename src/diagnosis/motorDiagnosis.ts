@@ -26,12 +26,19 @@ export interface FaultDefinition {
 
 export interface DiagnosisResult extends FaultDefinition {
   score: number
+  scoringReasons: ScoringReason[]
+}
+
+export interface ScoringReason {
+  label: string
+  points: number
 }
 
 type ScoringRule = (input: DiagnosisInput) => number
 
 interface FaultRuleSet extends FaultDefinition {
   scoringRules: ScoringRule[]
+  scoringRuleLabels: string[]
 }
 
 const hasSymptom = (input: DiagnosisInput, symptom: MotorSymptom) =>
@@ -44,9 +51,7 @@ const currentRatio = (input: DiagnosisInput) => {
   return input.measuredCurrent / input.nominalCurrent
 }
 
-const aboveNominal = (input: DiagnosisInput) =>
-  hasSymptom(input, 'Akım nominal değerin üzerinde') || currentRatio(input) > 1.1
-
+const measuredAboveNominal = (input: DiagnosisInput) => currentRatio(input) > 1.1
 const significantlyAboveNominal = (input: DiagnosisInput) => currentRatio(input) >= 1.25
 
 const allSymptoms = (input: DiagnosisInput, selected: MotorSymptom[]) =>
@@ -61,11 +66,18 @@ const motorFaults: FaultRuleSet[] = [
     recommendedChecks: ['Tahrik edilen ekipmanın serbest hareketini kontrol edin.', 'Yük profilini ve motor anma değerlerini karşılaştırın.', 'Yetkili personel ile kaplin ve aktarma organlarını inceleyin.'],
     safetyNotes: ['Dönen ekipmana müdahale etmeden önce enerji izolasyonunu doğrulayın.'],
     scoringRules: [
-      (input) => hasSymptom(input, 'Motor ısınıyor') ? 25 : 0,
-      (input) => aboveNominal(input) ? 25 : 0,
-      (input) => significantlyAboveNominal(input) ? 15 : 0,
-      (input) => allSymptoms(input, ['Motor ısınıyor', 'Akım nominal değerin üzerinde']) ? 25 : 0,
+      (input) => hasSymptom(input, 'Motor ısınıyor') ? 32 : 0,
+      (input) => hasSymptom(input, 'Akım nominal değerin üzerinde') ? 8 : 0,
+      (input) => measuredAboveNominal(input) ? (significantlyAboveNominal(input) ? 18 : 12) : 0,
+      (input) => !hasSymptom(input, 'Motor dönmüyor') ? 16 : 0,
       (input) => hasSymptom(input, 'Mekanik ses var') ? 5 : 0,
+    ],
+    scoringRuleLabels: [
+      '"Motor ısınıyor" belirtisi seçildi',
+      '"Akım nominal değerin üzerinde" belirtisi seçildi',
+      'Ölçülen akım nominal değerin üzerinde',
+      'Motorun dönebildiği belirtildi',
+      '"Mekanik ses var" belirtisi seçildi',
     ],
   },
   {
@@ -81,6 +93,12 @@ const motorFaults: FaultRuleSet[] = [
       (input) => hasSymptom(input, 'Motor ısınıyor') ? 18 : 0,
       (input) => allSymptoms(input, ['Mekanik ses var', 'Titreşim artmış', 'Motor ısınıyor']) ? 22 : 0,
     ],
+    scoringRuleLabels: [
+      '"Mekanik ses var" belirtisi seçildi',
+      '"Titreşim artmış" belirtisi seçildi',
+      '"Motor ısınıyor" belirtisi seçildi',
+      'Mekanik ses, titreşim ve ısınma birlikte seçildi',
+    ],
   },
   {
     id: 'phase-loss-imbalance',
@@ -91,11 +109,19 @@ const motorFaults: FaultRuleSet[] = [
     safetyNotes: ['Gerilim ve akım ölçümleri yalnızca yetkili ve uygun koruyucu ekipman kullanan kişilerce yapılmalıdır.'],
     scoringRules: [
       (input) => hasSymptom(input, 'Motor ısınıyor') ? 16 : 0,
-      (input) => aboveNominal(input) ? 20 : 0,
-      (input) => significantlyAboveNominal(input) ? 18 : 0,
+      (input) => hasSymptom(input, 'Akım nominal değerin üzerinde') ? 8 : 0,
+      (input) => measuredAboveNominal(input) ? (significantlyAboveNominal(input) ? 18 : 12) : 0,
       (input) => hasSymptom(input, 'Motor dönmüyor') ? 18 : 0,
       (input) => hasSymptom(input, 'Sigorta açıyor') ? 18 : 0,
       (input) => allSymptoms(input, ['Motor ısınıyor', 'Akım nominal değerin üzerinde']) ? 10 : 0,
+    ],
+    scoringRuleLabels: [
+      '"Motor ısınıyor" belirtisi seçildi',
+      '"Akım nominal değerin üzerinde" belirtisi seçildi',
+      'Ölçülen akım nominal değerin üzerinde',
+      '"Motor dönmüyor" belirtisi seçildi',
+      '"Sigorta açıyor" belirtisi seçildi',
+      'Motor ısınması ve nominal üstü akım belirtileri birlikte seçildi',
     ],
   },
   {
@@ -109,9 +135,17 @@ const motorFaults: FaultRuleSet[] = [
       (input) => hasSymptom(input, 'Motor dönmüyor') ? 28 : 0,
       (input) => hasSymptom(input, 'Sigorta açıyor') ? 25 : 0,
       (input) => hasSymptom(input, 'Motor ısınıyor') ? 12 : 0,
-      (input) => aboveNominal(input) ? 15 : 0,
-      (input) => significantlyAboveNominal(input) ? 10 : 0,
+      (input) => hasSymptom(input, 'Akım nominal değerin üzerinde') ? 8 : 0,
+      (input) => measuredAboveNominal(input) ? (significantlyAboveNominal(input) ? 14 : 10) : 0,
       (input) => allSymptoms(input, ['Motor dönmüyor', 'Sigorta açıyor']) ? 10 : 0,
+    ],
+    scoringRuleLabels: [
+      '"Motor dönmüyor" belirtisi seçildi',
+      '"Sigorta açıyor" belirtisi seçildi',
+      '"Motor ısınıyor" belirtisi seçildi',
+      '"Akım nominal değerin üzerinde" belirtisi seçildi',
+      'Ölçülen akım nominal değerin üzerinde',
+      'Motor dönmüyor ve sigorta açıyor belirtileri birlikte seçildi',
     ],
   },
   {
@@ -122,12 +156,20 @@ const motorFaults: FaultRuleSet[] = [
     recommendedChecks: ['Enerji kesildikten sonra tahrik edilen mekanizmanın serbestliğini yetkili bakım personeliyle değerlendirin.', 'Kaplin, kayış ve aktarma organlarında fiziksel engel olup olmadığını inceleyin.', 'Sıkışma nedeni giderilmeden tekrar çalıştırmayın.'],
     safetyNotes: ['Sıkışmış ekipmanı elle çevirmeye çalışmadan önce tüm enerji kaynaklarını izole edin.'],
     scoringRules: [
-      (input) => hasSymptom(input, 'Motor dönmüyor') ? 38 : 0,
-      (input) => hasSymptom(input, 'Mekanik ses var') ? 18 : 0,
-      (input) => aboveNominal(input) ? 18 : 0,
-      (input) => significantlyAboveNominal(input) ? 10 : 0,
+      (input) => hasSymptom(input, 'Motor dönmüyor') ? 42 : 0,
+      (input) => hasSymptom(input, 'Mekanik ses var') ? 12 : 0,
+      (input) => hasSymptom(input, 'Akım nominal değerin üzerinde') ? 8 : 0,
+      (input) => significantlyAboveNominal(input) ? 28 : 0,
       (input) => hasSymptom(input, 'Motor ısınıyor') ? 8 : 0,
-      (input) => allSymptoms(input, ['Motor dönmüyor', 'Akım nominal değerin üzerinde']) ? 15 : 0,
+      (input) => hasSymptom(input, 'Motor dönmüyor') && significantlyAboveNominal(input) ? 10 : 0,
+    ],
+    scoringRuleLabels: [
+      '"Motor dönmüyor" belirtisi seçildi',
+      '"Mekanik ses var" belirtisi seçildi',
+      '"Akım nominal değerin üzerinde" belirtisi seçildi',
+      'Ölçülen akım nominal değerin önemli ölçüde üzerinde',
+      '"Motor ısınıyor" belirtisi seçildi',
+      'Motor dönmüyor ve ölçülen akım nominal değerin önemli ölçüde üzerinde',
     ],
   },
   {
@@ -140,10 +182,18 @@ const motorFaults: FaultRuleSet[] = [
     scoringRules: [
       (input) => hasSymptom(input, 'Sigorta açıyor') ? 34 : 0,
       (input) => hasSymptom(input, 'Motor dönmüyor') ? 25 : 0,
-      (input) => aboveNominal(input) ? 15 : 0,
-      (input) => significantlyAboveNominal(input) ? 10 : 0,
+      (input) => hasSymptom(input, 'Akım nominal değerin üzerinde') ? 8 : 0,
+      (input) => measuredAboveNominal(input) ? (significantlyAboveNominal(input) ? 14 : 10) : 0,
       (input) => hasSymptom(input, 'Motor ısınıyor') ? 8 : 0,
       (input) => allSymptoms(input, ['Sigorta açıyor', 'Motor dönmüyor']) ? 12 : 0,
+    ],
+    scoringRuleLabels: [
+      '"Sigorta açıyor" belirtisi seçildi',
+      '"Motor dönmüyor" belirtisi seçildi',
+      '"Akım nominal değerin üzerinde" belirtisi seçildi',
+      'Ölçülen akım nominal değerin üzerinde',
+      '"Motor ısınıyor" belirtisi seçildi',
+      'Sigorta açıyor ve motor dönmüyor belirtileri birlikte seçildi',
     ],
   },
 ]
@@ -152,10 +202,17 @@ export function diagnoseMotor(input: DiagnosisInput): DiagnosisResult[] {
   if (input.equipment !== MOTOR_EQUIPMENT) return []
 
   return motorFaults
-    .map(({ scoringRules, ...fault }) => ({
-      ...fault,
-      score: Math.min(100, scoringRules.reduce((total, rule) => total + rule(input), 0)),
-    }))
+    .map(({ scoringRules, scoringRuleLabels, ...fault }) => {
+      const scoringReasons = scoringRules
+        .map((rule, index) => ({ label: scoringRuleLabels[index], points: rule(input) }))
+        .filter((reason) => reason.points > 0)
+
+      return {
+        ...fault,
+        score: Math.min(100, scoringReasons.reduce((total, reason) => total + reason.points, 0)),
+        scoringReasons,
+      }
+    })
     .filter((result) => result.score > 0)
     .sort((a, b) => b.score - a.score || a.title.localeCompare(b.title, 'tr'))
 }
