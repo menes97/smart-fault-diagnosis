@@ -27,6 +27,14 @@ function App() {
   const [selectedSymptoms, setSelectedSymptoms] = useState<MotorSymptom[]>([])
   const [nominalCurrent, setNominalCurrent] = useState('')
   const [measuredCurrent, setMeasuredCurrent] = useState('')
+  const [l1Current, setL1Current] = useState('')
+  const [l2Current, setL2Current] = useState('')
+  const [l3Current, setL3Current] = useState('')
+  const [l1L2Voltage, setL1L2Voltage] = useState('')
+  const [l2L3Voltage, setL2L3Voltage] = useState('')
+  const [l3L1Voltage, setL3L1Voltage] = useState('')
+  const [motorTemperature, setMotorTemperature] = useState('')
+  const [vibration, setVibration] = useState('')
   const [results, setResults] = useState<DiagnosisResult[] | null>(null)
   const navItems: { label: string; icon: IconName; active?: boolean }[] = [
     { label: 'Dashboard', icon: 'dashboard' }, { label: 'Yeni Teşhis', icon: 'diagnosis', active: true },
@@ -34,7 +42,22 @@ function App() {
   ]
   const toggleSymptom = (symptom: MotorSymptom) => setSelectedSymptoms((current) => current.includes(symptom) ? current.filter((item) => item !== symptom) : [...current, symptom])
   const parseCurrent = (value: string) => value === '' ? undefined : Number(value)
-  const analyze = () => setResults(diagnoseMotor({ equipment, symptoms: selectedSymptoms, nominalCurrent: parseCurrent(nominalCurrent), measuredCurrent: parseCurrent(measuredCurrent) }).slice(0, 3))
+  const analyze = () => setResults(diagnoseMotor({
+    equipment,
+    symptoms: selectedSymptoms,
+    nominalCurrent: parseCurrent(nominalCurrent),
+    measuredCurrent: parseCurrent(measuredCurrent),
+    phaseMeasurements: {
+      l1Current: parseCurrent(l1Current),
+      l2Current: parseCurrent(l2Current),
+      l3Current: parseCurrent(l3Current),
+      l1L2Voltage: parseCurrent(l1L2Voltage),
+      l2L3Voltage: parseCurrent(l2L3Voltage),
+      l3L1Voltage: parseCurrent(l3L1Voltage),
+    },
+    motorTemperature: parseCurrent(motorTemperature),
+    vibration: parseCurrent(vibration),
+  }).slice(0, 3))
 
   return <div className="app-shell">
     <aside className="sidebar">
@@ -52,6 +75,8 @@ function App() {
             <label className="full-field">PROBLEM TANIMI<textarea rows={3} placeholder="Gözlemlediğiniz problemi kısaca açıklayın..." /></label>
             <fieldset><legend>BELİRTİLER <span>Uygun olanları seçin</span></legend><div className="symptoms">{symptoms.map((symptom) => <label className="checkbox-label" key={symptom}><input type="checkbox" checked={selectedSymptoms.includes(symptom)} onChange={() => toggleSymptom(symptom)} /><span className="checkmark">✓</span>{symptom}</label>)}</div></fieldset>
             <div className="form-grid electrical-fields"><label>NOMİNAL AKIM <div className="input-suffix"><input type="number" value={nominalCurrent} onChange={(event) => setNominalCurrent(event.target.value)} placeholder="0.00" min="0" step="0.01" /><span>A</span></div></label><label>ÖLÇÜLEN AKIM <div className="input-suffix"><input type="number" value={measuredCurrent} onChange={(event) => setMeasuredCurrent(event.target.value)} placeholder="0.00" min="0" step="0.01" /><span>A</span></div></label></div>
+            <fieldset className="measurement-section"><legend>FAZ ÖLÇÜMLERİ <span>İsteğe bağlı</span></legend><div className="measurement-grid"><label>L1 AKIM <div className="input-suffix"><input type="number" value={l1Current} onChange={(event) => setL1Current(event.target.value)} placeholder="0.00" min="0" step="0.01" /><span>A</span></div></label><label>L2 AKIM <div className="input-suffix"><input type="number" value={l2Current} onChange={(event) => setL2Current(event.target.value)} placeholder="0.00" min="0" step="0.01" /><span>A</span></div></label><label>L3 AKIM <div className="input-suffix"><input type="number" value={l3Current} onChange={(event) => setL3Current(event.target.value)} placeholder="0.00" min="0" step="0.01" /><span>A</span></div></label></div><div className="measurement-grid"><label>L1-L2 GERİLİM <div className="input-suffix"><input type="number" value={l1L2Voltage} onChange={(event) => setL1L2Voltage(event.target.value)} placeholder="0" min="0" step="0.1" /><span>V</span></div></label><label>L2-L3 GERİLİM <div className="input-suffix"><input type="number" value={l2L3Voltage} onChange={(event) => setL2L3Voltage(event.target.value)} placeholder="0" min="0" step="0.1" /><span>V</span></div></label><label>L3-L1 GERİLİM <div className="input-suffix"><input type="number" value={l3L1Voltage} onChange={(event) => setL3L1Voltage(event.target.value)} placeholder="0" min="0" step="0.1" /><span>V</span></div></label></div></fieldset>
+            <div className="form-grid auxiliary-measurements"><label>MOTOR SICAKLIĞI <div className="input-suffix"><input type="number" value={motorTemperature} onChange={(event) => setMotorTemperature(event.target.value)} placeholder="0.0" min="0" step="0.1" /><span>°C</span></div></label><label>TİTREŞİM <div className="input-suffix"><input type="number" value={vibration} onChange={(event) => setVibration(event.target.value)} placeholder="0.0" min="0" step="0.1" /><span>mm/s</span></div></label></div>
             <button className="analyze-button" type="submit"><span>⌁</span> ARIZAYI ANALİZ ET <b>→</b></button>
           </form>
         </section>

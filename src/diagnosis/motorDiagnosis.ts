@@ -13,6 +13,18 @@ export interface DiagnosisInput {
   symptoms: MotorSymptom[]
   nominalCurrent?: number
   measuredCurrent?: number
+  phaseMeasurements?: PhaseMeasurements
+  motorTemperature?: number
+  vibration?: number
+}
+
+export interface PhaseMeasurements {
+  l1Current?: number
+  l2Current?: number
+  l3Current?: number
+  l1L2Voltage?: number
+  l2L3Voltage?: number
+  l3L1Voltage?: number
 }
 
 export interface FaultDefinition {
@@ -53,6 +65,41 @@ const currentRatio = (input: DiagnosisInput) => {
 
 const measuredAboveNominal = (input: DiagnosisInput) => currentRatio(input) > 1.1
 const significantlyAboveNominal = (input: DiagnosisInput) => currentRatio(input) >= 1.25
+const elevatedMotorTemperature = (input: DiagnosisInput) => (input.motorTemperature ?? 0) >= 80
+const elevatedVibration = (input: DiagnosisInput) => (input.vibration ?? 0) >= 4.5
+
+const completeValues = (values: Array<number | undefined>) =>
+  values.every((value): value is number => typeof value === 'number' && Number.isFinite(value))
+
+const phaseCurrentValues = (input: DiagnosisInput) => {
+  const measurements = input.phaseMeasurements
+  const values = [measurements?.l1Current, measurements?.l2Current, measurements?.l3Current]
+  return completeValues(values) ? values : null
+}
+
+const hasPhaseCurrentLoss = (input: DiagnosisInput) => {
+  const values = phaseCurrentValues(input)
+  if (!values) return false
+  const ordered = [...values].sort((a, b) => a - b)
+  const otherPhaseAverage = (ordered[1] + ordered[2]) / 2
+  const meaningfulCurrent = input.nominalCurrent ? input.nominalCurrent * 0.2 : 0.5
+  return otherPhaseAverage >= meaningfulCurrent && ordered[0] <= otherPhaseAverage * 0.1
+}
+
+const hasPhaseCurrentImbalance = (input: DiagnosisInput) => {
+  const values = phaseCurrentValues(input)
+  if (!values || hasPhaseCurrentLoss(input)) return false
+  const average = values.reduce((total, value) => total + value, 0) / values.length
+  return average > 0 && (Math.max(...values) - Math.min(...values)) / average >= 0.2
+}
+
+const hasVoltageImbalance = (input: DiagnosisInput) => {
+  const measurements = input.phaseMeasurements
+  const values = [measurements?.l1L2Voltage, measurements?.l2L3Voltage, measurements?.l3L1Voltage]
+  if (!completeValues(values)) return false
+  const average = values.reduce((total, value) => total + value, 0) / values.length
+  return average > 0 && (Math.max(...values) - Math.min(...values)) / average >= 0.05
+}
 
 const allSymptoms = (input: DiagnosisInput, selected: MotorSymptom[]) =>
   selected.every((symptom) => hasSymptom(input, symptom))
@@ -71,6 +118,7 @@ const motorFaults: FaultRuleSet[] = [
       (input) => measuredAboveNominal(input) ? (significantlyAboveNominal(input) ? 18 : 12) : 0,
       (input) => !hasSymptom(input, 'Motor dönmüyor') ? 16 : 0,
       (input) => hasSymptom(input, 'Mekanik ses var') ? 5 : 0,
+      (input) => elevatedMotorTemperature(input) ? 6 : 0,
     ],
     scoringRuleLabels: [
       '"Motor ısınıyor" belirtisi seçildi',
@@ -78,6 +126,7 @@ const motorFaults: FaultRuleSet[] = [
       'Ölçülen akım nominal değerin üzerinde',
       'Motorun dönebildiği belirtildi',
       '"Mekanik ses var" belirtisi seçildi',
+      'Motor sıcaklığı 80°C veya üzerinde',
     ],
   },
   {
@@ -92,12 +141,16 @@ const motorFaults: FaultRuleSet[] = [
       (input) => hasSymptom(input, 'Titreşim artmış') ? 30 : 0,
       (input) => hasSymptom(input, 'Motor ısınıyor') ? 18 : 0,
       (input) => allSymptoms(input, ['Mekanik ses var', 'Titreşim artmış', 'Motor ısınıyor']) ? 22 : 0,
+      (input) => elevatedMotorTemperature(input) ? 8 : 0,
+      (input) => elevatedVibration(input) ? 15 : 0,
     ],
     scoringRuleLabels: [
       '"Mekanik ses var" belirtisi seçildi',
       '"Titreşim artmış" belirtisi seçildi',
       '"Motor ısınıyor" belirtisi seçildi',
       'Mekanik ses, titreşim ve ısınma birlikte seçildi',
+      'Motor sıcaklığı 80°C veya üzerinde',
+      'Titreşim değeri 4,5 mm/s veya üzerinde',
     ],
   },
   {
@@ -108,20 +161,22 @@ const motorFaults: FaultRuleSet[] = [
     recommendedChecks: ['Yetkili elektrik personeliyle faz gerilimleri ve akımlarını karşılaştırın.', 'Klemens, kontaktör ve koruma elemanlarında gevşeklik veya hasar kontrolü planlayın.', 'Besleme dengesizliğini tesis ölçüm prosedürlerine göre doğrulayın.'],
     safetyNotes: ['Gerilim ve akım ölçümleri yalnızca yetkili ve uygun koruyucu ekipman kullanan kişilerce yapılmalıdır.'],
     scoringRules: [
-      (input) => hasSymptom(input, 'Motor ısınıyor') ? 16 : 0,
-      (input) => hasSymptom(input, 'Akım nominal değerin üzerinde') ? 8 : 0,
-      (input) => measuredAboveNominal(input) ? (significantlyAboveNominal(input) ? 18 : 12) : 0,
-      (input) => hasSymptom(input, 'Motor dönmüyor') ? 18 : 0,
-      (input) => hasSymptom(input, 'Sigorta açıyor') ? 18 : 0,
-      (input) => allSymptoms(input, ['Motor ısınıyor', 'Akım nominal değerin üzerinde']) ? 10 : 0,
+      (input) => hasPhaseCurrentLoss(input) ? 40 : 0,
+      (input) => hasPhaseCurrentImbalance(input) ? 30 : 0,
+      (input) => hasVoltageImbalance(input) ? 25 : 0,
+      (input) => hasSymptom(input, 'Motor ısınıyor') ? 4 : 0,
+      (input) => hasSymptom(input, 'Akım nominal değerin üzerinde') ? 4 : 0,
+      (input) => measuredAboveNominal(input) ? 6 : 0,
+      (input) => elevatedMotorTemperature(input) ? 4 : 0,
     ],
     scoringRuleLabels: [
+      'Bir faz akımı diğer fazlara göre çok düşük',
+      'L1/L2/L3 akımları arasında belirgin dengesizlik tespit edildi',
+      'Fazlar arası gerilimlerde dengesizlik tespit edildi',
       '"Motor ısınıyor" belirtisi seçildi',
       '"Akım nominal değerin üzerinde" belirtisi seçildi',
       'Ölçülen akım nominal değerin üzerinde',
-      '"Motor dönmüyor" belirtisi seçildi',
-      '"Sigorta açıyor" belirtisi seçildi',
-      'Motor ısınması ve nominal üstü akım belirtileri birlikte seçildi',
+      'Motor sıcaklığı 80°C veya üzerinde',
     ],
   },
   {
@@ -162,6 +217,7 @@ const motorFaults: FaultRuleSet[] = [
       (input) => significantlyAboveNominal(input) ? 28 : 0,
       (input) => hasSymptom(input, 'Motor ısınıyor') ? 8 : 0,
       (input) => hasSymptom(input, 'Motor dönmüyor') && significantlyAboveNominal(input) ? 10 : 0,
+      (input) => elevatedVibration(input) ? 6 : 0,
     ],
     scoringRuleLabels: [
       '"Motor dönmüyor" belirtisi seçildi',
@@ -170,6 +226,7 @@ const motorFaults: FaultRuleSet[] = [
       'Ölçülen akım nominal değerin önemli ölçüde üzerinde',
       '"Motor ısınıyor" belirtisi seçildi',
       'Motor dönmüyor ve ölçülen akım nominal değerin önemli ölçüde üzerinde',
+      'Titreşim değeri 4,5 mm/s veya üzerinde',
     ],
   },
   {
