@@ -39,11 +39,17 @@ export interface FaultDefinition {
 export interface DiagnosisResult extends FaultDefinition {
   score: number
   scoringReasons: ScoringReason[]
+  measurements: DiagnosisMeasurements
 }
 
 export interface ScoringReason {
   label: string
   points: number
+}
+
+export interface DiagnosisMeasurements {
+  currentImbalancePercent?: number
+  voltageImbalancePercent?: number
 }
 
 type ScoringRule = (input: DiagnosisInput) => number
@@ -65,6 +71,8 @@ const currentRatio = (input: DiagnosisInput) => {
 
 const measuredAboveNominal = (input: DiagnosisInput) => currentRatio(input) > 1.1
 const significantlyAboveNominal = (input: DiagnosisInput) => currentRatio(input) >= 1.25
+// Motor class and ambient conditions vary; 80°C is intentionally conservative
+// so a routine warm surface, such as 40°C, is not treated as overheating evidence.
 const elevatedMotorTemperature = (input: DiagnosisInput) => (input.motorTemperature ?? 0) >= 80
 const elevatedVibration = (input: DiagnosisInput) => (input.vibration ?? 0) >= 4.5
 
@@ -77,28 +85,45 @@ const phaseCurrentValues = (input: DiagnosisInput) => {
   return completeValues(values) ? values : null
 }
 
-const hasPhaseCurrentLoss = (input: DiagnosisInput) => {
+const imbalancePercent = (values: number[] | null) => {
+  if (!values) return undefined
+  const average = values.reduce((total, value) => total + value, 0) / values.length
+  if (average <= 0) return undefined
+  const maxDeviation = Math.max(...values.map((value) => Math.abs(value - average)))
+  return (maxDeviation / average) * 100
+}
+
+const currentImbalancePercent = (input: DiagnosisInput) => imbalancePercent(phaseCurrentValues(input))
+
+const voltageImbalancePercent = (input: DiagnosisInput) => {
+  const measurements = input.phaseMeasurements
+  const values = [measurements?.l1L2Voltage, measurements?.l2L3Voltage, measurements?.l3L1Voltage]
+  return imbalancePercent(completeValues(values) ? values : null)
+}
+
+const hasNearPhaseLoss = (input: DiagnosisInput) => {
   const values = phaseCurrentValues(input)
   if (!values) return false
   const ordered = [...values].sort((a, b) => a - b)
   const otherPhaseAverage = (ordered[1] + ordered[2]) / 2
   const meaningfulCurrent = input.nominalCurrent ? input.nominalCurrent * 0.2 : 0.5
-  return otherPhaseAverage >= meaningfulCurrent && ordered[0] <= otherPhaseAverage * 0.1
+  return otherPhaseAverage >= meaningfulCurrent && ordered[0] < otherPhaseAverage * 0.3
 }
 
-const hasPhaseCurrentImbalance = (input: DiagnosisInput) => {
-  const values = phaseCurrentValues(input)
-  if (!values || hasPhaseCurrentLoss(input)) return false
-  const average = values.reduce((total, value) => total + value, 0) / values.length
-  return average > 0 && (Math.max(...values) - Math.min(...values)) / average >= 0.2
+const currentImbalancePoints = (input: DiagnosisInput) => {
+  const percent = currentImbalancePercent(input)
+  if (percent === undefined || percent < 5) return 0
+  if (percent < 10) return 8
+  if (percent < 20) return 16
+  if (percent <= 40) return 28
+  return 38
 }
 
-const hasVoltageImbalance = (input: DiagnosisInput) => {
-  const measurements = input.phaseMeasurements
-  const values = [measurements?.l1L2Voltage, measurements?.l2L3Voltage, measurements?.l3L1Voltage]
-  if (!completeValues(values)) return false
-  const average = values.reduce((total, value) => total + value, 0) / values.length
-  return average > 0 && (Math.max(...values) - Math.min(...values)) / average >= 0.05
+const hasVoltageImbalance = (input: DiagnosisInput) => (voltageImbalancePercent(input) ?? 0) >= 5
+const hasSevereCurrentImbalance = (input: DiagnosisInput) => (currentImbalancePercent(input) ?? 0) > 40
+const hasBalancedLineVoltages = (input: DiagnosisInput) => {
+  const percent = voltageImbalancePercent(input)
+  return percent !== undefined && percent < 3
 }
 
 const allSymptoms = (input: DiagnosisInput, selected: MotorSymptom[]) =>
@@ -161,18 +186,20 @@ const motorFaults: FaultRuleSet[] = [
     recommendedChecks: ['Yetkili elektrik personeliyle faz gerilimleri ve akımlarını karşılaştırın.', 'Klemens, kontaktör ve koruma elemanlarında gevşeklik veya hasar kontrolü planlayın.', 'Besleme dengesizliğini tesis ölçüm prosedürlerine göre doğrulayın.'],
     safetyNotes: ['Gerilim ve akım ölçümleri yalnızca yetkili ve uygun koruyucu ekipman kullanan kişilerce yapılmalıdır.'],
     scoringRules: [
-      (input) => hasPhaseCurrentLoss(input) ? 40 : 0,
-      (input) => hasPhaseCurrentImbalance(input) ? 30 : 0,
+      (input) => currentImbalancePoints(input),
+      (input) => hasNearPhaseLoss(input) ? 32 : 0,
       (input) => hasVoltageImbalance(input) ? 25 : 0,
+      (input) => hasSevereCurrentImbalance(input) && hasBalancedLineVoltages(input) ? 4 : 0,
       (input) => hasSymptom(input, 'Motor ısınıyor') ? 4 : 0,
       (input) => hasSymptom(input, 'Akım nominal değerin üzerinde') ? 4 : 0,
       (input) => measuredAboveNominal(input) ? 6 : 0,
       (input) => elevatedMotorTemperature(input) ? 4 : 0,
     ],
     scoringRuleLabels: [
-      'Bir faz akımı diğer fazlara göre çok düşük',
-      'L1/L2/L3 akımları arasında belirgin dengesizlik tespit edildi',
+      'L1/L2/L3 akımları arasında hesaplanan akım dengesizliği',
+      'Bir faz akımı diğer iki faza göre çok düşük',
       'Fazlar arası gerilimlerde dengesizlik tespit edildi',
+      'Faz akımlarında ciddi dengesizlik var ancak hat gerilimleri dengeli',
       '"Motor ısınıyor" belirtisi seçildi',
       '"Akım nominal değerin üzerinde" belirtisi seçildi',
       'Ölçülen akım nominal değerin üzerinde',
@@ -268,6 +295,10 @@ export function diagnoseMotor(input: DiagnosisInput): DiagnosisResult[] {
         ...fault,
         score: Math.min(100, scoringReasons.reduce((total, reason) => total + reason.points, 0)),
         scoringReasons,
+        measurements: {
+          currentImbalancePercent: currentImbalancePercent(input),
+          voltageImbalancePercent: voltageImbalancePercent(input),
+        },
       }
     })
     .filter((result) => result.score > 0)
