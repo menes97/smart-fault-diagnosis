@@ -38,19 +38,22 @@ function App() {
   const [results, setResults] = useState<DiagnosisResult[] | null>(null)
   const [validationMessage, setValidationMessage] = useState('')
   const [measurementWarning, setMeasurementWarning] = useState('')
+  const [measurementInfo, setMeasurementInfo] = useState<string[]>([])
   const navItems: { label: string; icon: IconName; active?: boolean }[] = [
     { label: 'Dashboard', icon: 'dashboard' }, { label: 'Yeni Teşhis', icon: 'diagnosis', active: true },
     { label: 'Arıza Geçmişi', icon: 'history' }, { label: 'Bilgi Bankası', icon: 'library' }, { label: 'Ayarlar', icon: 'settings' },
   ]
   const toggleSymptom = (symptom: MotorSymptom) => setSelectedSymptoms((current) => current.includes(symptom) ? current.filter((item) => item !== symptom) : [...current, symptom])
-  const parseCurrent = (value: string) => value === '' ? undefined : Number(value)
+  const parseMeasurement = (value: string): number | undefined =>
+    value.trim() === '' ? undefined : Number(value)
   const analyze = () => {
     setMeasurementWarning('')
+    setMeasurementInfo([])
     const values = {
-      nominalCurrent: parseCurrent(nominalCurrent), measuredCurrent: parseCurrent(measuredCurrent),
-      l1Current: parseCurrent(l1Current), l2Current: parseCurrent(l2Current), l3Current: parseCurrent(l3Current),
-      l1L2Voltage: parseCurrent(l1L2Voltage), l2L3Voltage: parseCurrent(l2L3Voltage), l3L1Voltage: parseCurrent(l3L1Voltage),
-      motorTemperature: parseCurrent(motorTemperature), vibration: parseCurrent(vibration),
+      nominalCurrent: parseMeasurement(nominalCurrent), measuredCurrent: parseMeasurement(measuredCurrent),
+      l1Current: parseMeasurement(l1Current), l2Current: parseMeasurement(l2Current), l3Current: parseMeasurement(l3Current),
+      l1L2Voltage: parseMeasurement(l1L2Voltage), l2L3Voltage: parseMeasurement(l2L3Voltage), l3L1Voltage: parseMeasurement(l3L1Voltage),
+      motorTemperature: parseMeasurement(motorTemperature), vibration: parseMeasurement(vibration),
     }
     const nonNegativeFields: Array<[string, number | undefined]> = [
       ['Ölçülen akım', values.measuredCurrent], ['L1 akımı', values.l1Current], ['L2 akımı', values.l2Current], ['L3 akımı', values.l3Current],
@@ -67,6 +70,17 @@ function App() {
       return
     }
     setValidationMessage('')
+    const hasPartialMeasurement = (measurements: Array<number | undefined>) =>
+      measurements.some((value) => value !== undefined) && measurements.some((value) => value === undefined)
+    const infoMessages = [
+      ...(hasPartialMeasurement([values.l1Current, values.l2Current, values.l3Current])
+        ? ['Faz akımı dengesizliği analizi için L1, L2 ve L3 akımlarının birlikte girilmesi gerekir.']
+        : []),
+      ...(hasPartialMeasurement([values.l1L2Voltage, values.l2L3Voltage, values.l3L1Voltage])
+        ? ['Gerilim dengesizliği analizi için L1-L2, L2-L3 ve L3-L1 gerilimlerinin birlikte girilmesi gerekir.']
+        : []),
+    ]
+    setMeasurementInfo(infoMessages)
     setMeasurementWarning(
       selectedSymptoms.includes('Akım nominal değerin üzerinde') &&
       values.nominalCurrent !== undefined &&
@@ -102,6 +116,7 @@ function App() {
           <div className="card-heading"><div className="heading-icon">⌁</div><div><h2 id="form-title">Ekipman Bilgileri</h2><p>Teşhis için gerekli alanları doldurun.</p></div></div>
           {validationMessage && <p className="form-message error-message" role="alert">{validationMessage}</p>}
           {measurementWarning && <p className="form-message warning-message" role="status">{measurementWarning}</p>}
+          {measurementInfo.map((message) => <p className="form-message info-message" role="status" key={message}>{message}</p>)}
           <form onSubmit={(event) => { event.preventDefault(); analyze() }}>
             <div className="form-grid"><label>EKİPMAN TÜRÜ<select value={equipment} onChange={(event) => setEquipment(event.target.value)}><option value="" disabled>Ekipman seçiniz</option>{equipmentOptions.map((option) => <option key={option}>{option}</option>)}</select></label><label>MARKA / MODEL<input placeholder="Örn: Siemens 1LE1001" /></label></div>
             <label className="full-field">PROBLEM TANIMI<textarea rows={3} placeholder="Gözlemlediğiniz problemi kısaca açıklayın..." /></label>

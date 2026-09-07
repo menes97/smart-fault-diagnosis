@@ -68,7 +68,11 @@ const hasSymptom = (input: DiagnosisInput, symptom: MotorSymptom) =>
   input.symptoms.includes(symptom)
 
 const currentRatio = (input: DiagnosisInput) => {
-  if (!input.nominalCurrent || !input.measuredCurrent || input.nominalCurrent <= 0) {
+  if (
+    input.nominalCurrent === undefined ||
+    input.measuredCurrent === undefined ||
+    input.nominalCurrent <= 0
+  ) {
     return 0
   }
   return input.measuredCurrent / input.nominalCurrent
@@ -88,6 +92,8 @@ const hasSupportedHighCurrentSymptom = (input: DiagnosisInput) =>
 const elevatedMotorTemperature = (input: DiagnosisInput) => (input.motorTemperature ?? 0) >= 80
 const elevatedVibration = (input: DiagnosisInput) => (input.vibration ?? 0) >= 4.5
 
+// Undefined means a field was left empty. Numeric zero is accepted because
+// it can be meaningful phase-loss evidence.
 const completeValues = (values: Array<number | undefined>) =>
   values.every((value): value is number => typeof value === 'number' && Number.isFinite(value))
 
