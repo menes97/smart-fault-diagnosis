@@ -39,12 +39,17 @@ export interface FaultDefinition {
 export interface DiagnosisResult extends FaultDefinition {
   score: number
   scoringReasons: ScoringReason[]
+  observations: Observation[]
   measurements: DiagnosisMeasurements
 }
 
 export interface ScoringReason {
   label: string
   points: number
+}
+
+export interface Observation {
+  label: string
 }
 
 export interface DiagnosisMeasurements {
@@ -71,6 +76,13 @@ const currentRatio = (input: DiagnosisInput) => {
 
 const measuredAboveNominal = (input: DiagnosisInput) => currentRatio(input) > 1.1
 const significantlyAboveNominal = (input: DiagnosisInput) => currentRatio(input) >= 1.25
+const hasComparableCurrentMeasurements = (input: DiagnosisInput) =>
+  input.nominalCurrent !== undefined &&
+  input.nominalCurrent > 0 &&
+  input.measuredCurrent !== undefined
+const hasSupportedHighCurrentSymptom = (input: DiagnosisInput) =>
+  hasSymptom(input, 'Akım nominal değerin üzerinde') &&
+  (!hasComparableCurrentMeasurements(input) || input.measuredCurrent! > input.nominalCurrent!)
 // Motor class and ambient conditions vary; 80°C is intentionally conservative
 // so a routine warm surface, such as 40°C, is not treated as overheating evidence.
 const elevatedMotorTemperature = (input: DiagnosisInput) => (input.motorTemperature ?? 0) >= 80
@@ -139,7 +151,7 @@ const motorFaults: FaultRuleSet[] = [
     safetyNotes: ['Dönen ekipmana müdahale etmeden önce enerji izolasyonunu doğrulayın.'],
     scoringRules: [
       (input) => hasSymptom(input, 'Motor ısınıyor') ? 32 : 0,
-      (input) => hasSymptom(input, 'Akım nominal değerin üzerinde') ? 8 : 0,
+      (input) => hasSupportedHighCurrentSymptom(input) ? 8 : 0,
       (input) => measuredAboveNominal(input) ? (significantlyAboveNominal(input) ? 18 : 12) : 0,
       (input) => !hasSymptom(input, 'Motor dönmüyor') ? 16 : 0,
       (input) => hasSymptom(input, 'Mekanik ses var') ? 5 : 0,
@@ -189,9 +201,8 @@ const motorFaults: FaultRuleSet[] = [
       (input) => currentImbalancePoints(input),
       (input) => hasNearPhaseLoss(input) ? 32 : 0,
       (input) => hasVoltageImbalance(input) ? 25 : 0,
-      (input) => hasSevereCurrentImbalance(input) && hasBalancedLineVoltages(input) ? 4 : 0,
       (input) => hasSymptom(input, 'Motor ısınıyor') ? 4 : 0,
-      (input) => hasSymptom(input, 'Akım nominal değerin üzerinde') ? 4 : 0,
+      (input) => hasSupportedHighCurrentSymptom(input) ? 4 : 0,
       (input) => measuredAboveNominal(input) ? 6 : 0,
       (input) => elevatedMotorTemperature(input) ? 4 : 0,
     ],
@@ -199,7 +210,6 @@ const motorFaults: FaultRuleSet[] = [
       'L1/L2/L3 akımları arasında hesaplanan akım dengesizliği',
       'Bir faz akımı diğer iki faza göre çok düşük',
       'Fazlar arası gerilimlerde dengesizlik tespit edildi',
-      'Faz akımlarında ciddi dengesizlik var ancak hat gerilimleri dengeli',
       '"Motor ısınıyor" belirtisi seçildi',
       '"Akım nominal değerin üzerinde" belirtisi seçildi',
       'Ölçülen akım nominal değerin üzerinde',
@@ -217,7 +227,7 @@ const motorFaults: FaultRuleSet[] = [
       (input) => hasSymptom(input, 'Motor dönmüyor') ? 28 : 0,
       (input) => hasSymptom(input, 'Sigorta açıyor') ? 25 : 0,
       (input) => hasSymptom(input, 'Motor ısınıyor') ? 12 : 0,
-      (input) => hasSymptom(input, 'Akım nominal değerin üzerinde') ? 8 : 0,
+      (input) => hasSupportedHighCurrentSymptom(input) ? 8 : 0,
       (input) => measuredAboveNominal(input) ? (significantlyAboveNominal(input) ? 14 : 10) : 0,
       (input) => allSymptoms(input, ['Motor dönmüyor', 'Sigorta açıyor']) ? 10 : 0,
     ],
@@ -240,7 +250,7 @@ const motorFaults: FaultRuleSet[] = [
     scoringRules: [
       (input) => hasSymptom(input, 'Motor dönmüyor') ? 42 : 0,
       (input) => hasSymptom(input, 'Mekanik ses var') ? 12 : 0,
-      (input) => hasSymptom(input, 'Akım nominal değerin üzerinde') ? 8 : 0,
+      (input) => hasSupportedHighCurrentSymptom(input) ? 8 : 0,
       (input) => significantlyAboveNominal(input) ? 28 : 0,
       (input) => hasSymptom(input, 'Motor ısınıyor') ? 8 : 0,
       (input) => hasSymptom(input, 'Motor dönmüyor') && significantlyAboveNominal(input) ? 10 : 0,
@@ -266,7 +276,7 @@ const motorFaults: FaultRuleSet[] = [
     scoringRules: [
       (input) => hasSymptom(input, 'Sigorta açıyor') ? 34 : 0,
       (input) => hasSymptom(input, 'Motor dönmüyor') ? 25 : 0,
-      (input) => hasSymptom(input, 'Akım nominal değerin üzerinde') ? 8 : 0,
+      (input) => hasSupportedHighCurrentSymptom(input) ? 8 : 0,
       (input) => measuredAboveNominal(input) ? (significantlyAboveNominal(input) ? 14 : 10) : 0,
       (input) => hasSymptom(input, 'Motor ısınıyor') ? 8 : 0,
       (input) => allSymptoms(input, ['Sigorta açıyor', 'Motor dönmüyor']) ? 12 : 0,
@@ -290,13 +300,25 @@ export function diagnoseMotor(input: DiagnosisInput): DiagnosisResult[] {
       const scoringReasons = scoringRules
         .map((rule, index) => ({ label: scoringRuleLabels[index], points: rule(input) }))
         .filter((reason) => reason.points > 0)
+      const currentPercent = currentImbalancePercent(input)
+      const observations: Observation[] = fault.id === 'phase-loss-imbalance'
+        ? [
+            ...(currentPercent === undefined
+              ? []
+              : [{ label: `Akım dengesizliği yaklaşık %${currentPercent.toFixed(1)}.` }]),
+            ...(hasSevereCurrentImbalance(input) && hasBalancedLineVoltages(input)
+              ? [{ label: 'Faz akımlarında ciddi dengesizlik var ancak hat gerilimleri dengeli.' }]
+              : []),
+          ]
+        : []
 
       return {
         ...fault,
         score: Math.min(100, scoringReasons.reduce((total, reason) => total + reason.points, 0)),
         scoringReasons,
+        observations,
         measurements: {
-          currentImbalancePercent: currentImbalancePercent(input),
+          currentImbalancePercent: currentPercent,
           voltageImbalancePercent: voltageImbalancePercent(input),
         },
       }
