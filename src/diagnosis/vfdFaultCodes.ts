@@ -8,14 +8,21 @@ export interface ManufacturerFaultCode {
   title: string
   titleTr: string
   description: string
+  descriptionTr: string
   recommendedChecks: string[]
   sourceName: string
   sourceUrl: string
+  sourceDocument?: string
+  sourceScope?: string
+  sourceSection?: string
 }
 
 const siemensSource = {
   sourceName: 'Siemens SINAMICS G120 Operating Instructions',
   sourceUrl: 'https://sid.siemens.com/v/u/A6V10556727',
+  sourceDocument: 'SINAMICS G120 List Manual / Operating Instructions',
+  sourceScope: 'CU240B-2 / CU240E-2',
+  sourceSection: 'Faults and alarms',
 }
 
 const yaskawaSource = {
@@ -28,14 +35,68 @@ const danfossSource = {
   sourceUrl: 'https://www.danfoss.com/en-gb/products/dds/low-voltage-drives/vlt-drives/vlt-automationdrive-fc-301-fc-302/',
 }
 
-export const manufacturerFaultCodes: ManufacturerFaultCode[] = [
-  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30002', title: 'DC link overvoltage', titleTr: 'DC bara aşırı gerilimi', description: 'DC link voltage is reported above the permitted operating condition.', recommendedChecks: ['Besleme gerilimini ve rejeneratif yük koşullarını yetkili personelle değerlendirin.', 'Frenleme ve enerji geri besleme koşullarını üretici dokümantasyonuna göre inceleyin.'], ...siemensSource },
-  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30003', title: 'DC link undervoltage', titleTr: 'DC bara düşük gerilimi', description: 'DC link voltage is reported below the expected operating condition.', recommendedChecks: ['Sürücü girişindeki besleme gerilimini yetkili elektrik personeliyle kontrol edin.', 'Besleme bağlantıları ve koruma elemanlarını tesis prosedürlerine göre inceleyin.'], ...siemensSource },
-  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F07807', title: 'Short-circuit / ground fault detected', titleTr: 'Kısa devre / toprak hatası algılandı', description: 'Drive reports a possible output short-circuit or ground fault.', recommendedChecks: ['Enerji izolasyonu sonrası motor ve kablo devresini yetkili personelle inceleyin.', 'İzolasyon ve topraklama kontrollerini üretici prosedürlerine göre planlayın.'], ...siemensSource },
-  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F07900', title: 'Motor blocked', titleTr: 'Motor bloke', description: 'Drive reports that the motor cannot rotate as expected.', recommendedChecks: ['Enerji izolasyonu altında tahrik edilen mekanizmanın serbestliğini kontrol edin.', 'Motor yükü ve mekanik aktarma elemanlarını yetkili bakım personeliyle değerlendirin.'], ...siemensSource },
-  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F07902', title: 'Motor stalled', titleTr: 'Motor stall / motor hareket edemiyor', description: 'Drive reports a motor stall condition.', recommendedChecks: ['Yük, hızlanma ayarları ve mekanik direnç koşullarını inceleyin.', 'Motor akımını ve sürücü parametrelerini yetkili personelle karşılaştırın.'], ...siemensSource },
-  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F08501', title: 'Setpoint timeout', titleTr: 'Set değeri zaman aşımı / haberleşme kontrol problemi', description: 'The expected setpoint signal was not received in time.', recommendedChecks: ['Referans kaynağı ve haberleşme bağlantısını yetkili personelle doğrulayın.', 'Kontrol modu ve setpoint zaman aşımı parametrelerini inceleyin.'], ...siemensSource },
+const turkishDescriptions: Record<string, string> = {
+  'SINAMICS G120:F30002': 'Sürücü, DC bara geriliminin çalışma koşulu için yüksek olduğunu bildiriyor.',
+  'SINAMICS G120:F30003': 'Sürücü, DC bara geriliminin beklenen çalışma koşulunun altında olduğunu bildiriyor.',
+  'SINAMICS G120:F07807': 'Sürücü çıkışında olası kısa devre veya toprak hatası bildiriliyor.',
+  'SINAMICS G120:F07900': 'Sürücü, motorun beklenen şekilde dönemediğini bildiriyor.',
+  'SINAMICS G120:F07902': 'Sürücü, motor stall durumunu bildiriyor.',
+  'SINAMICS G120:F08501': 'Beklenen set değeri sinyali zamanında alınmadı.',
+  'SINAMICS G120:F08502': 'İzlenen haberleşme yaşam sinyali zaman aşımına uğradı.',
+  'SINAMICS G120:F01910': 'Fieldbus arayüzü set değeri zaman aşımı bildiriliyor.',
+  'SINAMICS G120:F03505': 'Analog giriş kablo kopukluğu bildiriliyor.',
+  'SINAMICS G120:F07011': 'Motor aşırı sıcaklığı bildiriliyor.',
+  'SINAMICS G120:F07320': 'Otomatik yeniden başlatma işlemi kesildi.',
+  'SINAMICS G120:F07801': 'Motor aşırı akımı bildiriliyor.',
+  'SINAMICS G120:F07802': 'Besleme veya güç ünitesinin hazır olmadığı bildiriliyor.',
+  'SINAMICS G120:F07901': 'Motor aşırı hız bildiriliyor.',
+  'SINAMICS G120:F07950': 'Motor parametrelerinde hata bildiriliyor.',
+  'SINAMICS G120:F07990': 'Motor veri tanımlama işleminin hatalı olduğu bildiriliyor.',
+  'SINAMICS G120:F30001': 'Güç ünitesi aşırı akımı bildiriyor.',
+  'SINAMICS G120:F30004': 'Güç ünitesi soğutucu aşırı sıcaklığı bildiriyor.',
+  'SINAMICS G120:F30005': 'Güç ünitesi I²t aşırı yükü bildiriyor.',
+  'SINAMICS G120:F30011': 'Ana devrede besleme fazı kaybı bildiriliyor.',
+  'SINAMICS G120:F30021': 'Güç ünitesi toprak hatası bildiriyor.',
+  'V1000:Uv1': 'Sürücü DC bara düşük gerilimi bildiriyor.',
+  'V1000:GF': 'Sürücü motor tarafında toprak hatası bildiriyor.',
+  'V1000:oC': 'Sürücü aşırı akım bildiriyor.',
+  'V1000:ov': 'Sürücü DC bara aşırı gerilimi bildiriyor.',
+  'V1000:oH1': 'Sürücü soğutucu aşırı sıcaklığı bildiriyor.',
+  'V1000:oL1': 'Sürücü motor aşırı yükü bildiriyor.',
+  'V1000:oL2': 'Sürücü aşırı yükü bildiriyor.',
+  'V1000:PF': 'Sürücü giriş faz kaybı bildiriyor.',
+  'V1000:LF': 'Sürücü çıkış faz kaybı bildiriyor.',
+  'VLT AutomationDrive FC 302:4': 'Sürücü şebeke faz kaybı bildiriyor.',
+  'VLT AutomationDrive FC 302:5': 'Sürücü DC bara geriliminin yüksek olduğunu bildiriyor.',
+  'VLT AutomationDrive FC 302:6': 'Sürücü DC bara geriliminin düşük olduğunu bildiriyor.',
+  'VLT AutomationDrive FC 302:7': 'Sürücü DC aşırı gerilim bildiriyor.',
+  'VLT AutomationDrive FC 302:8': 'Sürücü DC düşük gerilim bildiriyor.',
+  'VLT AutomationDrive FC 302:9': 'Sürücü inverter aşırı yükü bildiriyor.',
+  'VLT AutomationDrive FC 302:13': 'Sürücü aşırı akım bildiriyor.',
+}
+
+const rawManufacturerFaultCodes: Array<Omit<ManufacturerFaultCode, 'descriptionTr'>> = [
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30002', title: 'Power unit: DC link voltage overvoltage', titleTr: 'DC bara aşırı gerilimi', description: 'DC link voltage is reported above the permitted operating condition.', recommendedChecks: ['Besleme gerilimini değerlendirin.', 'Yavaşlama sırasında rejeneratif enerji koşullarını değerlendirin.', 'Varsa frenleme sistemini üretici dokümantasyonuna göre kontrol edin.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30003', title: 'Power unit: DC link voltage undervoltage', titleTr: 'DC bara düşük gerilimi', description: 'DC link voltage is reported below the expected operating condition.', recommendedChecks: ['Giriş besleme gerilimini ve bağlantıları kontrol edin.', 'DC bara gerilimini doğrulayın.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F07807', title: 'Drive: Short-circuit / ground fault detected', titleTr: 'Kısa devre / toprak hatası algılandı', description: 'Drive reports a possible output short-circuit or ground fault.', recommendedChecks: ['Enerji izolasyonu sonrası motor ve kablo devresini yetkili personelle inceleyin.', 'İzolasyon ve topraklama kontrollerini üretici prosedürlerine göre planlayın.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F07900', title: 'Drive: Motor blocked', titleTr: 'Motor bloke', description: 'Drive reports that the motor cannot rotate as expected.', recommendedChecks: ['Motorun ve tahrik edilen mekanizmanın serbest hareketini kontrol edin.', 'Yük koşullarını ve tork limitlerini değerlendirin.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F07902', title: 'Drive: Motor stalled', titleTr: 'Motor stall / motor hareketini sürdüremiyor', description: 'Drive reports a motor stall condition.', recommendedChecks: ['Motor etiket verileri ve sürücü motor parametrelerini doğrulayın.', 'Akım limitlerini ve motor bağlantılarını kontrol edin.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F08501', title: 'Setpoint timeout', titleTr: 'Set değeri zaman aşımı', description: 'The expected setpoint signal was not received in time.', recommendedChecks: ['Referans kaynağı ve haberleşme bağlantısını yetkili personelle doğrulayın.', 'Kontrol modu ve setpoint zaman aşımı parametrelerini inceleyin.'], ...siemensSource },
   { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F08502', title: 'Monitoring time / sign-of-life expired', titleTr: 'Haberleşme yaşam sinyali zaman aşımı', description: 'The monitored communication sign-of-life signal expired.', recommendedChecks: ['Haberleşme hattı, terminasyon ve kontrolör durumunu inceleyin.', 'İletişim izleme ayarlarını üretici dokümantasyonuna göre doğrulayın.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F01910', title: 'Fieldbus interface setpoint timeout', titleTr: 'Fieldbus arayüzü set değeri zaman aşımı', description: 'The fieldbus interface setpoint was not received within the monitoring time.', recommendedChecks: ['Fieldbus bağlantısı ve kontrolör set değeri gönderimini yetkili personelle doğrulayın.', 'Haberleşme zaman aşımı ayarlarını üretici dokümantasyonuna göre inceleyin.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F03505', title: 'Analog input wire breakage', titleTr: 'Analog giriş kablo kopukluğu', description: 'The drive reports a wire breakage on an analog input.', recommendedChecks: ['Enerji izolasyonu altında analog sinyal kablosu ve klemensleri inceleyin.', 'Sinyal ölçekleme ve giriş yapılandırmasını yetkili personelle doğrulayın.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F07011', title: 'Drive: Motor overtemperature', titleTr: 'Motor aşırı sıcaklığı', description: 'The drive reports motor overtemperature.', recommendedChecks: ['Motor soğutmasını, yükü ve ortam koşullarını değerlendirin.', 'Motor sıcaklık geri bildirimi ve parametrelerini yetkili personelle doğrulayın.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F07320', title: 'Drive: Automatic restart interrupted', titleTr: 'Otomatik yeniden başlatma kesildi', description: 'The automatic restart sequence was interrupted.', recommendedChecks: ['Aktif arıza ve izin koşullarını yetkili personelle inceleyin.', 'Otomatik yeniden başlatma parametrelerini tesis prosedürlerine göre doğrulayın.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F07801', title: 'Drive: Motor overcurrent', titleTr: 'Motor aşırı akımı', description: 'The drive reports motor overcurrent.', recommendedChecks: ['Motor yükü, kablo ve hızlanma koşullarını değerlendirin.', 'Akım limiti ile motor parametrelerini yetkili personelle doğrulayın.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F07802', title: 'Drive: Infeed or power unit not ready', titleTr: 'Besleme veya güç ünitesi hazır değil', description: 'The drive reports that the infeed or power unit is not ready.', recommendedChecks: ['Besleme ve güç ünitesi durumunu yetkili elektrik personeliyle kontrol edin.', 'İzin, interlock ve güç bağlantılarını tesis prosedürlerine göre değerlendirin.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F07901', title: 'Drive: Motor overspeed', titleTr: 'Motor aşırı hız', description: 'The drive reports motor overspeed.', recommendedChecks: ['Hız referansı ve hız limitlerini yetkili personelle doğrulayın.', 'Geri besleme ve mekanik yük koşullarını değerlendirin.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F07950', title: 'Motor parameter incorrect', titleTr: 'Motor parametreleri hatalı', description: 'The drive reports incorrect motor parameters.', recommendedChecks: ['Motor etiket verileri ile sürücü motor parametrelerini karşılaştırın.', 'Yetkili personelle motor bağlantısı ve devreye alma verilerini doğrulayın.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F07990', title: 'Incorrect motor data identification', titleTr: 'Motor veri tanımlama işlemi hatalı', description: 'The motor data identification procedure was not completed correctly.', recommendedChecks: ['Motor veri tanımlama koşullarını üretici dokümantasyonuna göre gözden geçirin.', 'Motor parametreleri ve bağlantılarını yetkili personelle doğrulayın.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30001', title: 'Power unit: Overcurrent', titleTr: 'Güç ünitesi aşırı akımı', description: 'The power unit reports overcurrent.', recommendedChecks: ['Motor, kablo ve mekanik yük koşullarını yetkili personelle inceleyin.', 'Güç ünitesi ve motor parametrelerini karşılaştırın.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30004', title: 'Power unit: Heat sink overtemperature', titleTr: 'Güç ünitesi soğutucu aşırı sıcaklığı', description: 'The power unit reports heat sink overtemperature.', recommendedChecks: ['Soğutma havasını, fanları ve ortam sıcaklığını kontrol edin.', 'Soğutucu yüzeyindeki hava akışının engellenmediğini doğrulayın.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30005', title: 'Power unit: Overload I2t', titleTr: 'Güç ünitesi I²t aşırı yükü', description: 'The power unit reports an I2t overload condition.', recommendedChecks: ['Yük profilini ve çalışma çevrimini değerlendirin.', 'Sürücü boyutlandırmasını ve akım limitlerini yetkili personelle gözden geçirin.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30011', title: 'Power unit: Line phase failure in main circuit', titleTr: 'Ana devrede besleme fazı kaybı', description: 'The power unit reports line phase failure in the main circuit.', recommendedChecks: ['Üç faz giriş beslemesini kontrol edin.', 'Sigorta, kontaktör ve güç bağlantılarını yetkili personelle değerlendirin.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30021', title: 'Power unit: Ground fault', titleTr: 'Güç ünitesi toprak hatası', description: 'The power unit reports a ground fault.', recommendedChecks: ['Motor kablosu ve motor izolasyonunun yetkili personel tarafından uygun test yöntemleriyle değerlendirilmesini sağlayın.', 'Enerji izolasyonu altında kablo ve bağlantıları inceleyin.'], ...siemensSource },
 
   { manufacturer: 'Yaskawa', modelFamily: 'V1000', code: 'Uv1', title: 'DC Bus Undervoltage', titleTr: 'DC bara düşük gerilimi', description: 'Drive reports DC bus undervoltage.', recommendedChecks: ['Giriş beslemesini ve bağlantıları yetkili elektrik personeliyle kontrol edin.'], ...yaskawaSource },
   { manufacturer: 'Yaskawa', modelFamily: 'V1000', code: 'GF', title: 'Ground Fault', titleTr: 'Toprak hatası', description: 'Drive reports a ground fault on the motor side.', recommendedChecks: ['Enerji izolasyonu sonrası motor ve kablo devresini yetkili personelle inceleyin.'], ...yaskawaSource },
@@ -56,8 +117,29 @@ export const manufacturerFaultCodes: ManufacturerFaultCode[] = [
   { manufacturer: 'Danfoss', modelFamily: 'VLT AutomationDrive FC 302', code: '13', title: 'Overcurrent', titleTr: 'Aşırı akım', description: 'Drive reports overcurrent.', recommendedChecks: ['Motor, kablo ve mekanik yük koşullarını yetkili personelle inceleyin.'], ...danfossSource },
 ]
 
+export const manufacturerFaultCodes: ManufacturerFaultCode[] = rawManufacturerFaultCodes.map((entry) => ({
+  ...entry,
+  descriptionTr: turkishDescriptions[`${entry.modelFamily}:${entry.code}`],
+}))
+
 export function normalizeFaultCode(value: string): string {
   return value.trim().replaceAll(' ', '').toUpperCase()
+}
+
+export function normalizeFaultCodeForModel(
+  manufacturer: VfdManufacturer | '',
+  modelFamily: VfdModelFamily | '',
+  rawCode: string,
+): string {
+  const normalized = normalizeFaultCode(rawCode)
+  if (manufacturer !== 'siemens' || modelFamily !== 'SINAMICS G120') return normalized
+
+  const numericPart = normalized.match(/^F?(\d+)$/)?.[1]
+  if (!numericPart || (numericPart.length !== 4 && numericPart.length !== 5)) {
+    return normalized
+  }
+
+  return `F${numericPart.padStart(5, '0')}`
 }
 
 export function lookupManufacturerFaultCode(
@@ -65,7 +147,7 @@ export function lookupManufacturerFaultCode(
   modelFamily: VfdModelFamily | '',
   rawCode: string,
 ): ManufacturerFaultCode | undefined {
-  const normalizedInput = normalizeFaultCode(rawCode)
+  const normalizedInput = normalizeFaultCodeForModel(manufacturer, modelFamily, rawCode)
   return manufacturerFaultCodes.find(
     (entry) =>
       entry.manufacturer.toLocaleLowerCase('tr-TR') === manufacturer &&
