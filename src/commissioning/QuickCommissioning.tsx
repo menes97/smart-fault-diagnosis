@@ -4,6 +4,7 @@ import {
   type CommissioningProfile,
   type ControlMethod,
   type ControlUnit,
+  type DualVoltageConnection,
   type LoadType,
   type MotorConnection,
   type SafetyAnswer,
@@ -13,12 +14,14 @@ import {
   type CommissioningParameterPlan,
   type CommissioningParameterRecommendation,
 } from './commissioningPlan'
+import { evaluateMotorConnectionConsistency, type MotorConnectionConsistency } from './motorConnectionConsistency'
 
 const controlUnits: ControlUnit[] = ['CU240B-2', 'CU240E-2']
 const connections: MotorConnection[] = ['Yıldız (Y)', 'Üçgen (Δ)', 'Etikette Y/Δ birlikte verilmiş', 'Emin değilim']
 const loadTypes: LoadType[] = ['Konveyör / sabit tork', 'Pompa / fan', 'Ağır kalkış', 'Sık ileri-geri çalışma', 'Hızlı hızlanma-yavaşlama', 'Genel makine', 'Emin değilim']
 const controlMethods: ControlMethod[] = ['Terminal + analog 0–10 V', 'Terminal + analog 4–20 mA', 'Sabit hızlar', 'PROFINET / PLC', 'PROFIBUS / PLC', 'BOP-2 üzerinden test', 'Emin değilim']
 const safetyAnswers: SafetyAnswer[] = ['Evet', 'Hayır', 'Emin değilim']
+const dualVoltageConnections: { value: DualVoltageConnection; label: string }[] = [{ value: 'Delta', label: 'Δ' }, { value: 'Star', label: 'Y' }, { value: 'Unknown', label: 'Bilinmiyor' }]
 
 const numericValue = (value: string): number | undefined => value.trim() === '' ? undefined : Number(value)
 const shownValue = (value: string | number | undefined) => value === undefined || value === '' ? '—' : String(value)
@@ -71,11 +74,26 @@ function ParameterPlan({ plan }: { plan: CommissioningParameterPlan }) {
   </section>
 }
 
+function MotorConnectionCheck({ consistency, confirmed, onConfirm }: { consistency: MotorConnectionConsistency; confirmed: boolean; onConfirm: (checked: boolean) => void }) {
+  const statusText = consistency.status === 'consistent' ? 'Etiket bilgileri tutarlı görünüyor.' : consistency.status === 'warning' ? 'Motor terminal bağlantısını ve motor etiketini doğrulayın.' : 'Bağlantı değerlendirmesi için yeterli etiket bilgisi yok.'
+  return <section className={`motor-connection-check ${consistency.status}`} aria-labelledby="connection-check-title">
+    <h3 id="connection-check-title">Motor Etiketi ve Bağlantı Kontrolü</h3>
+    <div className="connection-check-status"><span>{consistency.status === 'consistent' ? '✓' : consistency.status === 'warning' ? '⚠' : 'ℹ'}</span><strong>{statusText}</strong></div>
+    {consistency.observations.map((observation) => <p key={observation}>✓ {observation}</p>)}
+    {consistency.warnings.map((warning) => <p className="connection-check-warning" key={warning}>⚠ {warning}</p>)}
+    {consistency.status === 'warning' && <label className="connection-confirmation"><input type="checkbox" checked={confirmed} onChange={(event) => onConfirm(event.target.checked)} /><span>Motor etiketi ve terminal bağlantısının yetkili personel tarafından doğrulanması gerektiğini anlıyorum.</span></label>}
+    <p className="connection-safety-note">Bu kontrol yalnızca etiket verileri üzerinden yapılan bir tutarlılık kontrolüdür. Motor terminal kutusundaki gerçek Y/Δ bağlantısı yetkili personel tarafından enerji güvenli şekilde izole edildikten sonra doğrulanmalıdır.</p>
+  </section>
+}
+
 export function QuickCommissioning() {
   const [step, setStep] = useState(1)
   const [profile, setProfile] = useState<CommissioningProfile>(emptyCommissioningProfile)
   const [validationMessage, setValidationMessage] = useState('')
   const [parameterPlan, setParameterPlan] = useState<CommissioningParameterPlan | null>(null)
+  const [confirmedConnectionWarning, setConfirmedConnectionWarning] = useState<string | null>(null)
+  const connectionConsistency = evaluateMotorConnectionConsistency(profile)
+  const connectionWarningSignature = JSON.stringify([profile.drive.mainsVoltage, profile.motor.connection, profile.motor.lowVoltageV, profile.motor.highVoltageV, profile.motor.lowVoltageCurrentA, profile.motor.highVoltageCurrentA, profile.motor.lowVoltageConnection, profile.motor.highVoltageConnection, profile.motor.ratedCurrentA])
 
   const validate = () => {
     const measurements = [
@@ -128,6 +146,10 @@ export function QuickCommissioning() {
       setValidationMessage('Parametre planı için hızlanma ve yavaşlama süreleri 0 değerinden büyük olmalıdır.')
       return
     }
+    if (connectionConsistency.status === 'warning' && confirmedConnectionWarning !== connectionWarningSignature) {
+      setValidationMessage('Parametre planı oluşturulmadan önce motor etiketi ve bağlantı kontrolü uyarısını onaylayın.')
+      return
+    }
     setValidationMessage('')
     setParameterPlan(createCommissioningParameterPlan(profile))
   }
@@ -156,9 +178,11 @@ export function QuickCommissioning() {
         <NumericField label="MOTOR NOMİNAL HIZI" value={profile.motor.ratedSpeedRpm} onChange={(value) => setProfile((current) => ({ ...current, motor: { ...current.motor, ratedSpeedRpm: numericValue(value) } }))} unit="rpm" placeholder="Örn: 1470" required />
         <NumericField label="COS Φ" value={profile.motor.powerFactor} onChange={(value) => setProfile((current) => ({ ...current, motor: { ...current.motor, powerFactor: numericValue(value) } }))} unit="" placeholder="Örn: 0.82" />
         <label className="commissioning-full">MOTOR ETİKETİ BAĞLANTI BİLGİSİ<select value={profile.motor.connection} onChange={(event) => setProfile((current) => ({ ...current, motor: { ...current.motor, connection: event.target.value as MotorConnection } }))}><option value="">Seçiniz</option>{connections.map((item) => <option key={item}>{item}</option>)}</select></label>
-      </div><div className="commissioning-subsection"><h3>Çift gerilim etiketi <span>İsteğe bağlı</span></h3><div className="form-grid">
+      </div><div className="commissioning-subsection"><h3>Çift gerilim etiketi <span>İsteğe bağlı</span></h3><label className="commissioning-label-layout">ETİKET DÜZENİ<select value={profile.motor.lowVoltageConnection === 'Delta' && profile.motor.highVoltageConnection === 'Star' ? 'delta-star' : profile.motor.lowVoltageConnection === 'Star' && profile.motor.highVoltageConnection === 'Delta' ? 'star-delta' : 'manual'} onChange={(event) => setProfile((current) => ({ ...current, motor: { ...current.motor, lowVoltageConnection: event.target.value === 'delta-star' ? 'Delta' : event.target.value === 'star-delta' ? 'Star' : 'Unknown', highVoltageConnection: event.target.value === 'delta-star' ? 'Star' : event.target.value === 'star-delta' ? 'Delta' : 'Unknown' } }))}><option value="delta-star">Δ / Y</option><option value="star-delta">Y / Δ</option><option value="manual">Manuel / Emin değilim</option></select></label><div className="form-grid">
         <NumericField label="DÜŞÜK GERİLİM DEĞERİ" value={profile.motor.lowVoltageV} onChange={(value) => setProfile((current) => ({ ...current, motor: { ...current.motor, lowVoltageV: numericValue(value) } }))} unit="V" placeholder="Örn: 230" />
         <NumericField label="YÜKSEK GERİLİM DEĞERİ" value={profile.motor.highVoltageV} onChange={(value) => setProfile((current) => ({ ...current, motor: { ...current.motor, highVoltageV: numericValue(value) } }))} unit="V" placeholder="Örn: 400" />
+        <label>DÜŞÜK GERİLİM BAĞLANTISI<select value={profile.motor.lowVoltageConnection} onChange={(event) => setProfile((current) => ({ ...current, motor: { ...current.motor, lowVoltageConnection: event.target.value as DualVoltageConnection } }))}>{dualVoltageConnections.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
+        <label>YÜKSEK GERİLİM BAĞLANTISI<select value={profile.motor.highVoltageConnection} onChange={(event) => setProfile((current) => ({ ...current, motor: { ...current.motor, highVoltageConnection: event.target.value as DualVoltageConnection } }))}>{dualVoltageConnections.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
         <NumericField label="DÜŞÜK GERİLİM AKIMI" value={profile.motor.lowVoltageCurrentA} onChange={(value) => setProfile((current) => ({ ...current, motor: { ...current.motor, lowVoltageCurrentA: numericValue(value) } }))} unit="A" placeholder="Örn: 26" />
         <NumericField label="YÜKSEK GERİLİM AKIMI" value={profile.motor.highVoltageCurrentA} onChange={(value) => setProfile((current) => ({ ...current, motor: { ...current.motor, highVoltageCurrentA: numericValue(value) } }))} unit="A" placeholder="Örn: 15" />
       </div></div></div>}
@@ -186,7 +210,7 @@ export function QuickCommissioning() {
         <article><h3>Uygulama</h3><SummaryRow label="Yük tipi" value={profile.application.loadType} /><h3>Kontrol yöntemi</h3><SummaryRow label="Kontrol" value={profile.application.controlMethod} /></article>
         <article><h3>Hız / rampalar</h3><SummaryRow label="Minimum hız" value={profile.motion.minimumSpeedRpm === undefined ? undefined : `${profile.motion.minimumSpeedRpm} rpm`} /><SummaryRow label="Maksimum hız" value={profile.motion.maximumSpeedRpm === undefined ? undefined : `${profile.motion.maximumSpeedRpm} rpm`} /><SummaryRow label="Hızlanma" value={profile.motion.accelerationTimeSec === undefined ? undefined : `${profile.motion.accelerationTimeSec} s`} /><SummaryRow label="Yavaşlama" value={profile.motion.decelerationTimeSec === undefined ? undefined : `${profile.motion.decelerationTimeSec} s`} /></article>
         <article><h3>Motor identification koşulları</h3><SummaryRow label="Yükten ayrılabilir mi?" value={profile.identification.loadCanBeDisconnected} /><SummaryRow label="Dönme güvenli mi?" value={profile.identification.rotationIsSafe} /></article>
-      </div><div className="commissioning-plan-notice"><button type="button" onClick={generatePlan}>Parametre Planı Oluştur</button><p>Plan, girilen verilerden oluşturulan rehber niteliğinde öneriler içerir.</p></div>{parameterPlan && <ParameterPlan plan={parameterPlan} />}</div>}
+      </div><MotorConnectionCheck consistency={connectionConsistency} confirmed={confirmedConnectionWarning === connectionWarningSignature} onConfirm={(checked) => setConfirmedConnectionWarning(checked ? connectionWarningSignature : null)} /><div className="commissioning-plan-notice"><button type="button" onClick={generatePlan}>Parametre Planı Oluştur</button><p>Plan, girilen verilerden oluşturulan rehber niteliğinde öneriler içerir.</p></div>{parameterPlan && <ParameterPlan plan={parameterPlan} />}</div>}
 
       <div className="commissioning-actions"><button type="button" className="commissioning-back" onClick={previous} disabled={step === 1}>Geri</button>{step < 6 && <button type="button" className="commissioning-next" onClick={next}>Devam <b>→</b></button>}</div>
     </section>

@@ -1,5 +1,6 @@
 export type ControlUnit = '' | 'CU240B-2' | 'CU240E-2'
 export type MotorConnection = '' | 'Yıldız (Y)' | 'Üçgen (Δ)' | 'Etikette Y/Δ birlikte verilmiş' | 'Emin değilim'
+export type DualVoltageConnection = 'Delta' | 'Star' | 'Unknown'
 export type LoadType = '' | 'Konveyör / sabit tork' | 'Pompa / fan' | 'Ağır kalkış' | 'Sık ileri-geri çalışma' | 'Hızlı hızlanma-yavaşlama' | 'Genel makine' | 'Emin değilim'
 export type ControlMethod = '' | 'Terminal + analog 0–10 V' | 'Terminal + analog 4–20 mA' | 'Sabit hızlar' | 'PROFINET / PLC' | 'PROFIBUS / PLC' | 'BOP-2 üzerinden test' | 'Emin değilim'
 export type SafetyAnswer = '' | 'Evet' | 'Hayır' | 'Emin değilim'
@@ -25,6 +26,8 @@ export interface CommissioningProfile {
     highVoltageV?: number
     lowVoltageCurrentA?: number
     highVoltageCurrentA?: number
+    lowVoltageConnection: DualVoltageConnection
+    highVoltageConnection: DualVoltageConnection
   }
   application: {
     loadType: LoadType
@@ -50,7 +53,7 @@ export const emptyCommissioningProfile: CommissioningProfile = {
     motorStandard: 'IEC',
     motorType: 'Asenkron motor',
   },
-  motor: { connection: '' },
+  motor: { connection: '', lowVoltageConnection: 'Unknown', highVoltageConnection: 'Unknown' },
   application: { loadType: '', controlMethod: '' },
   motion: {},
   identification: { loadCanBeDisconnected: '', rotationIsSafe: '' },

@@ -1,4 +1,5 @@
 import type { CommissioningProfile } from './commissioningTypes'
+import { evaluateMotorConnectionConsistency } from './motorConnectionConsistency'
 
 export type CommissioningParameterConfidence = 'verified-direct' | 'conditional' | 'informational'
 export type CommissioningParameterCategory = 'Devreye Alma' | 'Motor Etiketi' | 'Hız / Rampalar' | 'Kumanda / Kontrol' | 'Motor Identification'
@@ -55,6 +56,7 @@ const informational = (
 })
 
 export function createCommissioningParameterPlan(profile: CommissioningProfile): CommissioningParameterPlan {
+  const connectionConsistency = evaluateMotorConnectionConsistency(profile)
   const recommendations: CommissioningParameterRecommendation[] = [
     direct('p0010', 'Hızlı devreye alma parametre filtresi', 1, undefined, 'Devreye Alma', 'Hızlı devreye alma parametrelerini görünür hale getirir.'),
     direct('p0100', 'IEC / NEMA motor standardı', 0, undefined, 'Devreye Alma', 'IEC / Europe 50 Hz motor standardı.'),
@@ -72,6 +74,20 @@ export function createCommissioningParameterPlan(profile: CommissioningProfile):
 
   if (profile.motor.powerFactor !== undefined) {
     recommendations.splice(6, 0, direct('p0308', 'Motor nominal cos φ', profile.motor.powerFactor, undefined, 'Motor Etiketi', 'Motor etiketinden doğrudan alındı.'))
+  }
+
+  if (connectionConsistency.expectedConnection) {
+    recommendations.push({
+      code: 'p0133', nameTr: 'Motor konfigürasyonu', value: `Motor bağlantı biti = ${connectionConsistency.expectedConnection === 'Delta' ? 'Delta' : 'Star'}`,
+      category: 'Motor Etiketi', source: commissioningSource.name, confidence: 'conditional', requiresUserConfirmation: true,
+      explanationTr: 'p0133 motor bağlantı tipini tanımlar. Gerçek terminal bağlantısı sahada doğrulanmadan bu ayar uygulanmamalıdır.',
+      warningTr: 'Bu değer, fiziksel terminal kutusu bağlantısının doğrulandığı anlamına gelmez.',
+    })
+  } else {
+    recommendations.push({
+      code: 'p0133', nameTr: 'Motor konfigürasyonu', value: 'Bilgi gerekli', category: 'Motor Etiketi', source: commissioningSource.name, confidence: 'informational', requiresUserConfirmation: true,
+      explanationTr: 'p0133 motor bağlantı tipini tanımlar. Bağlantı bilgisi güvenilir şekilde belirlenemediği için değer önerilmedi.',
+    })
   }
 
   const cannotRotateSafely = profile.identification.rotationIsSafe === 'Hayır' || profile.identification.loadCanBeDisconnected === 'Hayır'
@@ -106,7 +122,10 @@ export function createCommissioningParameterPlan(profile: CommissioningProfile):
 
   return {
     recommendations,
-    warnings: ['Motor terminal bağlantısı motor etiketine ve gerçek terminal kutusu bağlantısına göre sahada doğrulanmalıdır.'],
+    warnings: [
+      'Motor terminal bağlantısı motor etiketine ve gerçek terminal kutusu bağlantısına göre sahada doğrulanmalıdır.',
+      ...(profile.motion.maximumSpeedRpm !== undefined && profile.motor.ratedSpeedRpm !== undefined && profile.motion.maximumSpeedRpm > profile.motor.ratedSpeedRpm ? ['87 Hz çalışma ayrı bir gelişmiş devreye alma senaryosudur ve bu V1 planında etkinleştirilmez.'] : []),
+    ],
     sourceName: commissioningSource.name,
     sourceUrl: commissioningSource.url,
   }
