@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   diagnoseMotor,
   MOTOR_EQUIPMENT,
@@ -19,6 +19,8 @@ import {
   type VfdModelFamily,
 } from './diagnosis/vfdFaultCodes'
 import { QuickCommissioning, type FirstRunDiagnosisHandoff } from './commissioning/QuickCommissioning'
+import { DiagnosisHistoryView } from './history/DiagnosisHistoryView'
+import { loadDiagnosisHistory, persistDiagnosisHistory, type DiagnosisHistoryRecord, type DiagnosisHistorySourceContext } from './history/diagnosisHistory'
 import './App.css'
 
 const equipmentOptions = [MOTOR_EQUIPMENT, VFD_EQUIPMENT, 'Endüstriyel Sensör']
@@ -97,7 +99,7 @@ function KnowledgeBase({ onOpenDiagnosis, initialQuery = '' }: { onOpenDiagnosis
 }
 
 function App() {
-  const [activeView, setActiveView] = useState<'diagnosis' | 'knowledge' | 'commissioning'>('diagnosis')
+  const [activeView, setActiveView] = useState<'diagnosis' | 'knowledge' | 'commissioning' | 'history'>('diagnosis')
   const [knowledgeSearch, setKnowledgeSearch] = useState('')
   const [equipment, setEquipment] = useState('')
   const [brandModel, setBrandModel] = useState('')
@@ -128,6 +130,11 @@ function App() {
   const [validationMessage, setValidationMessage] = useState('')
   const [measurementWarning, setMeasurementWarning] = useState('')
   const [measurementInfo, setMeasurementInfo] = useState<string[]>([])
+  const [historyRecords, setHistoryRecords] = useState<DiagnosisHistoryRecord[]>(loadDiagnosisHistory)
+  const [historySaveMessage, setHistorySaveMessage] = useState('')
+  const [lastSavedSignature, setLastSavedSignature] = useState<string | null>(null)
+  const [diagnosisSourceContext, setDiagnosisSourceContext] = useState<DiagnosisHistorySourceContext>('manual-diagnosis')
+  const [pendingHistoryReopen, setPendingHistoryReopen] = useState<DiagnosisHistoryRecord | null>(null)
   const navItems: { label: string; icon: IconName }[] = [
     { label: 'Dashboard', icon: 'dashboard' }, { label: 'Yeni Teşhis', icon: 'diagnosis' },
     { label: 'Arıza Geçmişi', icon: 'history' }, { label: 'Bilgi Bankası', icon: 'library' }, { label: 'Hızlı Devreye Alma', icon: 'diagnosis' }, { label: 'Ayarlar', icon: 'settings' },
@@ -158,6 +165,7 @@ function App() {
     setManufacturerFault(lookupManufacturerFaultCode(selectedManufacturer, entry.modelFamily, entry.code) ?? null)
     setUnknownFaultCode(false)
     setResults([])
+    setDiagnosisSourceContext('manual-diagnosis')
     setActiveView('diagnosis')
   }
   const openFirstRunInDiagnosis = (handoff: FirstRunDiagnosisHandoff) => {
@@ -174,6 +182,77 @@ function App() {
     setValidationMessage('')
     setMeasurementWarning('')
     setMeasurementInfo([])
+    setDiagnosisSourceContext('commissioning-first-run')
+    setActiveView('diagnosis')
+  }
+
+  const buildHistoryRecord = (): DiagnosisHistoryRecord | null => {
+    if (results === null || (!results.length && !manufacturerFault)) return null
+    const measurements = isVfd
+      ? Object.fromEntries(Object.entries({ voltageClass: vfdVoltageClass === 'unknown' ? undefined : vfdVoltageClass, dcBusVoltage: parseMeasurement(dcBusVoltage), outputCurrent: parseMeasurement(outputCurrent), motorNominalCurrent: parseMeasurement(motorNominalCurrent), outputFrequency: parseMeasurement(outputFrequency), driveTemperature: parseMeasurement(driveTemperature) }).filter(([, value]) => value !== undefined)) as Record<string, string | number>
+      : Object.fromEntries(Object.entries({ nominalCurrent: parseMeasurement(nominalCurrent), measuredCurrent: parseMeasurement(measuredCurrent), l1Current: parseMeasurement(l1Current), l2Current: parseMeasurement(l2Current), l3Current: parseMeasurement(l3Current), l1l2Voltage: parseMeasurement(l1L2Voltage), l2l3Voltage: parseMeasurement(l2L3Voltage), l3l1Voltage: parseMeasurement(l3L1Voltage), motorTemperature: parseMeasurement(motorTemperature), vibration: parseMeasurement(vibration) }).filter(([, value]) => value !== undefined)) as Record<string, string | number>
+    return {
+      id: crypto.randomUUID(), createdAt: new Date().toISOString(), equipmentType: equipment,
+      manufacturer: isVfd ? vfdManufacturer || undefined : undefined, modelFamily: isVfd ? vfdModelFamily || undefined : undefined,
+      brandModel: brandModel || undefined, faultCode: faultCode.trim() || undefined,
+      symptoms: isVfd ? vfdSelectedSymptoms : motorSelectedSymptoms, measurements,
+      results: results.map((result) => ({ id: result.id, title: result.title, score: result.score })),
+      manufacturerFaultResult: manufacturerFault ? { code: manufacturerFault.code, titleTr: manufacturerFault.titleTr, manufacturer: manufacturerFault.manufacturer, modelFamily: manufacturerFault.modelFamily } : undefined,
+      sourceContext: diagnosisSourceContext,
+    }
+  }
+
+  const saveDiagnosisToHistory = () => {
+    const record = buildHistoryRecord()
+    if (!record) return
+    const signature = JSON.stringify({ ...record, id: '', createdAt: '' })
+    if (signature === lastSavedSignature) return
+    try {
+      const next = [record, ...historyRecords]
+      persistDiagnosisHistory(next)
+      setHistoryRecords(next)
+      setLastSavedSignature(signature)
+      setHistorySaveMessage('Teşhis geçmişe kaydedildi.')
+      window.setTimeout(() => setHistorySaveMessage(''), 1800)
+    } catch {
+      setHistorySaveMessage('Teşhis geçmişe kaydedilemedi.')
+    }
+  }
+
+  const deleteHistoryRecord = (id: string) => {
+    const next = historyRecords.filter((record) => record.id !== id)
+    persistDiagnosisHistory(next)
+    setHistoryRecords(next)
+  }
+
+  const clearHistory = () => {
+    persistDiagnosisHistory([])
+    setHistoryRecords([])
+  }
+
+  const reopenHistoryRecord = (record: DiagnosisHistoryRecord) => {
+    const measure = (key: string) => record.measurements[key] === undefined ? '' : String(record.measurements[key])
+    setEquipment(record.equipmentType)
+    setBrandModel(record.brandModel ?? '')
+    setFaultCode(record.faultCode ?? '')
+    setDiagnosisSourceContext(record.sourceContext)
+    setResults(null)
+    setManufacturerFault(null)
+    setUnknownFaultCode(false)
+    setValidationMessage('')
+    setMeasurementWarning('')
+    setMeasurementInfo([])
+    if (record.equipmentType === VFD_EQUIPMENT) {
+      setVfdManufacturer((record.manufacturer as VfdManufacturer | undefined) ?? '')
+      setVfdModelFamily((record.modelFamily as VfdModelFamily | undefined) ?? '')
+      setVfdSelectedSymptoms(record.symptoms as VfdSymptom[])
+      setVfdVoltageClass((measure('voltageClass') || 'unknown') as VfdVoltageClass)
+      setDcBusVoltage(measure('dcBusVoltage')); setOutputCurrent(measure('outputCurrent')); setMotorNominalCurrent(measure('motorNominalCurrent')); setOutputFrequency(measure('outputFrequency')); setDriveTemperature(measure('driveTemperature'))
+    } else {
+      setMotorSelectedSymptoms(record.symptoms as MotorSymptom[])
+      setNominalCurrent(measure('nominalCurrent')); setMeasuredCurrent(measure('measuredCurrent')); setL1Current(measure('l1Current')); setL2Current(measure('l2Current')); setL3Current(measure('l3Current')); setL1L2Voltage(measure('l1l2Voltage')); setL2L3Voltage(measure('l2l3Voltage')); setL3L1Voltage(measure('l3l1Voltage')); setMotorTemperature(measure('motorTemperature')); setVibration(measure('vibration'))
+    }
+    setPendingHistoryReopen(record)
     setActiveView('diagnosis')
   }
 
@@ -253,14 +332,20 @@ function App() {
     }).slice(0, 3))
   }
 
+  useEffect(() => {
+    if (!pendingHistoryReopen) return
+    analyze()
+    setPendingHistoryReopen(null)
+  }, [pendingHistoryReopen])
+
   return <div className="app-shell">
     <aside className="sidebar">
       <div className="brand"><span className="brand-mark">⚡</span><span>AKILLI ARIZA<br /><strong>TEŞHİS SİSTEMİ</strong></span></div>
-      <nav aria-label="Ana menü">{navItems.map((item) => <button className={`nav-item ${(item.label === 'Bilgi Bankası' && activeView === 'knowledge') || (item.label === 'Yeni Teşhis' && activeView === 'diagnosis') || (item.label === 'Hızlı Devreye Alma' && activeView === 'commissioning') ? 'active' : ''}`} key={item.label} type="button" onClick={() => { if (item.label === 'Bilgi Bankası') setActiveView('knowledge'); if (item.label === 'Yeni Teşhis') setActiveView('diagnosis'); if (item.label === 'Hızlı Devreye Alma') setActiveView('commissioning') }}><Icon name={item.icon} />{item.label}</button>)}</nav>
+      <nav aria-label="Ana menü">{navItems.map((item) => <button className={`nav-item ${(item.label === 'Bilgi Bankası' && activeView === 'knowledge') || (item.label === 'Yeni Teşhis' && activeView === 'diagnosis') || (item.label === 'Arıza Geçmişi' && activeView === 'history') || (item.label === 'Hızlı Devreye Alma' && activeView === 'commissioning') ? 'active' : ''}`} key={item.label} type="button" onClick={() => { if (item.label === 'Bilgi Bankası') setActiveView('knowledge'); if (item.label === 'Yeni Teşhis') { setDiagnosisSourceContext('manual-diagnosis'); setActiveView('diagnosis') }; if (item.label === 'Arıza Geçmişi') setActiveView('history'); if (item.label === 'Hızlı Devreye Alma') setActiveView('commissioning') }}><Icon name={item.icon} />{item.label}</button>)}</nav>
       <div className="sidebar-footer"><span className="status-dot" />Sistem çevrimiçi</div>
     </aside>
     <main className="main-content">
-      {activeView === 'knowledge' ? <KnowledgeBase key={knowledgeSearch} initialQuery={knowledgeSearch} onOpenDiagnosis={openKnowledgeEntryInDiagnosis} /> : activeView === 'commissioning' ? <QuickCommissioning onOpenKnowledgeBase={(code) => { setKnowledgeSearch(code); setActiveView('knowledge') }} onOpenMotorDiagnosis={openFirstRunInDiagnosis} /> : <>
+      {activeView === 'knowledge' ? <KnowledgeBase key={knowledgeSearch} initialQuery={knowledgeSearch} onOpenDiagnosis={openKnowledgeEntryInDiagnosis} /> : activeView === 'history' ? <DiagnosisHistoryView records={historyRecords} onReopen={reopenHistoryRecord} onDelete={deleteHistoryRecord} onClear={clearHistory} onNewDiagnosis={() => { setDiagnosisSourceContext('manual-diagnosis'); setActiveView('diagnosis') }} /> : activeView === 'commissioning' ? <QuickCommissioning onOpenKnowledgeBase={(code) => { setKnowledgeSearch(code); setActiveView('knowledge') }} onOpenMotorDiagnosis={openFirstRunInDiagnosis} /> : <>
       <header className="page-header"><div><p className="eyebrow">TEŞHİS MERKEZİ</p><h1>Yeni Arıza Teşhisi</h1><p className="subtitle">Ekipman bilgilerini girin, sistem olası arızaları değerlendirsin.</p></div><div className="header-date">08 Eylül 2026 <span>•</span> Salı</div></header>
       <div className="workspace">
         <section className="form-card" aria-labelledby="form-title">
@@ -285,6 +370,7 @@ function App() {
           {results !== null && isSupportedEquipment && results.length === 0 && manufacturerFault && <div className="result-placeholder"><p>Üretici hata kodu doğrulandı.</p><span>Ek teşhis için belirti veya ölçüm değerleri girebilirsiniz.</span></div>}
           {results !== null && isSupportedEquipment && results.length === 0 && !manufacturerFault && <div className="result-placeholder"><p>Seçilen bilgilerle eşleşen bir kural bulunamadı.</p><span>Belirtileri ve ölçüm değerlerini gözden geçirin.</span></div>}
           {results && results.length > 0 && <div className="diagnosis-results">{results.map((result) => <article className="diagnosis-result" key={result.id}><div className="result-title"><h3>{result.title}</h3><span>Eşleşme: {result.score}/100</span></div><p>{result.description}</p><div className="score-reasons"><strong>Neden eşleşti?</strong><ul>{result.scoringReasons.map((reason) => <li key={reason.label}><span>{reason.label}</span><b>+{reason.points}</b></li>)}</ul></div>{result.observations.length > 0 && <div className="observations"><strong>Ölçüm notları</strong><ul>{result.observations.map((observation) => <li key={observation.label}>ℹ {observation.label}</li>)}</ul></div>}<div className="checks"><strong>Önerilen kontroller</strong><ul>{result.recommendedChecks.map((check) => <li key={check}>{check}</li>)}</ul></div>{result.safetyNotes && <p className="fault-safety">{result.safetyNotes[0]}</p>}</article>)}</div>}
+          {results !== null && (results.length > 0 || manufacturerFault) && <div className="history-save-area"><button type="button" className="history-save-button" disabled={lastSavedSignature === (buildHistoryRecord() ? JSON.stringify({ ...buildHistoryRecord()!, id: '', createdAt: '' }) : null)} onClick={saveDiagnosisToHistory}>Teşhisi Geçmişe Kaydet</button>{historySaveMessage && <p role="status">{historySaveMessage}</p>}</div>}
         </aside>
       </div>
       </>}
