@@ -18,7 +18,7 @@ import {
   type VfdManufacturer,
   type VfdModelFamily,
 } from './diagnosis/vfdFaultCodes'
-import { QuickCommissioning } from './commissioning/QuickCommissioning'
+import { QuickCommissioning, type FirstRunDiagnosisHandoff } from './commissioning/QuickCommissioning'
 import './App.css'
 
 const equipmentOptions = [MOTOR_EQUIPMENT, VFD_EQUIPMENT, 'Endüstriyel Sensör']
@@ -160,6 +160,23 @@ function App() {
     setResults([])
     setActiveView('diagnosis')
   }
+  const openFirstRunInDiagnosis = (handoff: FirstRunDiagnosisHandoff) => {
+    const symptoms: MotorSymptom[] = [
+      ...(handoff.mechanicalNoise === 'Evet' ? ['Mekanik ses var' as MotorSymptom] : []),
+      ...(handoff.vibration === 'Evet' ? ['Titreşim artmış' as MotorSymptom] : []),
+      ...(handoff.unexpectedHeating === 'Evet' ? ['Motor ısınıyor' as MotorSymptom] : []),
+      ...(handoff.ratedCurrentA !== undefined && handoff.observedCurrentA !== undefined && handoff.observedCurrentA > handoff.ratedCurrentA ? ['Akım nominal değerin üzerinde' as MotorSymptom] : []),
+    ]
+    setEquipment(MOTOR_EQUIPMENT)
+    setMotorSelectedSymptoms(symptoms)
+    setNominalCurrent(handoff.ratedCurrentA === undefined ? '' : String(handoff.ratedCurrentA))
+    setMeasuredCurrent(handoff.observedCurrentA === undefined ? '' : String(handoff.observedCurrentA))
+    setResults(null)
+    setValidationMessage('')
+    setMeasurementWarning('')
+    setMeasurementInfo([])
+    setActiveView('diagnosis')
+  }
 
   const analyze = () => {
     setMeasurementWarning('')
@@ -244,7 +261,7 @@ function App() {
       <div className="sidebar-footer"><span className="status-dot" />Sistem çevrimiçi</div>
     </aside>
     <main className="main-content">
-      {activeView === 'knowledge' ? <KnowledgeBase key={knowledgeSearch} initialQuery={knowledgeSearch} onOpenDiagnosis={openKnowledgeEntryInDiagnosis} /> : activeView === 'commissioning' ? <QuickCommissioning onOpenKnowledgeBase={(code) => { setKnowledgeSearch(code); setActiveView('knowledge') }} /> : <>
+      {activeView === 'knowledge' ? <KnowledgeBase key={knowledgeSearch} initialQuery={knowledgeSearch} onOpenDiagnosis={openKnowledgeEntryInDiagnosis} /> : activeView === 'commissioning' ? <QuickCommissioning onOpenKnowledgeBase={(code) => { setKnowledgeSearch(code); setActiveView('knowledge') }} onOpenMotorDiagnosis={openFirstRunInDiagnosis} /> : <>
       <header className="page-header"><div><p className="eyebrow">TEŞHİS MERKEZİ</p><h1>Yeni Arıza Teşhisi</h1><p className="subtitle">Ekipman bilgilerini girin, sistem olası arızaları değerlendirsin.</p></div><div className="header-date">08 Eylül 2026 <span>•</span> Salı</div></header>
       <div className="workspace">
         <section className="form-card" aria-labelledby="form-title">

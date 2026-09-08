@@ -27,6 +27,14 @@ const dualVoltageConnections: { value: DualVoltageConnection; label: string }[] 
 const numericValue = (value: string): number | undefined => value.trim() === '' ? undefined : Number(value)
 const shownValue = (value: string | number | undefined) => value === undefined || value === '' ? '—' : String(value)
 
+export interface FirstRunDiagnosisHandoff {
+  ratedCurrentA?: number
+  observedCurrentA?: number
+  mechanicalNoise: SafetyAnswer
+  vibration: SafetyAnswer
+  unexpectedHeating: SafetyAnswer
+}
+
 function NumericField({ label, value, onChange, unit, placeholder, required = false }: {
   label: string
   value: number | undefined
@@ -91,14 +99,55 @@ function MotorConnectionCheck({ consistency, confirmed, onConfirm }: { consisten
   </section>
 }
 
-export function QuickCommissioning({ onOpenKnowledgeBase }: { onOpenKnowledgeBase: (code: string) => void }) {
+function FirstRunCheck({ profile, checks, onCheck, observedCurrent, onObservedCurrent, rotationDirection, setRotationDirection, mechanicalNoise, setMechanicalNoise, vibration, setVibration, unexpectedHeating, setUnexpectedHeating, mechanicalFree, setMechanicalFree, isCurrentHigh, status, onOpenMotorDiagnosis }: {
+  profile: CommissioningProfile
+  checks: Record<string, boolean>
+  onCheck: (item: string, checked: boolean) => void
+  observedCurrent: string
+  onObservedCurrent: (value: string) => void
+  rotationDirection: SafetyAnswer
+  setRotationDirection: (value: SafetyAnswer) => void
+  mechanicalNoise: SafetyAnswer
+  setMechanicalNoise: (value: SafetyAnswer) => void
+  vibration: SafetyAnswer
+  setVibration: (value: SafetyAnswer) => void
+  unexpectedHeating: SafetyAnswer
+  setUnexpectedHeating: (value: SafetyAnswer) => void
+  mechanicalFree: SafetyAnswer
+  setMechanicalFree: (value: SafetyAnswer) => void
+  isCurrentHigh: boolean
+  status: string
+  onOpenMotorDiagnosis: (handoff: FirstRunDiagnosisHandoff) => void
+}) {
+  const preconditions = ['p0010 = 0 doğrulandı', 'Quick Commissioning tamamlandı', 'Motor etiketi doğrulandı', 'Y/Δ bağlantısı doğrulandı', 'Kumanda kaynağı doğrulandı', 'Minimum / maksimum hız doğrulandı', 'Rampalar doğrulandı', 'Safety / STO koşulları ayrı olarak doğrulandı']
+  const monitors = [['r0021', 'Actual speed / frequency-related actual value', 'Motorun gerçek çalışma hızını değerlendirmek için.'], ['r0025', 'Output voltage', 'Sürücü çıkış gerilimini izlemek için.'], ['r0026', 'DC link voltage', 'DC bara gerilimini izlemek için.'], ['r0027', 'Actual output current', 'Motor akımını izlemek için.'], ['r0031', 'Actual motor torque', 'Motor yük/tork durumunu değerlendirmek için.']]
+  const select = (value: SafetyAnswer, onChange: (value: SafetyAnswer) => void) => <select value={value} onChange={(event) => onChange(event.target.value as SafetyAnswer)}><option value="">Seçiniz</option>{safetyAnswers.map((item) => <option key={item}>{item}</option>)}</select>
+  const shouldOfferDiagnosis = mechanicalNoise === 'Evet' || vibration === 'Evet' || unexpectedHeating === 'Evet' || mechanicalFree === 'Hayır' || isCurrentHigh
+  return <section className="first-run-check" aria-labelledby="first-run-title"><h2 id="first-run-title">İlk Çalıştırma Kontrolü</h2><p className="first-run-safety">İlk çalıştırma sırasında motor ve bağlı mekanizma hareket edebilir. Çalışma alanı güvenli hale getirilmeden test başlatılmamalıdır.</p><p className="first-run-safety secondary">Bu uygulama sürücüyü kontrol etmez ve güvenlik fonksiyonlarının yerine geçmez.</p><div className="first-run-preconditions"><h3>Ön koşullar</h3>{preconditions.map((item) => <label key={item}><input type="checkbox" checked={Boolean(checks[item])} onChange={(event) => onCheck(item, event.target.checked)} /><span>✓ {item}</span></label>)}</div>{preconditions.some((item) => !checks[item]) && <p className="first-run-incomplete">İlk çalıştırma öncesi devreye alma kontrolleri tamamlanmalıdır.</p>}<section className="first-run-section"><h3>Motor Identification</h3><p><b>p1900 = 2</b> — Motor data identification at standstill. Test, bir sonraki geçerli sürücü ON komutuyla başlar.</p><p>Standstill identification sırasında da motora akım uygulanır ve sınırlı mekanik hareket oluşabilir. Başarılı tamamlanmadan sonra p1900 otomatik olarak 0 değerine döner.</p><p><strong>p1900 = 0 değerini işlem sonunda doğrulayın.</strong></p></section><section className="first-run-section"><h3>Döner motor optimizasyonu</h3>{profile.identification.rotationIsSafe === 'Evet' && profile.identification.loadCanBeDisconnected === 'Evet' ? <p>Döner motor optimizasyonu değerlendirilebilir. Döner ölçüm / hız kontrolörü optimizasyonu motoru farklı hızlarda çalıştırabilir; yalnızca makinenin güvenli şekilde dönebildiği durumlarda kullanılmalıdır.</p> : <p>Döner motor optimizasyonu önerilmedi. Motorun güvenli şekilde dönebileceği doğrulanmadı.</p>}</section><section className="first-run-section"><h3>İlk düşük hız testi</h3><ol><li>Motor ve mekanik sistemin güvenli durumda olduğunu doğrulayın.</li><li>İlk test için düşük bir hız referansı kullanın.</li><li>Motor dönüş yönünü gözlemleyin.</li><li>Anormal mekanik ses olup olmadığını kontrol edin.</li><li>Titreşim durumunu kontrol edin.</li><li>Motor akımını gözlemleyin.</li><li>Sürücüde aktif fault/alarm olup olmadığını kontrol edin.</li></ol><p className="first-run-direction-note">Dönüş yönü proses gereksinimiyle uyuşmuyorsa kumanda yönü ve motor bağlantısı enerji güvenli şekilde izole edildikten sonra yetkili personel tarafından değerlendirilmelidir.</p></section><section className="first-run-section"><h3>İlk Çalıştırmada İzlenecek Değerler</h3><div className="first-run-monitors">{monitors.map(([code, name, purpose]) => <article key={code}><code>{code}</code><strong>{name}</strong><p>{purpose}</p></article>)}</div><p>Normal değerler motor, yük, kontrol modu ve çalışma noktasına bağlıdır.</p></section><section className="first-run-section"><h3>Akım ve mekanik gözlemler</h3>{profile.motor.ratedCurrentA !== undefined && <p>Motor nominal akımı: <strong>{profile.motor.ratedCurrentA} A</strong></p>}<label className="first-run-current">İLK TESTTE GÖZLENEN MOTOR AKIMI<div className="input-suffix"><input type="number" min="0" step="any" value={observedCurrent} onChange={(event) => onObservedCurrent(event.target.value)} placeholder="Örn: 12.5" /><span>A</span></div></label>{isCurrentHigh && <p className="first-run-warning">Motor akımı nominal etiket değerinin üzerinde. Yük, bağlantı, motor parametreleri ve mekanik koşullar değerlendirilmelidir.</p>}<div className="first-run-answers"><label>MOTOR DÖNÜŞ YÖNÜ DOĞRU MU?{select(rotationDirection, setRotationDirection)}</label><label>ANORMAL SES VAR MI?{select(mechanicalNoise, setMechanicalNoise)}</label><label>BELİRGİN TİTREŞİM VAR MI?{select(vibration, setVibration)}</label><label>MOTOR BEKLENMEDİK ŞEKİLDE ISINIYOR MU?{select(unexpectedHeating, setUnexpectedHeating)}</label><label>MEKANİK SİSTEM SERBEST ÇALIŞIYOR MU?{select(mechanicalFree, setMechanicalFree)}</label></div>{rotationDirection === 'Hayır' && <p className="first-run-warning">Dönüş yönü düzeltilmeden proses çalışmasına devam etmeyin.</p>}{(mechanicalNoise === 'Evet' || vibration === 'Evet' || unexpectedHeating === 'Evet' || mechanicalFree === 'Hayır') && <p className="first-run-warning">İlk test durdurulmalı ve ilgili durum değerlendirilmelidir.</p>}{shouldOfferDiagnosis && <button type="button" className="open-diagnosis-button" onClick={() => onOpenMotorDiagnosis({ ratedCurrentA: profile.motor.ratedCurrentA, observedCurrentA: numericValue(observedCurrent), mechanicalNoise, vibration, unexpectedHeating })}>Yeni Teşhiste İncele</button>}</section><section className="first-run-summary"><h3>İlk Çalıştırma Özeti</h3><span className={status === 'Kontroller tamamlandı' ? 'complete' : status === 'Uyarılar var' ? 'warning' : 'incomplete'}>{status}</span><p><b>Motor:</b> {shownValue(profile.motor.ratedPowerKw)} kW / {shownValue(profile.motor.ratedVoltageV)} V / {shownValue(profile.motor.ratedCurrentA)} A</p><p><b>Sürücü:</b> SINAMICS G120 {profile.drive.controlUnit && `+ ${profile.drive.controlUnit}`}</p><p><b>Kumanda:</b> {shownValue(profile.application.controlMethod)}</p><p><b>Gözlenen akım:</b> {observedCurrent ? `${observedCurrent} A` : '—'}</p><p><b>Dönüş:</b> {shownValue(rotationDirection)}</p><p><b>Mekanik gözlemler:</b> Ses {shownValue(mechanicalNoise)}, titreşim {shownValue(vibration)}, ısınma {shownValue(unexpectedHeating)}, serbest çalışma {shownValue(mechanicalFree)}</p></section><a className="first-run-source" href="https://sid.siemens.com/v/u/A6V10556727" target="_blank" rel="noopener noreferrer">Resmî Siemens motor identification / commissioning dokümanını aç</a></section>
+}
+
+export function QuickCommissioning({ onOpenKnowledgeBase, onOpenMotorDiagnosis }: { onOpenKnowledgeBase: (code: string) => void; onOpenMotorDiagnosis: (handoff: FirstRunDiagnosisHandoff) => void }) {
   const [step, setStep] = useState(1)
   const [profile, setProfile] = useState<CommissioningProfile>(emptyCommissioningProfile)
   const [validationMessage, setValidationMessage] = useState('')
   const [parameterPlan, setParameterPlan] = useState<CommissioningParameterPlan | null>(null)
   const [confirmedConnectionWarning, setConfirmedConnectionWarning] = useState<string | null>(null)
+  const [firstRunChecks, setFirstRunChecks] = useState<Record<string, boolean>>({})
+  const [observedCurrent, setObservedCurrent] = useState('')
+  const [rotationDirection, setRotationDirection] = useState<SafetyAnswer>('')
+  const [mechanicalNoise, setMechanicalNoise] = useState<SafetyAnswer>('')
+  const [vibration, setVibration] = useState<SafetyAnswer>('')
+  const [unexpectedHeating, setUnexpectedHeating] = useState<SafetyAnswer>('')
+  const [mechanicalFree, setMechanicalFree] = useState<SafetyAnswer>('')
   const connectionConsistency = evaluateMotorConnectionConsistency(profile)
   const connectionWarningSignature = JSON.stringify([profile.drive.mainsVoltage, profile.motor.connection, profile.motor.lowVoltageV, profile.motor.highVoltageV, profile.motor.lowVoltageCurrentA, profile.motor.highVoltageCurrentA, profile.motor.lowVoltageConnection, profile.motor.highVoltageConnection, profile.motor.ratedCurrentA])
+  const observedCurrentValue = numericValue(observedCurrent)
+  const isCurrentHigh = observedCurrentValue !== undefined && profile.motor.ratedCurrentA !== undefined && observedCurrentValue > profile.motor.ratedCurrentA * 1.1
+  const hasAbnormalObservation = mechanicalNoise === 'Evet' || vibration === 'Evet' || unexpectedHeating === 'Evet' || mechanicalFree === 'Hayır' || rotationDirection === 'Hayır' || isCurrentHigh
+  const firstRunPreconditions = ['p0010 = 0 doğrulandı', 'Quick Commissioning tamamlandı', 'Motor etiketi doğrulandı', 'Y/Δ bağlantısı doğrulandı', 'Kumanda kaynağı doğrulandı', 'Minimum / maksimum hız doğrulandı', 'Rampalar doğrulandı', 'Safety / STO koşulları ayrı olarak doğrulandı']
+  const allFirstRunChecksConfirmed = firstRunPreconditions.every((item) => firstRunChecks[item])
+  const firstRunHasUnknowns = [rotationDirection, mechanicalNoise, vibration, unexpectedHeating, mechanicalFree].some((value) => value !== 'Evet' && value !== 'Hayır')
+  const firstRunStatus = !allFirstRunChecksConfirmed || firstRunHasUnknowns ? 'Eksik doğrulamalar var' : hasAbnormalObservation ? 'Uyarılar var' : 'Kontroller tamamlandı'
 
   const validate = () => {
     const measurements = [
@@ -215,7 +264,7 @@ export function QuickCommissioning({ onOpenKnowledgeBase }: { onOpenKnowledgeBas
         <article><h3>Uygulama</h3><SummaryRow label="Yük tipi" value={profile.application.loadType} /><h3>Kontrol yöntemi</h3><SummaryRow label="Kontrol" value={profile.application.controlMethod} /></article>
         <article><h3>Hız / rampalar</h3><SummaryRow label="Minimum hız" value={profile.motion.minimumSpeedRpm === undefined ? undefined : `${profile.motion.minimumSpeedRpm} rpm`} /><SummaryRow label="Maksimum hız" value={profile.motion.maximumSpeedRpm === undefined ? undefined : `${profile.motion.maximumSpeedRpm} rpm`} /><SummaryRow label="Hızlanma" value={profile.motion.accelerationTimeSec === undefined ? undefined : `${profile.motion.accelerationTimeSec} s`} /><SummaryRow label="Yavaşlama" value={profile.motion.decelerationTimeSec === undefined ? undefined : `${profile.motion.decelerationTimeSec} s`} /></article>
         <article><h3>Motor identification koşulları</h3><SummaryRow label="Yükten ayrılabilir mi?" value={profile.identification.loadCanBeDisconnected} /><SummaryRow label="Dönme güvenli mi?" value={profile.identification.rotationIsSafe} /></article>
-      </div><MotorConnectionCheck consistency={connectionConsistency} confirmed={confirmedConnectionWarning === connectionWarningSignature} onConfirm={(checked) => setConfirmedConnectionWarning(checked ? connectionWarningSignature : null)} /><div className="commissioning-plan-notice"><button type="button" onClick={generatePlan}>Parametre Planı Oluştur</button><p>Plan, girilen verilerden oluşturulan rehber niteliğinde öneriler içerir.</p></div>{parameterPlan && <ParameterPlan plan={parameterPlan} onOpenKnowledgeBase={onOpenKnowledgeBase} />}</div>}
+      </div><MotorConnectionCheck consistency={connectionConsistency} confirmed={confirmedConnectionWarning === connectionWarningSignature} onConfirm={(checked) => setConfirmedConnectionWarning(checked ? connectionWarningSignature : null)} /><div className="commissioning-plan-notice"><button type="button" onClick={generatePlan}>Parametre Planı Oluştur</button><p>Plan, girilen verilerden oluşturulan rehber niteliğinde öneriler içerir.</p></div>{parameterPlan && <><ParameterPlan plan={parameterPlan} onOpenKnowledgeBase={onOpenKnowledgeBase} /><FirstRunCheck profile={profile} checks={firstRunChecks} onCheck={(item, checked) => setFirstRunChecks((current) => ({ ...current, [item]: checked }))} observedCurrent={observedCurrent} onObservedCurrent={setObservedCurrent} rotationDirection={rotationDirection} setRotationDirection={setRotationDirection} mechanicalNoise={mechanicalNoise} setMechanicalNoise={setMechanicalNoise} vibration={vibration} setVibration={setVibration} unexpectedHeating={unexpectedHeating} setUnexpectedHeating={setUnexpectedHeating} mechanicalFree={mechanicalFree} setMechanicalFree={setMechanicalFree} isCurrentHigh={isCurrentHigh} status={firstRunStatus} onOpenMotorDiagnosis={onOpenMotorDiagnosis} /></>}</div>}
 
       <div className="commissioning-actions"><button type="button" className="commissioning-back" onClick={previous} disabled={step === 1}>Geri</button>{step < 6 && <button type="button" className="commissioning-next" onClick={next}>Devam <b>→</b></button>}</div>
     </section>
