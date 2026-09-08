@@ -1,6 +1,7 @@
 import type { DiagnosisResult, FaultDefinition, Observation, ScoringReason } from './motorDiagnosis'
 
 export const VFD_EQUIPMENT = 'Frekans Konvertörü / VFD'
+export type VfdVoltageClass = 'unknown' | '230' | '400' | '480'
 
 export type VfdSymptom =
   | 'Drive trip ediyor'
@@ -16,6 +17,7 @@ export interface VfdDiagnosisInput {
   equipment: string
   symptoms: VfdSymptom[]
   faultCode?: string
+  voltageClass: VfdVoltageClass
   dcBusVoltage?: number
   outputCurrent?: number
   motorNominalCurrent?: number
@@ -24,7 +26,7 @@ export interface VfdDiagnosisInput {
 }
 
 interface VfdRule {
-  label: string
+  label: string | ((input: VfdDiagnosisInput) => string)
   evaluate: (input: VfdDiagnosisInput) => number
 }
 
@@ -56,10 +58,27 @@ const hasComparableOutputCurrentMeasurements = (input: VfdDiagnosisInput) =>
 const hasSupportedOvercurrentSymptom = (input: VfdDiagnosisInput) =>
   hasSymptom(input, 'Motor aşırı akım çekiyor') &&
   (!hasComparableOutputCurrentMeasurements(input) || input.outputCurrent! > input.motorNominalCurrent!)
-const highDcBusVoltage = (input: VfdDiagnosisInput) => (input.dcBusVoltage ?? 0) >= 760
-const lowDcBusVoltage = (input: VfdDiagnosisInput) =>
-  input.dcBusVoltage !== undefined && input.dcBusVoltage <= 400
 const highDriveTemperature = (input: VfdDiagnosisInput) => (input.driveTemperature ?? 0) >= 80
+
+const dcBusReferenceRanges: Record<Exclude<VfdVoltageClass, 'unknown'>, { label: string; low: number; high: number }> = {
+  '230': { label: '230 V sınıfı', low: 300, high: 330 },
+  '400': { label: '400 V sınıfı', low: 520, high: 580 },
+  '480': { label: '480 V sınıfı', low: 620, high: 680 },
+}
+
+const dcBusStatus = (input: VfdDiagnosisInput) => {
+  if (input.dcBusVoltage === undefined || input.voltageClass === 'unknown') return 'unknown'
+  const range = dcBusReferenceRanges[input.voltageClass]
+  if (input.dcBusVoltage < range.low * 0.85) return 'low'
+  if (input.dcBusVoltage > range.high * 1.15) return 'high'
+  return 'normal'
+}
+
+const dcBusReason = (input: VfdDiagnosisInput, direction: 'low' | 'high') => {
+  if (input.voltageClass === 'unknown') return ''
+  const range = dcBusReferenceRanges[input.voltageClass]
+  return `${range.label} sürücü için DC bara gerilimi beklenen aralığın ${direction === 'low' ? 'altında' : 'üstünde'}`
+}
 
 const vfdFaults: VfdFault[] = [
   {
@@ -84,7 +103,7 @@ const vfdFaults: VfdFault[] = [
     recommendedChecks: ['Yetkili elektrik personeliyle besleme gerilimi ve rejeneratif yük koşullarını değerlendirin.', 'Frenleme direnci ve enerji geri besleme koşullarını üretici talimatlarına göre inceleyin.'],
     safetyNotes: ['DC bara kondansatörleri enerji kesildikten sonra da tehlikeli gerilim taşıyabilir.'],
     scoringRules: [
-      { label: 'DC bara gerilimi 760 V veya üzerinde', evaluate: (input) => highDcBusVoltage(input) ? 50 : 0 },
+      { label: (input) => dcBusReason(input, 'high'), evaluate: (input) => dcBusStatus(input) === 'high' ? 35 : 0 },
       { label: '"Drive trip ediyor" belirtisi seçildi', evaluate: (input) => hasSymptom(input, 'Drive trip ediyor') ? 8 : 0 },
     ],
   },
@@ -96,7 +115,7 @@ const vfdFaults: VfdFault[] = [
     recommendedChecks: ['Kaynak ve sürücü girişindeki besleme gerilimini yetkili elektrik personeliyle karşılaştırın.', 'Şalter, sigorta ve besleme bağlantılarını tesis prosedürlerine göre inceleyin.'],
     safetyNotes: ['Giriş beslemesi kontrolleri yalnızca yetkili elektrik personeli tarafından yapılmalıdır.'],
     scoringRules: [
-      { label: 'DC bara gerilimi 400 V veya altında', evaluate: (input) => lowDcBusVoltage(input) ? 50 : 0 },
+      { label: (input) => dcBusReason(input, 'low'), evaluate: (input) => dcBusStatus(input) === 'low' ? 35 : 0 },
       { label: '"Drive hazır değil" belirtisi seçildi', evaluate: (input) => hasSymptom(input, 'Drive hazır değil') ? 8 : 0 },
       { label: '"Motor çalışmıyor" belirtisi seçildi', evaluate: (input) => hasSymptom(input, 'Motor çalışmıyor') ? 6 : 0 },
     ],
@@ -171,6 +190,12 @@ const vfdFaults: VfdFault[] = [
 const getObservations = (input: VfdDiagnosisInput): Observation[] => [
   ...(input.faultCode ? [{ label: `Girilen hata kodu: ${input.faultCode}. Bu sürümde üreticiye özgü anlamı yorumlanmaz.` }] : []),
   ...(input.dcBusVoltage === undefined ? [] : [{ label: `DC bara gerilimi: ${input.dcBusVoltage} V.` }]),
+  ...(input.dcBusVoltage !== undefined && input.voltageClass === 'unknown'
+    ? [{ label: 'DC bara geriliminin güvenilir yorumlanması için gerilim sınıfı gereklidir.' }]
+    : []),
+  ...(input.voltageClass === 'unknown'
+    ? []
+    : [{ label: `${dcBusReferenceRanges[input.voltageClass].label} için tipik DC bara aralığı yaklaşık ${dcBusReferenceRanges[input.voltageClass].low}-${dcBusReferenceRanges[input.voltageClass].high} V.` }]),
   ...(input.outputFrequency === undefined ? [] : [{ label: `Çıkış frekansı: ${input.outputFrequency} Hz.` }]),
 ]
 
@@ -181,7 +206,7 @@ export function diagnoseVfd(input: VfdDiagnosisInput): DiagnosisResult[] {
   return vfdFaults
     .map(({ scoringRules, ...fault }) => {
       const scoringReasons: ScoringReason[] = scoringRules
-        .map((rule) => ({ label: rule.label, points: rule.evaluate(input) }))
+        .map((rule) => ({ label: typeof rule.label === 'function' ? rule.label(input) : rule.label, points: rule.evaluate(input) }))
         .filter((reason) => reason.points > 0)
 
       return {
