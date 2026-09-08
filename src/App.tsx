@@ -21,6 +21,7 @@ import {
 import { QuickCommissioning, type FirstRunDiagnosisHandoff } from './commissioning/QuickCommissioning'
 import { DiagnosisHistoryView } from './history/DiagnosisHistoryView'
 import { loadDiagnosisHistory, persistDiagnosisHistory, type DiagnosisHistoryRecord, type DiagnosisHistorySourceContext } from './history/diagnosisHistory'
+import { DashboardView } from './dashboard/DashboardView'
 import './App.css'
 
 const equipmentOptions = [MOTOR_EQUIPMENT, VFD_EQUIPMENT, 'Endüstriyel Sensör']
@@ -99,7 +100,7 @@ function KnowledgeBase({ onOpenDiagnosis, initialQuery = '' }: { onOpenDiagnosis
 }
 
 function App() {
-  const [activeView, setActiveView] = useState<'diagnosis' | 'knowledge' | 'commissioning' | 'history'>('diagnosis')
+  const [activeView, setActiveView] = useState<'dashboard' | 'diagnosis' | 'knowledge' | 'commissioning' | 'history'>('dashboard')
   const [knowledgeSearch, setKnowledgeSearch] = useState('')
   const [equipment, setEquipment] = useState('')
   const [brandModel, setBrandModel] = useState('')
@@ -135,6 +136,7 @@ function App() {
   const [lastSavedSignature, setLastSavedSignature] = useState<string | null>(null)
   const [diagnosisSourceContext, setDiagnosisSourceContext] = useState<DiagnosisHistorySourceContext>('manual-diagnosis')
   const [pendingHistoryReopen, setPendingHistoryReopen] = useState<DiagnosisHistoryRecord | null>(null)
+  const [historyFocusId, setHistoryFocusId] = useState<string | null>(null)
   const navItems: { label: string; icon: IconName }[] = [
     { label: 'Dashboard', icon: 'dashboard' }, { label: 'Yeni Teşhis', icon: 'diagnosis' },
     { label: 'Arıza Geçmişi', icon: 'history' }, { label: 'Bilgi Bankası', icon: 'library' }, { label: 'Hızlı Devreye Alma', icon: 'diagnosis' }, { label: 'Ayarlar', icon: 'settings' },
@@ -341,11 +343,11 @@ function App() {
   return <div className="app-shell">
     <aside className="sidebar">
       <div className="brand"><span className="brand-mark">⚡</span><span>AKILLI ARIZA<br /><strong>TEŞHİS SİSTEMİ</strong></span></div>
-      <nav aria-label="Ana menü">{navItems.map((item) => <button className={`nav-item ${(item.label === 'Bilgi Bankası' && activeView === 'knowledge') || (item.label === 'Yeni Teşhis' && activeView === 'diagnosis') || (item.label === 'Arıza Geçmişi' && activeView === 'history') || (item.label === 'Hızlı Devreye Alma' && activeView === 'commissioning') ? 'active' : ''}`} key={item.label} type="button" onClick={() => { if (item.label === 'Bilgi Bankası') setActiveView('knowledge'); if (item.label === 'Yeni Teşhis') { setDiagnosisSourceContext('manual-diagnosis'); setActiveView('diagnosis') }; if (item.label === 'Arıza Geçmişi') setActiveView('history'); if (item.label === 'Hızlı Devreye Alma') setActiveView('commissioning') }}><Icon name={item.icon} />{item.label}</button>)}</nav>
+      <nav aria-label="Ana menü">{navItems.map((item) => <button className={`nav-item ${(item.label === 'Dashboard' && activeView === 'dashboard') || (item.label === 'Bilgi Bankası' && activeView === 'knowledge') || (item.label === 'Yeni Teşhis' && activeView === 'diagnosis') || (item.label === 'Arıza Geçmişi' && activeView === 'history') || (item.label === 'Hızlı Devreye Alma' && activeView === 'commissioning') ? 'active' : ''}`} key={item.label} type="button" onClick={() => { if (item.label === 'Dashboard') setActiveView('dashboard'); if (item.label === 'Bilgi Bankası') setActiveView('knowledge'); if (item.label === 'Yeni Teşhis') { setDiagnosisSourceContext('manual-diagnosis'); setActiveView('diagnosis') }; if (item.label === 'Arıza Geçmişi') setActiveView('history'); if (item.label === 'Hızlı Devreye Alma') setActiveView('commissioning') }}><Icon name={item.icon} />{item.label}</button>)}</nav>
       <div className="sidebar-footer"><span className="status-dot" />Sistem çevrimiçi</div>
     </aside>
     <main className="main-content">
-      {activeView === 'knowledge' ? <KnowledgeBase key={knowledgeSearch} initialQuery={knowledgeSearch} onOpenDiagnosis={openKnowledgeEntryInDiagnosis} /> : activeView === 'history' ? <DiagnosisHistoryView records={historyRecords} onReopen={reopenHistoryRecord} onDelete={deleteHistoryRecord} onClear={clearHistory} onNewDiagnosis={() => { setDiagnosisSourceContext('manual-diagnosis'); setActiveView('diagnosis') }} /> : activeView === 'commissioning' ? <QuickCommissioning onOpenKnowledgeBase={(code) => { setKnowledgeSearch(code); setActiveView('knowledge') }} onOpenMotorDiagnosis={openFirstRunInDiagnosis} /> : <>
+      {activeView === 'dashboard' ? <DashboardView records={historyRecords} onOpenHistoryRecord={(id) => { setHistoryFocusId(id); setActiveView('history') }} onOpenDiagnosis={() => { setDiagnosisSourceContext('manual-diagnosis'); setActiveView('diagnosis') }} onOpenCommissioning={() => setActiveView('commissioning')} onOpenKnowledgeBase={() => setActiveView('knowledge')} onOpenHistory={() => setActiveView('history')} /> : activeView === 'knowledge' ? <KnowledgeBase key={knowledgeSearch} initialQuery={knowledgeSearch} onOpenDiagnosis={openKnowledgeEntryInDiagnosis} /> : activeView === 'history' ? <DiagnosisHistoryView key={historyFocusId ?? 'history'} initialExpandedId={historyFocusId} records={historyRecords} onReopen={reopenHistoryRecord} onDelete={deleteHistoryRecord} onClear={clearHistory} onNewDiagnosis={() => { setDiagnosisSourceContext('manual-diagnosis'); setActiveView('diagnosis') }} /> : activeView === 'commissioning' ? <QuickCommissioning onOpenKnowledgeBase={(code) => { setKnowledgeSearch(code); setActiveView('knowledge') }} onOpenMotorDiagnosis={openFirstRunInDiagnosis} /> : <>
       <header className="page-header"><div><p className="eyebrow">TEŞHİS MERKEZİ</p><h1>Yeni Arıza Teşhisi</h1><p className="subtitle">Ekipman bilgilerini girin, sistem olası arızaları değerlendirsin.</p></div><div className="header-date">08 Eylül 2026 <span>•</span> Salı</div></header>
       <div className="workspace">
         <section className="form-card" aria-labelledby="form-title">

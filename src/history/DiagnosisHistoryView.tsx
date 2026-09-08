@@ -5,10 +5,10 @@ const equipmentOptions = ['Tümü', 'Üç Fazlı Elektrik Motoru', 'Frekans Konv
 const measurementLabels: Record<string, string> = { nominalCurrent: 'Nominal akım', measuredCurrent: 'Ölçülen akım', l1Current: 'L1 akımı', l2Current: 'L2 akımı', l3Current: 'L3 akımı', l1l2Voltage: 'L1-L2 gerilimi', l2l3Voltage: 'L2-L3 gerilimi', l3l1Voltage: 'L3-L1 gerilimi', motorTemperature: 'Motor sıcaklığı', vibration: 'Titreşim', voltageClass: 'Gerilim sınıfı', dcBusVoltage: 'DC bara gerilimi', outputCurrent: 'Çıkış akımı', motorNominalCurrent: 'Motor nominal akımı', outputFrequency: 'Çıkış frekansı', driveTemperature: 'Sürücü sıcaklığı' }
 const formatDate = (value: string) => new Intl.DateTimeFormat('tr-TR', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value))
 
-export function DiagnosisHistoryView({ records, onReopen, onDelete, onClear, onNewDiagnosis }: { records: DiagnosisHistoryRecord[]; onReopen: (record: DiagnosisHistoryRecord) => void; onDelete: (id: string) => void; onClear: () => void; onNewDiagnosis: () => void }) {
+export function DiagnosisHistoryView({ records, onReopen, onDelete, onClear, onNewDiagnosis, initialExpandedId = null }: { records: DiagnosisHistoryRecord[]; onReopen: (record: DiagnosisHistoryRecord) => void; onDelete: (id: string) => void; onClear: () => void; onNewDiagnosis: () => void; initialExpandedId?: string | null }) {
   const [equipmentFilter, setEquipmentFilter] = useState('Tümü')
   const [query, setQuery] = useState('')
-  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [expandedId, setExpandedId] = useState<string | null>(initialExpandedId)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [confirmClear, setConfirmClear] = useState(false)
   const filteredRecords = useMemo(() => records.filter((record) => {
