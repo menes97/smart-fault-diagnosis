@@ -12,6 +12,7 @@ import {
   type VfdSymptom,
 } from './diagnosis/vfdDiagnosis'
 import {
+  manufacturerFaultCodes,
   lookupManufacturerFaultCode,
   type ManufacturerFaultCode,
   type VfdManufacturer,
@@ -35,7 +36,67 @@ function Icon({ name }: { name: IconName }) {
   return <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">{paths[name]}</svg>
 }
 
+function KnowledgeBase() {
+  const [query, setQuery] = useState('')
+  const [manufacturer, setManufacturer] = useState('all')
+  const [modelFamily, setModelFamily] = useState('all')
+  const [expandedCode, setExpandedCode] = useState<string | null>(null)
+  const manufacturers = [...new Set(manufacturerFaultCodes.map((entry) => entry.manufacturer))]
+  const modelFamilies = [...new Set(manufacturerFaultCodes
+    .filter((entry) => manufacturer === 'all' || entry.manufacturer === manufacturer)
+    .map((entry) => entry.modelFamily))]
+  const normalizedQuery = query.trim().toLocaleLowerCase('tr-TR')
+  const compact = (value: string) => value.replaceAll(' ', '').toLocaleLowerCase('tr-TR')
+  const siemensCodeVariants = (code: string) => {
+    const normalized = compact(code)
+    if (!normalized.startsWith('f0')) return [normalized]
+    const withoutLeadingZero = 'f' + normalized.slice(2)
+    return [normalized, withoutLeadingZero, normalized.slice(1), withoutLeadingZero.slice(1)]
+  }
+  const entries = manufacturerFaultCodes
+    .filter((entry) => (manufacturer === 'all' || entry.manufacturer === manufacturer) &&
+      (modelFamily === 'all' || entry.modelFamily === modelFamily))
+    .map((entry) => {
+      if (!normalizedQuery) return { entry, rank: 6 }
+      const queryCode = compact(query)
+      const codeVariants = entry.manufacturer === 'Siemens' ? siemensCodeVariants(entry.code) : [compact(entry.code)]
+      const titleText = [entry.titleTr, entry.title].join(' ').toLocaleLowerCase('tr-TR')
+      const parameterText = (entry.relatedParameters?.flatMap((parameter) => [parameter.code, parameter.nameTr]) ?? []).join(' ').toLocaleLowerCase('tr-TR')
+      const otherText = [entry.descriptionTr, entry.manufacturer, entry.modelFamily].join(' ').toLocaleLowerCase('tr-TR')
+      const rank = codeVariants.includes(queryCode) ? 1
+        : codeVariants.some((code) => code.startsWith(queryCode)) ? 2
+          : titleText.includes(normalizedQuery) ? 3
+            : parameterText.includes(normalizedQuery) ? 4
+              : otherText.includes(normalizedQuery) ? 5
+                : 0
+      return { entry, rank }
+    })
+    .filter(({ rank }) => rank > 0)
+    .sort((a, b) => a.rank - b.rank || a.entry.code.localeCompare(b.entry.code))
+    .map(({ entry }) => entry)
+
+  return <section className="knowledge-base" aria-labelledby="knowledge-title">
+    <header className="page-header"><div><p className="eyebrow">BİLGİ BANKASI</p><h1 id="knowledge-title">Doğrulanmış Hata Kodları</h1><p className="subtitle">Üretici dokümantasyonuyla doğrulanmış sürücü hata kayıtları.</p></div></header>
+    <div className="knowledge-controls">
+      <input aria-label="Hata kodu, arıza veya parametre ara" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Hata kodu, arıza veya parametre ara..." />
+      <select aria-label="Üretici filtresi" value={manufacturer} onChange={(event) => { setManufacturer(event.target.value); setModelFamily('all') }}><option value="all">Tümü</option>{manufacturers.map((item) => <option key={item}>{item}</option>)}</select>
+      <select aria-label="Model ailesi filtresi" value={modelFamily} onChange={(event) => setModelFamily(event.target.value)}><option value="all">Tümü</option>{modelFamilies.map((item) => <option key={item}>{item}</option>)}</select>
+    </div>
+    <div className="knowledge-filter-labels"><span>Üretici</span><span>Model ailesi</span></div>
+    <div className="knowledge-results">
+      {entries.map((entry) => <article className="knowledge-card" key={entry.manufacturer + entry.modelFamily + entry.code}>
+        <div className="knowledge-card-top"><div><span className="verified-source">Doğrulanmış üretici kaynağı</span><h2>{entry.code} — {entry.titleTr}</h2><p>{entry.manufacturer} <b>·</b> {entry.modelFamily}</p></div><button type="button" className="detail-button" onClick={() => setExpandedCode(expandedCode === entry.code ? null : entry.code)}>Ayrıntıları Gör</button></div>
+        <p className="knowledge-description">{entry.descriptionTr}</p>
+        {entry.relatedParameters && <div className="parameter-chips">{entry.relatedParameters.map((parameter) => <span key={parameter.code}>{parameter.code}</span>)}</div>}
+        {expandedCode === entry.code && <div className="knowledge-detail"><p>{entry.descriptionTr}</p><div className="checks"><strong>Önerilen kontroller</strong><ul>{entry.recommendedChecks.map((check) => <li key={check}>{check}</li>)}</ul></div>{entry.relatedParameters && <div className="related-parameters"><strong>İlgili Parametreler</strong><ul>{entry.relatedParameters.map((parameter) => <li key={parameter.code}><span><b>{parameter.code}</b> — {parameter.nameTr}</span><small>{parameter.purposeTr}</small></li>)}</ul></div>}{entry.sourceScope && <p className="source-scope">Kaynak kapsamı: {entry.sourceScope}</p>}<a href={entry.sourceUrl} target="_blank" rel="noopener noreferrer">{entry.manufacturer === 'Siemens' ? 'Resmî Siemens kaynağını aç' : 'Resmî üretici kaynağını aç'}</a></div>}
+      </article>)}
+      {entries.length === 0 && <p className="no-knowledge-results">Aramanızla eşleşen doğrulanmış kayıt bulunamadı.</p>}
+    </div>
+  </section>
+}
+
 function App() {
+  const [activeView, setActiveView] = useState<'diagnosis' | 'knowledge'>('diagnosis')
   const [equipment, setEquipment] = useState('')
   const [brandModel, setBrandModel] = useState('')
   const [motorSelectedSymptoms, setMotorSelectedSymptoms] = useState<MotorSymptom[]>([])
@@ -65,8 +126,8 @@ function App() {
   const [validationMessage, setValidationMessage] = useState('')
   const [measurementWarning, setMeasurementWarning] = useState('')
   const [measurementInfo, setMeasurementInfo] = useState<string[]>([])
-  const navItems: { label: string; icon: IconName; active?: boolean }[] = [
-    { label: 'Dashboard', icon: 'dashboard' }, { label: 'Yeni Teşhis', icon: 'diagnosis', active: true },
+  const navItems: { label: string; icon: IconName }[] = [
+    { label: 'Dashboard', icon: 'dashboard' }, { label: 'Yeni Teşhis', icon: 'diagnosis' },
     { label: 'Arıza Geçmişi', icon: 'history' }, { label: 'Bilgi Bankası', icon: 'library' }, { label: 'Ayarlar', icon: 'settings' },
   ]
   const parseMeasurement = (value: string): number | undefined => value.trim() === '' ? undefined : Number(value)
@@ -155,10 +216,11 @@ function App() {
   return <div className="app-shell">
     <aside className="sidebar">
       <div className="brand"><span className="brand-mark">⚡</span><span>AKILLI ARIZA<br /><strong>TEŞHİS SİSTEMİ</strong></span></div>
-      <nav aria-label="Ana menü">{navItems.map((item) => <button className={`nav-item ${item.active ? 'active' : ''}`} key={item.label} type="button"><Icon name={item.icon} />{item.label}</button>)}</nav>
+      <nav aria-label="Ana menü">{navItems.map((item) => <button className={`nav-item ${(item.label === 'Bilgi Bankası' && activeView === 'knowledge') || (item.label === 'Yeni Teşhis' && activeView === 'diagnosis') ? 'active' : ''}`} key={item.label} type="button" onClick={() => { if (item.label === 'Bilgi Bankası') setActiveView('knowledge'); if (item.label === 'Yeni Teşhis') setActiveView('diagnosis') }}><Icon name={item.icon} />{item.label}</button>)}</nav>
       <div className="sidebar-footer"><span className="status-dot" />Sistem çevrimiçi</div>
     </aside>
     <main className="main-content">
+      {activeView === 'knowledge' ? <KnowledgeBase /> : <>
       <header className="page-header"><div><p className="eyebrow">TEŞHİS MERKEZİ</p><h1>Yeni Arıza Teşhisi</h1><p className="subtitle">Ekipman bilgilerini girin, sistem olası arızaları değerlendirsin.</p></div><div className="header-date">08 Eylül 2026 <span>•</span> Salı</div></header>
       <div className="workspace">
         <section className="form-card" aria-labelledby="form-title">
@@ -185,6 +247,7 @@ function App() {
           {results && results.length > 0 && <div className="diagnosis-results">{results.map((result) => <article className="diagnosis-result" key={result.id}><div className="result-title"><h3>{result.title}</h3><span>Eşleşme: {result.score}/100</span></div><p>{result.description}</p><div className="score-reasons"><strong>Neden eşleşti?</strong><ul>{result.scoringReasons.map((reason) => <li key={reason.label}><span>{reason.label}</span><b>+{reason.points}</b></li>)}</ul></div>{result.observations.length > 0 && <div className="observations"><strong>Ölçüm notları</strong><ul>{result.observations.map((observation) => <li key={observation.label}>ℹ {observation.label}</li>)}</ul></div>}<div className="checks"><strong>Önerilen kontroller</strong><ul>{result.recommendedChecks.map((check) => <li key={check}>{check}</li>)}</ul></div>{result.safetyNotes && <p className="fault-safety">{result.safetyNotes[0]}</p>}</article>)}</div>}
         </aside>
       </div>
+      </>}
     </main>
   </div>
 }
