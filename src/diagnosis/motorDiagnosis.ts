@@ -92,10 +92,13 @@ const hasSupportedHighCurrentSymptom = (input: DiagnosisInput) =>
 const elevatedMotorTemperature = (input: DiagnosisInput) => (input.motorTemperature ?? 0) >= 80
 const elevatedVibration = (input: DiagnosisInput) => (input.vibration ?? 0) >= 4.5
 
-// Undefined means a field was left empty. Numeric zero is accepted because
-// it can be meaningful phase-loss evidence.
-const completeValues = (values: Array<number | undefined>) =>
-  values.every((value): value is number => typeof value === 'number' && Number.isFinite(value))
+// Undefined or null means a field was left empty. Numeric zero is accepted
+// because it can be meaningful phase-loss evidence.
+const isProvidedMeasurement = (value: number | undefined | null): value is number =>
+  value !== undefined && value !== null && Number.isFinite(value)
+
+const completeValues = (values: Array<number | undefined | null>) =>
+  values.every(isProvidedMeasurement)
 
 const phaseCurrentValues = (input: DiagnosisInput) => {
   const measurements = input.phaseMeasurements

@@ -46,6 +46,8 @@ function App() {
   const toggleSymptom = (symptom: MotorSymptom) => setSelectedSymptoms((current) => current.includes(symptom) ? current.filter((item) => item !== symptom) : [...current, symptom])
   const parseMeasurement = (value: string): number | undefined =>
     value.trim() === '' ? undefined : Number(value)
+  const isProvidedMeasurement = (value: number | undefined | null): value is number =>
+    value !== undefined && value !== null
   const analyze = () => {
     setMeasurementWarning('')
     setMeasurementInfo([])
@@ -71,7 +73,7 @@ function App() {
     }
     setValidationMessage('')
     const hasPartialMeasurement = (measurements: Array<number | undefined>) =>
-      measurements.some((value) => value !== undefined) && measurements.some((value) => value === undefined)
+      measurements.some(isProvidedMeasurement) && measurements.some((value) => !isProvidedMeasurement(value))
     const infoMessages = [
       ...(hasPartialMeasurement([values.l1Current, values.l2Current, values.l3Current])
         ? ['Faz akımı dengesizliği analizi için L1, L2 ve L3 akımlarının birlikte girilmesi gerekir.']
