@@ -43,7 +43,7 @@ function SummaryRow({ label, value }: { label: string; value: string | number | 
   return <div className="commissioning-summary-row"><span>{label}</span><strong>{shownValue(value)}</strong></div>
 }
 
-const categoryOrder = ['Devreye Alma', 'Motor Etiketi', 'Hız / Rampalar', 'Kumanda / Kontrol', 'Motor Identification'] as const
+const categoryOrder = ['Devreye Alma', 'Motor Etiketi', 'Hız / Rampalar', 'Kumanda / Kontrol', 'Kumanda ve Analog Hız Referansı', 'Motor Identification'] as const
 
 function ParameterRecommendation({ recommendation }: { recommendation: CommissioningParameterRecommendation }) {
   const [copied, setCopied] = useState<'code' | 'value' | null>(null)
@@ -69,6 +69,7 @@ function ParameterPlan({ plan }: { plan: CommissioningParameterPlan }) {
       const entries = plan.recommendations.filter((recommendation) => recommendation.category === category)
       return entries.length > 0 && <section className="parameter-group" key={category}><h3>{category}</h3><div>{entries.map((recommendation) => <ParameterRecommendation key={`${recommendation.code}-${String(recommendation.value)}`} recommendation={recommendation} />)}</div></section>
     })}
+    {plan.analogCommandGuide && <section className="analog-command-guide" aria-labelledby="analog-command-guide-title"><h3 id="analog-command-guide-title">Adım Adım Kumanda Kontrolü</h3><p><strong>AI0+</strong> Terminal 3 <b>·</b> <strong>AI0-</strong> Terminal 4</p><ol>{plan.analogCommandGuide.steps.map((item) => <li key={item}>{item}</li>)}</ol><a href={plan.sourceUrl} target="_blank" rel="noopener noreferrer">Resmî Siemens devreye alma kılavuzunu aç</a></section>}
     <div className="parameter-plan-warnings">{plan.warnings.map((warning) => <p key={warning}>{warning}</p>)}</div>
     <a className="commissioning-source-link" href={plan.sourceUrl} target="_blank" rel="noopener noreferrer">Resmî Siemens devreye alma kılavuzunu aç</a>
   </section>

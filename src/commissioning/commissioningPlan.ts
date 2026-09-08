@@ -2,7 +2,7 @@ import type { CommissioningProfile } from './commissioningTypes'
 import { evaluateMotorConnectionConsistency } from './motorConnectionConsistency'
 
 export type CommissioningParameterConfidence = 'verified-direct' | 'conditional' | 'informational'
-export type CommissioningParameterCategory = 'Devreye Alma' | 'Motor Etiketi' | 'Hız / Rampalar' | 'Kumanda / Kontrol' | 'Motor Identification'
+export type CommissioningParameterCategory = 'Devreye Alma' | 'Motor Etiketi' | 'Hız / Rampalar' | 'Kumanda / Kontrol' | 'Kumanda ve Analog Hız Referansı' | 'Motor Identification'
 
 export interface CommissioningParameterRecommendation {
   code: string
@@ -22,6 +22,13 @@ export interface CommissioningParameterPlan {
   warnings: string[]
   sourceName: string
   sourceUrl: string
+  analogCommandGuide?: AnalogCommandGuide
+}
+
+export interface AnalogCommandGuide {
+  mode: '0–10 V' | '4–20 mA'
+  hardwareSwitch: 'U (Voltage)' | 'I (Current)'
+  steps: string[]
 }
 
 export const commissioningSource = {
@@ -106,8 +113,39 @@ export function createCommissioningParameterPlan(profile: CommissioningProfile):
   }
 
   const { controlMethod } = profile.application
-  if ((controlMethod === 'Terminal + analog 0–10 V' || controlMethod === 'Terminal + analog 4–20 mA') && profile.drive.controlUnit === 'CU240E-2') {
-    recommendations.push({ code: 'p0015', nameTr: 'Standard I/O with analog setpoint', value: 12, category: 'Kumanda / Kontrol', source: commissioningSource.name, confidence: 'conditional', requiresUserConfirmation: true, explanationTr: 'Macro 12 standard I/O ile analog setpoint yapılandırmasını seçer. Analog giriş sinyal tipi ayrıca doğrulanmalıdır.', warningTr: 'Analog giriş sinyal tipi ve saha bağlantısı doğrulanmalıdır.' })
+  const isVoltageAnalog = controlMethod === 'Terminal + analog 0–10 V'
+  const isCurrentAnalog = controlMethod === 'Terminal + analog 4–20 mA'
+  let analogCommandGuide: AnalogCommandGuide | undefined
+  if (isVoltageAnalog || isCurrentAnalog) {
+    const isCurrent = isCurrentAnalog
+    const category: CommissioningParameterCategory = 'Kumanda ve Analog Hız Referansı'
+    const hardwareSwitch = isCurrent ? 'I (Current)' : 'U (Voltage)'
+    recommendations.push(
+      { code: 'p0015', nameTr: 'Sürücü makrosu', value: 12, category, source: commissioningSource.name, confidence: 'conditional', requiresUserConfirmation: true, explanationTr: 'Macro 12 — iki telli kumanda + analog hız referansı. Macro 12, CU240B-2 / CU240E-2 için tipik terminal kumandası ve analog hız referansı başlangıç yapılandırmasıdır.', warningTr: 'Macro seçimi mevcut Control Unit varyantı ve saha kumandasıyla doğrulanmalıdır.' },
+      { code: 'p0756[0]', nameTr: 'Analog giriş 0 tipi', value: isCurrent ? 3 : 0, category, source: commissioningSource.name, confidence: 'conditional', requiresUserConfirmation: true, explanationTr: isCurrent ? 'AI0, izlemeli 4–20 mA akım girişi olarak yapılandırılır.' : 'AI0, 0–10 V unipolar gerilim girişi olarak yapılandırılır.' },
+      { code: 'p0757[0]', nameTr: 'Analog giriş 0 alt ölçek noktası', value: isCurrent ? 4 : 0, unit: isCurrent ? 'mA' : 'V', category, source: commissioningSource.name, confidence: 'verified-direct', requiresUserConfirmation: false, explanationTr: isCurrent ? '4 mA → 0% ölçeklendirmesinin başlangıç noktasıdır.' : '0 V → 0% ölçeklendirmesinin başlangıç noktasıdır.' },
+      { code: 'p0758[0]', nameTr: 'Analog giriş 0 alt yüzde ölçeği', value: 0, unit: '%', category, source: commissioningSource.name, confidence: 'verified-direct', requiresUserConfirmation: false, explanationTr: 'Alt analog giriş değeri için yüzde ölçek değeridir.' },
+      { code: 'p0759[0]', nameTr: 'Analog giriş 0 üst ölçek noktası', value: isCurrent ? 20 : 10, unit: isCurrent ? 'mA' : 'V', category, source: commissioningSource.name, confidence: 'verified-direct', requiresUserConfirmation: false, explanationTr: isCurrent ? '20 mA → 100% ölçeklendirmesinin üst noktasıdır.' : '10 V → 100% ölçeklendirmesinin üst noktasıdır.' },
+      { code: 'p0760[0]', nameTr: 'Analog giriş 0 üst yüzde ölçeği', value: 100, unit: '%', category, source: commissioningSource.name, confidence: 'verified-direct', requiresUserConfirmation: false, explanationTr: 'Üst analog giriş değeri için yüzde ölçek değeridir.' },
+      { code: 'p1000', nameTr: 'Hız referans kaynağı', value: 2, category, source: commissioningSource.name, confidence: 'conditional', requiresUserConfirmation: true, explanationTr: 'Analog setpoint seçimi.' },
+      { code: 'r0755[0]', nameTr: 'Analog giriş 0 yüzde gerçek değeri', value: 'İzleme', category, source: commissioningSource.name, confidence: 'informational', requiresUserConfirmation: false, explanationTr: 'Devreye alma sırasında analog sinyalin sürücü tarafından algılanmasını kontrol etmek için kullanılabilir.' },
+      { code: 'AI0 U/I', nameTr: 'AI0 fiziksel giriş anahtarı', value: hardwareSwitch, category, source: commissioningSource.name, confidence: 'conditional', requiresUserConfirmation: true, explanationTr: `AI0 fiziksel giriş anahtarı ${hardwareSwitch} konumunda olmalıdır.`, warningTr: 'Bağlantılar yalnızca enerji güvenli şekilde izole edildikten sonra yetkili personel tarafından yapılmalıdır.' },
+    )
+    if (isCurrent) {
+      recommendations.push({ code: 'p0761[0]', nameTr: 'Analog giriş kablo kopukluğu izleme eşiği', value: 'Üretici / uygulama ayarına göre doğrula', category, source: commissioningSource.name, confidence: 'informational', requiresUserConfirmation: true, explanationTr: '4–20 mA analog girişinde kablo kopukluğu izleme eşiği için sayısal değer önerilmez.' })
+    }
+    analogCommandGuide = {
+      mode: isCurrent ? '4–20 mA' : '0–10 V', hardwareSwitch,
+      steps: [
+        'Sürücüyü ve kontrol devresini güvenli şekilde enerjisiz bırakın.',
+        'Seçilen Control Unit ve terminal numaralarını Siemens dokümanından doğrulayın.',
+        `AI0 giriş tipi için fiziksel U/I anahtarının ${isCurrent ? 'I' : 'U'} konumunda olduğunu doğrulayın.`,
+        `p0756[0] = ${isCurrent ? 3 : 0} değerini doğrulayın.`,
+        isCurrent ? '4–20 mA ölçeklendirmesini kontrol edin.' : '0–10 V ölçeklendirmesini kontrol edin.',
+        'Sürücü enerjilendirildiğinde r0755[0] üzerinden analog giriş gerçek değerini gözlemleyin.',
+        'Hız referansının proses yönü ve maksimum hız sınırlarıyla uyumlu olduğunu doğrulayın.',
+      ],
+    }
   } else if (controlMethod === 'PROFINET / PLC') {
     recommendations.push(informational('p0015', 'Fieldbus macro', 'Fieldbus macro seçimi için Control Unit haberleşme varyantının doğrulanması gerekir.'))
   } else {
@@ -128,5 +166,6 @@ export function createCommissioningParameterPlan(profile: CommissioningProfile):
     ],
     sourceName: commissioningSource.name,
     sourceUrl: commissioningSource.url,
+    analogCommandGuide,
   }
 }
