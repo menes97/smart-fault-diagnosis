@@ -5,10 +5,16 @@ import {
   type DiagnosisResult,
   type MotorSymptom,
 } from './diagnosis/motorDiagnosis'
+import {
+  diagnoseVfd,
+  VFD_EQUIPMENT,
+  type VfdSymptom,
+} from './diagnosis/vfdDiagnosis'
 import './App.css'
 
-const equipmentOptions = [MOTOR_EQUIPMENT, 'Frekans Konvertörü / VFD', 'Endüstriyel Sensör']
-const symptoms: MotorSymptom[] = ['Motor ısınıyor', 'Akım nominal değerin üzerinde', 'Mekanik ses var', 'Motor dönmüyor', 'Sigorta açıyor', 'Titreşim artmış']
+const equipmentOptions = [MOTOR_EQUIPMENT, VFD_EQUIPMENT, 'Endüstriyel Sensör']
+const motorSymptoms: MotorSymptom[] = ['Motor ısınıyor', 'Akım nominal değerin üzerinde', 'Mekanik ses var', 'Motor dönmüyor', 'Sigorta açıyor', 'Titreşim artmış']
+const vfdSymptoms: VfdSymptom[] = ['Drive trip ediyor', 'Motor çalışmıyor', 'Motor düşük hızda çalışıyor', 'Motor aşırı akım çekiyor', 'Drive aşırı ısınıyor', 'Haberleşme hatası var', 'Hız referansı gelmiyor', 'Drive hazır değil']
 type IconName = 'dashboard' | 'diagnosis' | 'history' | 'library' | 'settings'
 
 function Icon({ name }: { name: IconName }) {
@@ -24,7 +30,9 @@ function Icon({ name }: { name: IconName }) {
 
 function App() {
   const [equipment, setEquipment] = useState('')
-  const [selectedSymptoms, setSelectedSymptoms] = useState<MotorSymptom[]>([])
+  const [brandModel, setBrandModel] = useState('')
+  const [motorSelectedSymptoms, setMotorSelectedSymptoms] = useState<MotorSymptom[]>([])
+  const [vfdSelectedSymptoms, setVfdSelectedSymptoms] = useState<VfdSymptom[]>([])
   const [nominalCurrent, setNominalCurrent] = useState('')
   const [measuredCurrent, setMeasuredCurrent] = useState('')
   const [l1Current, setL1Current] = useState('')
@@ -35,6 +43,12 @@ function App() {
   const [l3L1Voltage, setL3L1Voltage] = useState('')
   const [motorTemperature, setMotorTemperature] = useState('')
   const [vibration, setVibration] = useState('')
+  const [faultCode, setFaultCode] = useState('')
+  const [dcBusVoltage, setDcBusVoltage] = useState('')
+  const [outputCurrent, setOutputCurrent] = useState('')
+  const [motorNominalCurrent, setMotorNominalCurrent] = useState('')
+  const [outputFrequency, setOutputFrequency] = useState('')
+  const [driveTemperature, setDriveTemperature] = useState('')
   const [results, setResults] = useState<DiagnosisResult[] | null>(null)
   const [validationMessage, setValidationMessage] = useState('')
   const [measurementWarning, setMeasurementWarning] = useState('')
@@ -43,14 +57,43 @@ function App() {
     { label: 'Dashboard', icon: 'dashboard' }, { label: 'Yeni Teşhis', icon: 'diagnosis', active: true },
     { label: 'Arıza Geçmişi', icon: 'history' }, { label: 'Bilgi Bankası', icon: 'library' }, { label: 'Ayarlar', icon: 'settings' },
   ]
-  const toggleSymptom = (symptom: MotorSymptom) => setSelectedSymptoms((current) => current.includes(symptom) ? current.filter((item) => item !== symptom) : [...current, symptom])
-  const parseMeasurement = (value: string): number | undefined =>
-    value.trim() === '' ? undefined : Number(value)
-  const isProvidedMeasurement = (value: number | undefined | null): value is number =>
-    value !== undefined && value !== null
+  const parseMeasurement = (value: string): number | undefined => value.trim() === '' ? undefined : Number(value)
+  const isProvidedMeasurement = (value: number | undefined | null): value is number => value !== undefined && value !== null
+  const isVfd = equipment === VFD_EQUIPMENT
+  const isSupportedEquipment = equipment === MOTOR_EQUIPMENT || isVfd
+  const toggleMotorSymptom = (symptom: MotorSymptom) => setMotorSelectedSymptoms((current) => current.includes(symptom) ? current.filter((item) => item !== symptom) : [...current, symptom])
+  const toggleVfdSymptom = (symptom: VfdSymptom) => setVfdSelectedSymptoms((current) => current.includes(symptom) ? current.filter((item) => item !== symptom) : [...current, symptom])
+
   const analyze = () => {
     setMeasurementWarning('')
     setMeasurementInfo([])
+    if (isVfd) {
+      const values = {
+        dcBusVoltage: parseMeasurement(dcBusVoltage), outputCurrent: parseMeasurement(outputCurrent),
+        motorNominalCurrent: parseMeasurement(motorNominalCurrent), outputFrequency: parseMeasurement(outputFrequency),
+        driveTemperature: parseMeasurement(driveTemperature),
+      }
+      if (values.motorNominalCurrent !== undefined && (!Number.isFinite(values.motorNominalCurrent) || values.motorNominalCurrent <= 0)) {
+        setValidationMessage('Motor nominal akımı girildiğinde 0 A değerinden büyük olmalıdır.')
+        return
+      }
+      const invalid = Object.entries(values).find(([, value]) => value !== undefined && (!Number.isFinite(value) || value < 0))
+      if (invalid) {
+        setValidationMessage('VFD ölçüm değerleri negatif olamaz.')
+        return
+      }
+      setValidationMessage('')
+      setMeasurementWarning(
+        vfdSelectedSymptoms.includes('Motor aşırı akım çekiyor') &&
+        values.outputCurrent !== undefined && values.motorNominalCurrent !== undefined &&
+        values.outputCurrent <= values.motorNominalCurrent
+          ? '“Motor aşırı akım çekiyor” belirtisi, girilen akım ölçümüyle çelişiyor. Hesaplamada ölçüm verisi önceliklidir.'
+          : '',
+      )
+      setResults(diagnoseVfd({ equipment, symptoms: vfdSelectedSymptoms, faultCode: faultCode.trim() || undefined, ...values }).slice(0, 3))
+      return
+    }
+
     const values = {
       nominalCurrent: parseMeasurement(nominalCurrent), measuredCurrent: parseMeasurement(measuredCurrent),
       l1Current: parseMeasurement(l1Current), l2Current: parseMeasurement(l2Current), l3Current: parseMeasurement(l3Current),
@@ -72,36 +115,21 @@ function App() {
       return
     }
     setValidationMessage('')
-    const hasPartialMeasurement = (measurements: Array<number | undefined>) =>
-      measurements.some(isProvidedMeasurement) && measurements.some((value) => !isProvidedMeasurement(value))
-    const infoMessages = [
-      ...(hasPartialMeasurement([values.l1Current, values.l2Current, values.l3Current])
-        ? ['Faz akımı dengesizliği analizi için L1, L2 ve L3 akımlarının birlikte girilmesi gerekir.']
-        : []),
-      ...(hasPartialMeasurement([values.l1L2Voltage, values.l2L3Voltage, values.l3L1Voltage])
-        ? ['Gerilim dengesizliği analizi için L1-L2, L2-L3 ve L3-L1 gerilimlerinin birlikte girilmesi gerekir.']
-        : []),
-    ]
-    setMeasurementInfo(infoMessages)
+    const hasPartialMeasurement = (measurements: Array<number | undefined>) => measurements.some(isProvidedMeasurement) && measurements.some((value) => !isProvidedMeasurement(value))
+    setMeasurementInfo([
+      ...(hasPartialMeasurement([values.l1Current, values.l2Current, values.l3Current]) ? ['Faz akımı dengesizliği analizi için L1, L2 ve L3 akımlarının birlikte girilmesi gerekir.'] : []),
+      ...(hasPartialMeasurement([values.l1L2Voltage, values.l2L3Voltage, values.l3L1Voltage]) ? ['Gerilim dengesizliği analizi için L1-L2, L2-L3 ve L3-L1 gerilimlerinin birlikte girilmesi gerekir.'] : []),
+    ])
     setMeasurementWarning(
-      selectedSymptoms.includes('Akım nominal değerin üzerinde') &&
-      values.nominalCurrent !== undefined &&
-      values.measuredCurrent !== undefined &&
-      values.measuredCurrent <= values.nominalCurrent
+      motorSelectedSymptoms.includes('Akım nominal değerin üzerinde') && values.nominalCurrent !== undefined &&
+      values.measuredCurrent !== undefined && values.measuredCurrent <= values.nominalCurrent
         ? '“Akım nominal değerin üzerinde” belirtisi, girilen akım ölçümüyle çelişiyor. Hesaplamada ölçüm verisi önceliklidir.'
         : '',
     )
     setResults(diagnoseMotor({
-      equipment,
-      symptoms: selectedSymptoms,
-      nominalCurrent: values.nominalCurrent,
-      measuredCurrent: values.measuredCurrent,
-      phaseMeasurements: {
-        l1Current: values.l1Current, l2Current: values.l2Current, l3Current: values.l3Current,
-        l1L2Voltage: values.l1L2Voltage, l2L3Voltage: values.l2L3Voltage, l3L1Voltage: values.l3L1Voltage,
-      },
-      motorTemperature: values.motorTemperature,
-      vibration: values.vibration,
+      equipment, symptoms: motorSelectedSymptoms, nominalCurrent: values.nominalCurrent, measuredCurrent: values.measuredCurrent,
+      phaseMeasurements: { l1Current: values.l1Current, l2Current: values.l2Current, l3Current: values.l3Current, l1L2Voltage: values.l1L2Voltage, l2L3Voltage: values.l2L3Voltage, l3L1Voltage: values.l3L1Voltage },
+      motorTemperature: values.motorTemperature, vibration: values.vibration,
     }).slice(0, 3))
   }
 
@@ -112,20 +140,17 @@ function App() {
       <div className="sidebar-footer"><span className="status-dot" />Sistem çevrimiçi</div>
     </aside>
     <main className="main-content">
-      <header className="page-header"><div><p className="eyebrow">TEŞHİS MERKEZİ</p><h1>Yeni Arıza Teşhisi</h1><p className="subtitle">Ekipman bilgilerini girin, sistem olası arızaları değerlendirsin.</p></div><div className="header-date">07 Eylül 2026 <span>•</span> Pazartesi</div></header>
+      <header className="page-header"><div><p className="eyebrow">TEŞHİS MERKEZİ</p><h1>Yeni Arıza Teşhisi</h1><p className="subtitle">Ekipman bilgilerini girin, sistem olası arızaları değerlendirsin.</p></div><div className="header-date">08 Eylül 2026 <span>•</span> Salı</div></header>
       <div className="workspace">
         <section className="form-card" aria-labelledby="form-title">
-          <div className="card-heading"><div className="heading-icon">⌁</div><div><h2 id="form-title">Ekipman Bilgileri</h2><p>Teşhis için gerekli alanları doldurun.</p></div></div>
+          <div className="card-heading"><div className="heading-icon">⌁</div><div><h2 id="form-title">{isVfd ? 'VFD Bilgileri' : 'Ekipman Bilgileri'}</h2><p>Teşhis için gerekli alanları doldurun.</p></div></div>
           {validationMessage && <p className="form-message error-message" role="alert">{validationMessage}</p>}
           {measurementWarning && <p className="form-message warning-message" role="status">{measurementWarning}</p>}
           {measurementInfo.map((message) => <p className="form-message info-message" role="status" key={message}>{message}</p>)}
           <form onSubmit={(event) => { event.preventDefault(); analyze() }}>
-            <div className="form-grid"><label>EKİPMAN TÜRÜ<select value={equipment} onChange={(event) => setEquipment(event.target.value)}><option value="" disabled>Ekipman seçiniz</option>{equipmentOptions.map((option) => <option key={option}>{option}</option>)}</select></label><label>MARKA / MODEL<input placeholder="Örn: Siemens 1LE1001" /></label></div>
-            <label className="full-field">PROBLEM TANIMI<textarea rows={3} placeholder="Gözlemlediğiniz problemi kısaca açıklayın..." /></label>
-            <fieldset><legend>BELİRTİLER <span>Uygun olanları seçin</span></legend><div className="symptoms">{symptoms.map((symptom) => <label className="checkbox-label" key={symptom}><input type="checkbox" checked={selectedSymptoms.includes(symptom)} onChange={() => toggleSymptom(symptom)} /><span className="checkmark">✓</span>{symptom}</label>)}</div></fieldset>
-            <div className="form-grid electrical-fields"><label>NOMİNAL AKIM <div className="input-suffix"><input type="number" value={nominalCurrent} onChange={(event) => setNominalCurrent(event.target.value)} placeholder="Örn: 10" min="0" step="0.01" /><span>A</span></div></label><label>ÖLÇÜLEN AKIM <div className="input-suffix"><input type="number" value={measuredCurrent} onChange={(event) => setMeasuredCurrent(event.target.value)} placeholder="Örn: 12" min="0" step="0.01" /><span>A</span></div></label></div>
-            <fieldset className="measurement-section"><legend>FAZ ÖLÇÜMLERİ <span>İsteğe bağlı</span></legend><div className="measurement-grid"><label>L1 AKIM <div className="input-suffix"><input type="number" value={l1Current} onChange={(event) => setL1Current(event.target.value)} placeholder="Örn: 8.5" min="0" step="0.01" /><span>A</span></div></label><label>L2 AKIM <div className="input-suffix"><input type="number" value={l2Current} onChange={(event) => setL2Current(event.target.value)} placeholder="Örn: 8.5" min="0" step="0.01" /><span>A</span></div></label><label>L3 AKIM <div className="input-suffix"><input type="number" value={l3Current} onChange={(event) => setL3Current(event.target.value)} placeholder="Örn: 8.5" min="0" step="0.01" /><span>A</span></div></label></div><div className="measurement-grid"><label>L1-L2 GERİLİM <div className="input-suffix"><input type="number" value={l1L2Voltage} onChange={(event) => setL1L2Voltage(event.target.value)} placeholder="Örn: 400" min="0" step="0.1" /><span>V</span></div></label><label>L2-L3 GERİLİM <div className="input-suffix"><input type="number" value={l2L3Voltage} onChange={(event) => setL2L3Voltage(event.target.value)} placeholder="Örn: 400" min="0" step="0.1" /><span>V</span></div></label><label>L3-L1 GERİLİM <div className="input-suffix"><input type="number" value={l3L1Voltage} onChange={(event) => setL3L1Voltage(event.target.value)} placeholder="Örn: 400" min="0" step="0.1" /><span>V</span></div></label></div></fieldset>
-            <div className="form-grid auxiliary-measurements"><label>MOTOR SICAKLIĞI <div className="input-suffix"><input type="number" value={motorTemperature} onChange={(event) => setMotorTemperature(event.target.value)} placeholder="Örn: 65" min="0" step="0.1" /><span>°C</span></div></label><label>TİTREŞİM <div className="input-suffix"><input type="number" value={vibration} onChange={(event) => setVibration(event.target.value)} placeholder="Örn: 3.2" min="0" step="0.1" /><span>mm/s</span></div></label></div>
+            <div className="form-grid"><label>EKİPMAN TÜRÜ<select value={equipment} onChange={(event) => { setEquipment(event.target.value); setResults(null) }}><option value="" disabled>Ekipman seçiniz</option>{equipmentOptions.map((option) => <option key={option}>{option}</option>)}</select></label><label>MARKA / MODEL<input value={brandModel} onChange={(event) => setBrandModel(event.target.value)} placeholder={isVfd ? 'Örn: Siemens G120' : 'Örn: Siemens 1LE1001'} /></label></div>
+            {!isVfd && <><label className="full-field">PROBLEM TANIMI<textarea rows={3} placeholder="Gözlemlediğiniz problemi kısaca açıklayın..." /></label><fieldset><legend>BELİRTİLER <span>Uygun olanları seçin</span></legend><div className="symptoms">{motorSymptoms.map((symptom) => <label className="checkbox-label" key={symptom}><input type="checkbox" checked={motorSelectedSymptoms.includes(symptom)} onChange={() => toggleMotorSymptom(symptom)} /><span className="checkmark">✓</span>{symptom}</label>)}</div></fieldset><div className="form-grid electrical-fields"><label>NOMİNAL AKIM <div className="input-suffix"><input type="number" value={nominalCurrent} onChange={(event) => setNominalCurrent(event.target.value)} placeholder="Örn: 10" min="0" step="0.01" /><span>A</span></div></label><label>ÖLÇÜLEN AKIM <div className="input-suffix"><input type="number" value={measuredCurrent} onChange={(event) => setMeasuredCurrent(event.target.value)} placeholder="Örn: 12" min="0" step="0.01" /><span>A</span></div></label></div><fieldset className="measurement-section"><legend>FAZ ÖLÇÜMLERİ <span>İsteğe bağlı</span></legend><div className="measurement-grid"><label>L1 AKIM <div className="input-suffix"><input type="number" value={l1Current} onChange={(event) => setL1Current(event.target.value)} placeholder="Örn: 8.5" min="0" step="0.01" /><span>A</span></div></label><label>L2 AKIM <div className="input-suffix"><input type="number" value={l2Current} onChange={(event) => setL2Current(event.target.value)} placeholder="Örn: 8.5" min="0" step="0.01" /><span>A</span></div></label><label>L3 AKIM <div className="input-suffix"><input type="number" value={l3Current} onChange={(event) => setL3Current(event.target.value)} placeholder="Örn: 8.5" min="0" step="0.01" /><span>A</span></div></label></div><div className="measurement-grid"><label>L1-L2 GERİLİM <div className="input-suffix"><input type="number" value={l1L2Voltage} onChange={(event) => setL1L2Voltage(event.target.value)} placeholder="Örn: 400" min="0" step="0.1" /><span>V</span></div></label><label>L2-L3 GERİLİM <div className="input-suffix"><input type="number" value={l2L3Voltage} onChange={(event) => setL2L3Voltage(event.target.value)} placeholder="Örn: 400" min="0" step="0.1" /><span>V</span></div></label><label>L3-L1 GERİLİM <div className="input-suffix"><input type="number" value={l3L1Voltage} onChange={(event) => setL3L1Voltage(event.target.value)} placeholder="Örn: 400" min="0" step="0.1" /><span>V</span></div></label></div></fieldset><div className="form-grid auxiliary-measurements"><label>MOTOR SICAKLIĞI <div className="input-suffix"><input type="number" value={motorTemperature} onChange={(event) => setMotorTemperature(event.target.value)} placeholder="Örn: 65" min="0" step="0.1" /><span>°C</span></div></label><label>TİTREŞİM <div className="input-suffix"><input type="number" value={vibration} onChange={(event) => setVibration(event.target.value)} placeholder="Örn: 3.2" min="0" step="0.1" /><span>mm/s</span></div></label></div></>}
+            {isVfd && <><label className="full-field">ARIZA KODU <input value={faultCode} onChange={(event) => setFaultCode(event.target.value)} placeholder="İsteğe bağlı; örn: F0001" /></label><fieldset><legend>VFD BELİRTİLERİ <span>Uygun olanları seçin</span></legend><div className="symptoms">{vfdSymptoms.map((symptom) => <label className="checkbox-label" key={symptom}><input type="checkbox" checked={vfdSelectedSymptoms.includes(symptom)} onChange={() => toggleVfdSymptom(symptom)} /><span className="checkmark">✓</span>{symptom}</label>)}</div></fieldset><fieldset className="measurement-section"><legend>VFD ÖLÇÜMLERİ <span>İsteğe bağlı</span></legend><div className="form-grid"><label>DC BARA GERİLİMİ <div className="input-suffix"><input type="number" value={dcBusVoltage} onChange={(event) => setDcBusVoltage(event.target.value)} placeholder="Örn: 600" min="0" step="0.1" /><span>V</span></div></label><label>ÇIKIŞ AKIMI <div className="input-suffix"><input type="number" value={outputCurrent} onChange={(event) => setOutputCurrent(event.target.value)} placeholder="Örn: 12" min="0" step="0.01" /><span>A</span></div></label><label>MOTOR NOMİNAL AKIMI <div className="input-suffix"><input type="number" value={motorNominalCurrent} onChange={(event) => setMotorNominalCurrent(event.target.value)} placeholder="Örn: 10" min="0" step="0.01" /><span>A</span></div></label><label>ÇIKIŞ FREKANSI <div className="input-suffix"><input type="number" value={outputFrequency} onChange={(event) => setOutputFrequency(event.target.value)} placeholder="Örn: 50" min="0" step="0.1" /><span>Hz</span></div></label><label>SÜRÜCÜ SICAKLIĞI <div className="input-suffix"><input type="number" value={driveTemperature} onChange={(event) => setDriveTemperature(event.target.value)} placeholder="Örn: 65" min="0" step="0.1" /><span>°C</span></div></label></div></fieldset></>}
             <button className="analyze-button" type="submit"><span>⌁</span> ARIZAYI ANALİZ ET <b>→</b></button>
           </form>
         </section>
@@ -133,8 +158,8 @@ function App() {
           <div className="result-heading"><span className="result-icon">◈</span><div><p className="eyebrow">ANALİZ ÇIKTISI</p><h2>Teşhis Sonucu</h2></div></div>
           <p className="safety-warning">Elektrik ekipmanlarında kontrol veya müdahale öncesinde enerjiyi güvenli şekilde kesin ve tesis prosedürlerini uygulayın.</p>
           {results === null && <div className="result-placeholder"><div className="placeholder-icon">⌁</div><p>Teşhis sonucu burada<br />görüntülenecek.</p><span>Formu doldurup analizi başlatın.</span></div>}
-          {results !== null && equipment !== MOTOR_EQUIPMENT && <div className="result-placeholder"><p>Bu sürümde yalnızca üç fazlı elektrik motoru için teşhis desteklenmektedir.</p></div>}
-          {results !== null && equipment === MOTOR_EQUIPMENT && results.length === 0 && <div className="result-placeholder"><p>Seçilen bilgilerle eşleşen bir kural bulunamadı.</p><span>Belirtileri ve akım değerlerini gözden geçirin.</span></div>}
+          {results !== null && !isSupportedEquipment && <div className="result-placeholder"><p>Bu sürümde seçilen ekipman türü için teşhis desteklenmemektedir.</p></div>}
+          {results !== null && isSupportedEquipment && results.length === 0 && <div className="result-placeholder"><p>Seçilen bilgilerle eşleşen bir kural bulunamadı.</p><span>Belirtileri ve ölçüm değerlerini gözden geçirin.</span></div>}
           {results && results.length > 0 && <div className="diagnosis-results">{results.map((result) => <article className="diagnosis-result" key={result.id}><div className="result-title"><h3>{result.title}</h3><span>Eşleşme: {result.score}/100</span></div><p>{result.description}</p><div className="score-reasons"><strong>Neden eşleşti?</strong><ul>{result.scoringReasons.map((reason) => <li key={reason.label}><span>{reason.label}</span><b>+{reason.points}</b></li>)}</ul></div>{result.observations.length > 0 && <div className="observations"><strong>Ölçüm notları</strong><ul>{result.observations.map((observation) => <li key={observation.label}>ℹ {observation.label}</li>)}</ul></div>}<div className="checks"><strong>Önerilen kontroller</strong><ul>{result.recommendedChecks.map((check) => <li key={check}>{check}</li>)}</ul></div>{result.safetyNotes && <p className="fault-safety">{result.safetyNotes[0]}</p>}</article>)}</div>}
         </aside>
       </div>
