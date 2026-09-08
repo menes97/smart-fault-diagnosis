@@ -36,7 +36,7 @@ function Icon({ name }: { name: IconName }) {
   return <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">{paths[name]}</svg>
 }
 
-function KnowledgeBase() {
+function KnowledgeBase({ onOpenDiagnosis }: { onOpenDiagnosis: (entry: ManufacturerFaultCode) => void }) {
   const [query, setQuery] = useState('')
   const [manufacturer, setManufacturer] = useState('all')
   const [modelFamily, setModelFamily] = useState('all')
@@ -85,7 +85,7 @@ function KnowledgeBase() {
     <div className="knowledge-filter-labels"><span>Üretici</span><span>Model ailesi</span></div>
     <div className="knowledge-results">
       {entries.map((entry) => <article className="knowledge-card" key={entry.manufacturer + entry.modelFamily + entry.code}>
-        <div className="knowledge-card-top"><div><span className="verified-source">Doğrulanmış üretici kaynağı</span><h2>{entry.code} — {entry.titleTr}</h2><p>{entry.manufacturer} <b>·</b> {entry.modelFamily}</p></div><button type="button" className="detail-button" onClick={() => setExpandedCode(expandedCode === entry.code ? null : entry.code)}>Ayrıntıları Gör</button></div>
+        <div className="knowledge-card-top"><div><span className="verified-source">Doğrulanmış üretici kaynağı</span><h2>{entry.code} — {entry.titleTr}</h2><p>{entry.manufacturer} <b>·</b> {entry.modelFamily}</p></div><div className="knowledge-actions"><button type="button" className="open-diagnosis-button" onClick={() => onOpenDiagnosis(entry)}>Yeni Teşhiste Aç</button><button type="button" className="detail-button" onClick={() => setExpandedCode(expandedCode === entry.code ? null : entry.code)}>Ayrıntıları Gör</button></div></div>
         <p className="knowledge-description">{entry.descriptionTr}</p>
         {entry.relatedParameters && <div className="parameter-chips">{entry.relatedParameters.map((parameter) => <span key={parameter.code}>{parameter.code}</span>)}</div>}
         {expandedCode === entry.code && <div className="knowledge-detail"><p>{entry.descriptionTr}</p><div className="checks"><strong>Önerilen kontroller</strong><ul>{entry.recommendedChecks.map((check) => <li key={check}>{check}</li>)}</ul></div>{entry.relatedParameters && <div className="related-parameters"><strong>İlgili Parametreler</strong><ul>{entry.relatedParameters.map((parameter) => <li key={parameter.code}><span><b>{parameter.code}</b> — {parameter.nameTr}</span><small>{parameter.purposeTr}</small></li>)}</ul></div>}{entry.sourceScope && <p className="source-scope">Kaynak kapsamı: {entry.sourceScope}</p>}<a href={entry.sourceUrl} target="_blank" rel="noopener noreferrer">{entry.manufacturer === 'Siemens' ? 'Resmî Siemens kaynağını aç' : 'Resmî üretici kaynağını aç'}</a></div>}
@@ -136,6 +136,28 @@ function App() {
   const isSupportedEquipment = equipment === MOTOR_EQUIPMENT || isVfd
   const toggleMotorSymptom = (symptom: MotorSymptom) => setMotorSelectedSymptoms((current) => current.includes(symptom) ? current.filter((item) => item !== symptom) : [...current, symptom])
   const toggleVfdSymptom = (symptom: VfdSymptom) => setVfdSelectedSymptoms((current) => current.includes(symptom) ? current.filter((item) => item !== symptom) : [...current, symptom])
+  const openKnowledgeEntryInDiagnosis = (entry: ManufacturerFaultCode) => {
+    const manufacturerMap: Record<string, VfdManufacturer> = { Siemens: 'siemens', Yaskawa: 'yaskawa', Danfoss: 'danfoss' }
+    const selectedManufacturer = manufacturerMap[entry.manufacturer]
+    setEquipment(VFD_EQUIPMENT)
+    setVfdManufacturer(selectedManufacturer)
+    setVfdModelFamily(entry.modelFamily)
+    setFaultCode(entry.code)
+    setVfdSelectedSymptoms([])
+    setDcBusVoltage('')
+    setOutputCurrent('')
+    setMotorNominalCurrent('')
+    setOutputFrequency('')
+    setDriveTemperature('')
+    setVfdVoltageClass('unknown')
+    setValidationMessage('')
+    setMeasurementWarning('')
+    setMeasurementInfo([])
+    setManufacturerFault(lookupManufacturerFaultCode(selectedManufacturer, entry.modelFamily, entry.code) ?? null)
+    setUnknownFaultCode(false)
+    setResults([])
+    setActiveView('diagnosis')
+  }
 
   const analyze = () => {
     setMeasurementWarning('')
@@ -220,7 +242,7 @@ function App() {
       <div className="sidebar-footer"><span className="status-dot" />Sistem çevrimiçi</div>
     </aside>
     <main className="main-content">
-      {activeView === 'knowledge' ? <KnowledgeBase /> : <>
+      {activeView === 'knowledge' ? <KnowledgeBase onOpenDiagnosis={openKnowledgeEntryInDiagnosis} /> : <>
       <header className="page-header"><div><p className="eyebrow">TEŞHİS MERKEZİ</p><h1>Yeni Arıza Teşhisi</h1><p className="subtitle">Ekipman bilgilerini girin, sistem olası arızaları değerlendirsin.</p></div><div className="header-date">08 Eylül 2026 <span>•</span> Salı</div></header>
       <div className="workspace">
         <section className="form-card" aria-labelledby="form-title">
