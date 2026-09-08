@@ -18,6 +18,7 @@ import {
   type VfdManufacturer,
   type VfdModelFamily,
 } from './diagnosis/vfdFaultCodes'
+import { QuickCommissioning } from './commissioning/QuickCommissioning'
 import './App.css'
 
 const equipmentOptions = [MOTOR_EQUIPMENT, VFD_EQUIPMENT, 'Endüstriyel Sensör']
@@ -96,7 +97,7 @@ function KnowledgeBase({ onOpenDiagnosis }: { onOpenDiagnosis: (entry: Manufactu
 }
 
 function App() {
-  const [activeView, setActiveView] = useState<'diagnosis' | 'knowledge'>('diagnosis')
+  const [activeView, setActiveView] = useState<'diagnosis' | 'knowledge' | 'commissioning'>('diagnosis')
   const [equipment, setEquipment] = useState('')
   const [brandModel, setBrandModel] = useState('')
   const [motorSelectedSymptoms, setMotorSelectedSymptoms] = useState<MotorSymptom[]>([])
@@ -128,7 +129,7 @@ function App() {
   const [measurementInfo, setMeasurementInfo] = useState<string[]>([])
   const navItems: { label: string; icon: IconName }[] = [
     { label: 'Dashboard', icon: 'dashboard' }, { label: 'Yeni Teşhis', icon: 'diagnosis' },
-    { label: 'Arıza Geçmişi', icon: 'history' }, { label: 'Bilgi Bankası', icon: 'library' }, { label: 'Ayarlar', icon: 'settings' },
+    { label: 'Arıza Geçmişi', icon: 'history' }, { label: 'Bilgi Bankası', icon: 'library' }, { label: 'Hızlı Devreye Alma', icon: 'diagnosis' }, { label: 'Ayarlar', icon: 'settings' },
   ]
   const parseMeasurement = (value: string): number | undefined => value.trim() === '' ? undefined : Number(value)
   const isProvidedMeasurement = (value: number | undefined | null): value is number => value !== undefined && value !== null
@@ -238,11 +239,11 @@ function App() {
   return <div className="app-shell">
     <aside className="sidebar">
       <div className="brand"><span className="brand-mark">⚡</span><span>AKILLI ARIZA<br /><strong>TEŞHİS SİSTEMİ</strong></span></div>
-      <nav aria-label="Ana menü">{navItems.map((item) => <button className={`nav-item ${(item.label === 'Bilgi Bankası' && activeView === 'knowledge') || (item.label === 'Yeni Teşhis' && activeView === 'diagnosis') ? 'active' : ''}`} key={item.label} type="button" onClick={() => { if (item.label === 'Bilgi Bankası') setActiveView('knowledge'); if (item.label === 'Yeni Teşhis') setActiveView('diagnosis') }}><Icon name={item.icon} />{item.label}</button>)}</nav>
+      <nav aria-label="Ana menü">{navItems.map((item) => <button className={`nav-item ${(item.label === 'Bilgi Bankası' && activeView === 'knowledge') || (item.label === 'Yeni Teşhis' && activeView === 'diagnosis') || (item.label === 'Hızlı Devreye Alma' && activeView === 'commissioning') ? 'active' : ''}`} key={item.label} type="button" onClick={() => { if (item.label === 'Bilgi Bankası') setActiveView('knowledge'); if (item.label === 'Yeni Teşhis') setActiveView('diagnosis'); if (item.label === 'Hızlı Devreye Alma') setActiveView('commissioning') }}><Icon name={item.icon} />{item.label}</button>)}</nav>
       <div className="sidebar-footer"><span className="status-dot" />Sistem çevrimiçi</div>
     </aside>
     <main className="main-content">
-      {activeView === 'knowledge' ? <KnowledgeBase onOpenDiagnosis={openKnowledgeEntryInDiagnosis} /> : <>
+      {activeView === 'knowledge' ? <KnowledgeBase onOpenDiagnosis={openKnowledgeEntryInDiagnosis} /> : activeView === 'commissioning' ? <QuickCommissioning /> : <>
       <header className="page-header"><div><p className="eyebrow">TEŞHİS MERKEZİ</p><h1>Yeni Arıza Teşhisi</h1><p className="subtitle">Ekipman bilgilerini girin, sistem olası arızaları değerlendirsin.</p></div><div className="header-date">08 Eylül 2026 <span>•</span> Salı</div></header>
       <div className="workspace">
         <section className="form-card" aria-labelledby="form-title">
