@@ -2,7 +2,7 @@ import type { CommissioningProfile } from './commissioningTypes'
 import { evaluateMotorConnectionConsistency } from './motorConnectionConsistency'
 
 export type CommissioningParameterConfidence = 'verified-direct' | 'conditional' | 'informational'
-export type CommissioningParameterCategory = 'Devreye Alma' | 'Motor Etiketi' | 'Hız / Rampalar' | 'Kumanda / Kontrol' | 'Kumanda ve Analog Hız Referansı' | 'Motor Identification'
+export type CommissioningParameterCategory = 'Devreye Alma' | 'Motor Etiketi' | 'Hız / Rampalar' | 'Kumanda / Kontrol' | 'Kumanda ve Analog Hız Referansı' | 'PROFINET / PLC Kumandası' | 'Motor Identification'
 
 export interface CommissioningParameterRecommendation {
   code: string
@@ -23,12 +23,18 @@ export interface CommissioningParameterPlan {
   sourceName: string
   sourceUrl: string
   analogCommandGuide?: AnalogCommandGuide
+  profinetGuide?: ProfinetGuide
+  profinetWarning?: string
 }
 
 export interface AnalogCommandGuide {
   mode: '0–10 V' | '4–20 mA'
   hardwareSwitch: 'U (Voltage)' | 'I (Current)'
   steps: string[]
+}
+
+export interface ProfinetGuide {
+  checklist: string[]
 }
 
 export const commissioningSource = {
@@ -115,7 +121,11 @@ export function createCommissioningParameterPlan(profile: CommissioningProfile):
   const { controlMethod } = profile.application
   const isVoltageAnalog = controlMethod === 'Terminal + analog 0–10 V'
   const isCurrentAnalog = controlMethod === 'Terminal + analog 4–20 mA'
+  const isProfinet = controlMethod === 'PROFINET / PLC'
+  const isProfinetControlUnit = profile.drive.controlUnit === 'CU240E-2 PN' || profile.drive.controlUnit === 'CU240E-2 PN-F'
   let analogCommandGuide: AnalogCommandGuide | undefined
+  let profinetGuide: ProfinetGuide | undefined
+  let profinetWarning: string | undefined
   if (isVoltageAnalog || isCurrentAnalog) {
     const isCurrent = isCurrentAnalog
     const category: CommissioningParameterCategory = 'Kumanda ve Analog Hız Referansı'
@@ -146,8 +156,27 @@ export function createCommissioningParameterPlan(profile: CommissioningProfile):
         'Hız referansının proses yönü ve maksimum hız sınırlarıyla uyumlu olduğunu doğrulayın.',
       ],
     }
-  } else if (controlMethod === 'PROFINET / PLC') {
-    recommendations.push(informational('p0015', 'Fieldbus macro', 'Fieldbus macro seçimi için Control Unit haberleşme varyantının doğrulanması gerekir.'))
+  } else if (isProfinet && isProfinetControlUnit) {
+    const category: CommissioningParameterCategory = 'PROFINET / PLC Kumandası'
+    recommendations.push(
+      { code: 'p0015', nameTr: 'Sürücü makrosu', value: 7, category, source: commissioningSource.name, confidence: 'conditional', requiresUserConfirmation: true, explanationTr: 'G120 fieldbus commissioning için kullanılan standart başlangıç makrosudur. Seçilen Control Unit ve mevcut saha/PLC yapılandırmasıyla doğrulanmalıdır.', warningTr: 'p0015 tek başına PROFINET devreye almasını tamamlamaz.' },
+      { code: 'p0922', nameTr: 'PROFIdrive telegram seçimi', value: 1, category, source: commissioningSource.name, confidence: 'conditional', requiresUserConfirmation: true, explanationTr: 'Standard Telegram 1 — PZD 2/2. Temel hız kontrolü için iki PZD kelimesini her yönde kullanır.' },
+    )
+    profinetGuide = {
+      checklist: [
+        "Seçilen Control Unit'in CU240E-2 PN veya PN-F olduğunu doğrulayın.",
+        'G120 ve PLC’nin PROFINET bağlantısını fiziksel olarak kontrol edin.',
+        'TIA Portal / engineering project içinde sürücünün doğru cihaz adı (PROFINET device name) ve IP yapılandırmasını doğrulayın.',
+        'Donanım yapılandırmasında PLC ile G120 arasında seçilen telegramın aynı olduğunu doğrulayın.',
+        'Temel hız kontrolü için Standard Telegram 1 kullanılıyorsa p0922 = 1 değerini doğrulayın.',
+        'PLC tarafından gönderilen control word durumunu doğrulayın.',
+        'Sürücü status word bilgisini PLC tarafında izleyin.',
+        'Hız setpoint’inin doğru yönde ve izin verilen hız sınırlarında olduğunu doğrulayın.',
+        'Haberleşme kesildiğinde sürücünün tesis güvenlik/proses stratejisine uygun davranış gösterdiğini doğrulayın.',
+      ],
+    }
+  } else if (isProfinet) {
+    profinetWarning = 'Seçilen Control Unit PROFINET varyantı olarak doğrulanmadı. PROFINET devreye alma rehberi için CU240E-2 PN veya CU240E-2 PN-F seçilmelidir.'
   } else {
     recommendations.push(informational('p0015', 'Kumanda makrosu', 'Seçilen kontrol yöntemi için doğrulanmış bir makro eşlemesi bulunmadığından manuel seçim gerekir.'))
   }
@@ -167,5 +196,7 @@ export function createCommissioningParameterPlan(profile: CommissioningProfile):
     sourceName: commissioningSource.name,
     sourceUrl: commissioningSource.url,
     analogCommandGuide,
+    profinetGuide,
+    profinetWarning,
   }
 }

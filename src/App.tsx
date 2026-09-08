@@ -37,8 +37,8 @@ function Icon({ name }: { name: IconName }) {
   return <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">{paths[name]}</svg>
 }
 
-function KnowledgeBase({ onOpenDiagnosis }: { onOpenDiagnosis: (entry: ManufacturerFaultCode) => void }) {
-  const [query, setQuery] = useState('')
+function KnowledgeBase({ onOpenDiagnosis, initialQuery = '' }: { onOpenDiagnosis: (entry: ManufacturerFaultCode) => void; initialQuery?: string }) {
+  const [query, setQuery] = useState(initialQuery)
   const [manufacturer, setManufacturer] = useState('all')
   const [modelFamily, setModelFamily] = useState('all')
   const [expandedCode, setExpandedCode] = useState<string | null>(null)
@@ -98,6 +98,7 @@ function KnowledgeBase({ onOpenDiagnosis }: { onOpenDiagnosis: (entry: Manufactu
 
 function App() {
   const [activeView, setActiveView] = useState<'diagnosis' | 'knowledge' | 'commissioning'>('diagnosis')
+  const [knowledgeSearch, setKnowledgeSearch] = useState('')
   const [equipment, setEquipment] = useState('')
   const [brandModel, setBrandModel] = useState('')
   const [motorSelectedSymptoms, setMotorSelectedSymptoms] = useState<MotorSymptom[]>([])
@@ -243,7 +244,7 @@ function App() {
       <div className="sidebar-footer"><span className="status-dot" />Sistem çevrimiçi</div>
     </aside>
     <main className="main-content">
-      {activeView === 'knowledge' ? <KnowledgeBase onOpenDiagnosis={openKnowledgeEntryInDiagnosis} /> : activeView === 'commissioning' ? <QuickCommissioning /> : <>
+      {activeView === 'knowledge' ? <KnowledgeBase key={knowledgeSearch} initialQuery={knowledgeSearch} onOpenDiagnosis={openKnowledgeEntryInDiagnosis} /> : activeView === 'commissioning' ? <QuickCommissioning onOpenKnowledgeBase={(code) => { setKnowledgeSearch(code); setActiveView('knowledge') }} /> : <>
       <header className="page-header"><div><p className="eyebrow">TEŞHİS MERKEZİ</p><h1>Yeni Arıza Teşhisi</h1><p className="subtitle">Ekipman bilgilerini girin, sistem olası arızaları değerlendirsin.</p></div><div className="header-date">08 Eylül 2026 <span>•</span> Salı</div></header>
       <div className="workspace">
         <section className="form-card" aria-labelledby="form-title">

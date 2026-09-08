@@ -1,4 +1,4 @@
-export type ControlUnit = '' | 'CU240B-2' | 'CU240E-2'
+export type ControlUnit = '' | 'CU240B-2' | 'CU240E-2' | 'CU240E-2 F' | 'CU240E-2 DP' | 'CU240E-2 DP-F' | 'CU240E-2 PN' | 'CU240E-2 PN-F'
 export type MotorConnection = '' | 'Yıldız (Y)' | 'Üçgen (Δ)' | 'Etikette Y/Δ birlikte verilmiş' | 'Emin değilim'
 export type DualVoltageConnection = 'Delta' | 'Star' | 'Unknown'
 export type LoadType = '' | 'Konveyör / sabit tork' | 'Pompa / fan' | 'Ağır kalkış' | 'Sık ileri-geri çalışma' | 'Hızlı hızlanma-yavaşlama' | 'Genel makine' | 'Emin değilim'

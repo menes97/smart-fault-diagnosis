@@ -15,8 +15,9 @@ import {
   type CommissioningParameterRecommendation,
 } from './commissioningPlan'
 import { evaluateMotorConnectionConsistency, type MotorConnectionConsistency } from './motorConnectionConsistency'
+import { manufacturerFaultCodes } from '../diagnosis/vfdFaultCodes'
 
-const controlUnits: ControlUnit[] = ['CU240B-2', 'CU240E-2']
+const controlUnits: ControlUnit[] = ['CU240B-2', 'CU240E-2', 'CU240E-2 F', 'CU240E-2 DP', 'CU240E-2 DP-F', 'CU240E-2 PN', 'CU240E-2 PN-F']
 const connections: MotorConnection[] = ['Yıldız (Y)', 'Üçgen (Δ)', 'Etikette Y/Δ birlikte verilmiş', 'Emin değilim']
 const loadTypes: LoadType[] = ['Konveyör / sabit tork', 'Pompa / fan', 'Ağır kalkış', 'Sık ileri-geri çalışma', 'Hızlı hızlanma-yavaşlama', 'Genel makine', 'Emin değilim']
 const controlMethods: ControlMethod[] = ['Terminal + analog 0–10 V', 'Terminal + analog 4–20 mA', 'Sabit hızlar', 'PROFINET / PLC', 'PROFIBUS / PLC', 'BOP-2 üzerinden test', 'Emin değilim']
@@ -43,7 +44,7 @@ function SummaryRow({ label, value }: { label: string; value: string | number | 
   return <div className="commissioning-summary-row"><span>{label}</span><strong>{shownValue(value)}</strong></div>
 }
 
-const categoryOrder = ['Devreye Alma', 'Motor Etiketi', 'Hız / Rampalar', 'Kumanda / Kontrol', 'Kumanda ve Analog Hız Referansı', 'Motor Identification'] as const
+const categoryOrder = ['Devreye Alma', 'Motor Etiketi', 'Hız / Rampalar', 'Kumanda / Kontrol', 'Kumanda ve Analog Hız Referansı', 'PROFINET / PLC Kumandası', 'Motor Identification'] as const
 
 function ParameterRecommendation({ recommendation }: { recommendation: CommissioningParameterRecommendation }) {
   const [copied, setCopied] = useState<'code' | 'value' | null>(null)
@@ -62,7 +63,8 @@ function ParameterRecommendation({ recommendation }: { recommendation: Commissio
   </article>
 }
 
-function ParameterPlan({ plan }: { plan: CommissioningParameterPlan }) {
+function ParameterPlan({ plan, onOpenKnowledgeBase }: { plan: CommissioningParameterPlan; onOpenKnowledgeBase: (code: string) => void }) {
+  const relatedProfinetFaults = manufacturerFaultCodes.filter((entry) => ['F08501', 'F08502', 'F01910'].includes(entry.code))
   return <section className="parameter-plan" aria-labelledby="parameter-plan-title">
     <div className="commissioning-heading"><h2 id="parameter-plan-title">G120 Parametre Planı</h2><p>Bu plan yalnızca devreye alma rehberidir; sürücüye parametre yazmaz.</p></div>
     {categoryOrder.map((category) => {
@@ -70,8 +72,10 @@ function ParameterPlan({ plan }: { plan: CommissioningParameterPlan }) {
       return entries.length > 0 && <section className="parameter-group" key={category}><h3>{category}</h3><div>{entries.map((recommendation) => <ParameterRecommendation key={`${recommendation.code}-${String(recommendation.value)}`} recommendation={recommendation} />)}</div></section>
     })}
     {plan.analogCommandGuide && <section className="analog-command-guide" aria-labelledby="analog-command-guide-title"><h3 id="analog-command-guide-title">Adım Adım Kumanda Kontrolü</h3><p><strong>AI0+</strong> Terminal 3 <b>·</b> <strong>AI0-</strong> Terminal 4</p><ol>{plan.analogCommandGuide.steps.map((item) => <li key={item}>{item}</li>)}</ol><a href={plan.sourceUrl} target="_blank" rel="noopener noreferrer">Resmî Siemens devreye alma kılavuzunu aç</a></section>}
+    {plan.profinetWarning && <p className="profinet-warning">{plan.profinetWarning}</p>}
+    {plan.profinetGuide && <section className="profinet-guide" aria-labelledby="profinet-guide-title"><h3 id="profinet-guide-title">Adım Adım PROFINET Kontrolü</h3><div className="telegram-flow"><strong>PLC → G120</strong><p><b>PZD1:</b> Control Word 1 (STW1)</p><p><b>PZD2:</b> Speed setpoint</p><strong>G120 → PLC</strong><p><b>PZD1:</b> Status Word 1 (ZSW1)</p><p><b>PZD2:</b> Actual speed / frequency value</p></div><p className="profinet-observation">Telegramdaki hız değerleri normalize edilmiş PROFIdrive değerleri olarak aktarılabilir. PLC programındaki ölçekleme ve referans değerleri proje yapılandırmasına göre doğrulanmalıdır.</p><ol>{plan.profinetGuide.checklist.map((item) => <li key={item}>{item}</li>)}</ol><p className="profinet-safety">PROFINET kumandası Safety Integrated fonksiyonlarının yerine geçmez. STO/PROFIsafe yapılandırması ayrı güvenlik mühendisliği gerektirir.</p><p className="advanced-telegram-note">Standard Telegram 1 temel hız kontrolü içindir. Daha fazla proses verisi gerektiğinde Telegram 20, 350, 352 vb. Siemens telegramları proje gereksinimine göre değerlendirilebilir.</p><div className="profinet-fault-links"><strong>İlgili doğrulanmış hata kodları</strong>{relatedProfinetFaults.map((fault) => <button type="button" key={fault.code} onClick={() => onOpenKnowledgeBase(fault.code)}>{fault.code} — {fault.titleTr}</button>)}</div><a href={plan.sourceUrl} target="_blank" rel="noopener noreferrer">Resmî Siemens PROFINET / PROFIdrive kılavuzunu aç</a></section>}
     <div className="parameter-plan-warnings">{plan.warnings.map((warning) => <p key={warning}>{warning}</p>)}</div>
-    <a className="commissioning-source-link" href={plan.sourceUrl} target="_blank" rel="noopener noreferrer">Resmî Siemens devreye alma kılavuzunu aç</a>
+    {!plan.analogCommandGuide && !plan.profinetGuide && <a className="commissioning-source-link" href={plan.sourceUrl} target="_blank" rel="noopener noreferrer">Resmî Siemens devreye alma kılavuzunu aç</a>}
   </section>
 }
 
@@ -87,7 +91,7 @@ function MotorConnectionCheck({ consistency, confirmed, onConfirm }: { consisten
   </section>
 }
 
-export function QuickCommissioning() {
+export function QuickCommissioning({ onOpenKnowledgeBase }: { onOpenKnowledgeBase: (code: string) => void }) {
   const [step, setStep] = useState(1)
   const [profile, setProfile] = useState<CommissioningProfile>(emptyCommissioningProfile)
   const [validationMessage, setValidationMessage] = useState('')
@@ -211,7 +215,7 @@ export function QuickCommissioning() {
         <article><h3>Uygulama</h3><SummaryRow label="Yük tipi" value={profile.application.loadType} /><h3>Kontrol yöntemi</h3><SummaryRow label="Kontrol" value={profile.application.controlMethod} /></article>
         <article><h3>Hız / rampalar</h3><SummaryRow label="Minimum hız" value={profile.motion.minimumSpeedRpm === undefined ? undefined : `${profile.motion.minimumSpeedRpm} rpm`} /><SummaryRow label="Maksimum hız" value={profile.motion.maximumSpeedRpm === undefined ? undefined : `${profile.motion.maximumSpeedRpm} rpm`} /><SummaryRow label="Hızlanma" value={profile.motion.accelerationTimeSec === undefined ? undefined : `${profile.motion.accelerationTimeSec} s`} /><SummaryRow label="Yavaşlama" value={profile.motion.decelerationTimeSec === undefined ? undefined : `${profile.motion.decelerationTimeSec} s`} /></article>
         <article><h3>Motor identification koşulları</h3><SummaryRow label="Yükten ayrılabilir mi?" value={profile.identification.loadCanBeDisconnected} /><SummaryRow label="Dönme güvenli mi?" value={profile.identification.rotationIsSafe} /></article>
-      </div><MotorConnectionCheck consistency={connectionConsistency} confirmed={confirmedConnectionWarning === connectionWarningSignature} onConfirm={(checked) => setConfirmedConnectionWarning(checked ? connectionWarningSignature : null)} /><div className="commissioning-plan-notice"><button type="button" onClick={generatePlan}>Parametre Planı Oluştur</button><p>Plan, girilen verilerden oluşturulan rehber niteliğinde öneriler içerir.</p></div>{parameterPlan && <ParameterPlan plan={parameterPlan} />}</div>}
+      </div><MotorConnectionCheck consistency={connectionConsistency} confirmed={confirmedConnectionWarning === connectionWarningSignature} onConfirm={(checked) => setConfirmedConnectionWarning(checked ? connectionWarningSignature : null)} /><div className="commissioning-plan-notice"><button type="button" onClick={generatePlan}>Parametre Planı Oluştur</button><p>Plan, girilen verilerden oluşturulan rehber niteliğinde öneriler içerir.</p></div>{parameterPlan && <ParameterPlan plan={parameterPlan} onOpenKnowledgeBase={onOpenKnowledgeBase} />}</div>}
 
       <div className="commissioning-actions"><button type="button" className="commissioning-back" onClick={previous} disabled={step === 1}>Geri</button>{step < 6 && <button type="button" className="commissioning-next" onClick={next}>Devam <b>→</b></button>}</div>
     </section>
