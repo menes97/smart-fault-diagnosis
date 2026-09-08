@@ -165,7 +165,6 @@ function App() {
       ...(handoff.mechanicalNoise === 'Evet' ? ['Mekanik ses var' as MotorSymptom] : []),
       ...(handoff.vibration === 'Evet' ? ['Titreşim artmış' as MotorSymptom] : []),
       ...(handoff.unexpectedHeating === 'Evet' ? ['Motor ısınıyor' as MotorSymptom] : []),
-      ...(handoff.ratedCurrentA !== undefined && handoff.observedCurrentA !== undefined && handoff.observedCurrentA > handoff.ratedCurrentA ? ['Akım nominal değerin üzerinde' as MotorSymptom] : []),
     ]
     setEquipment(MOTOR_EQUIPMENT)
     setMotorSelectedSymptoms(symptoms)
