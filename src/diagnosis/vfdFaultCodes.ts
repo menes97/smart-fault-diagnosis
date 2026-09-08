@@ -32,6 +32,14 @@ const siemensSource = {
   sourceSection: 'Faults and alarms',
 }
 
+const siemensBatchTwoSource = {
+  sourceName: 'Siemens SINAMICS G120 Operating Instructions',
+  sourceUrl: 'https://sid.siemens.com/v/u/A6V10556727',
+  sourceDocument: 'SINAMICS G120 Operating Instructions / Compact Operating Instructions',
+  sourceScope: 'Applicable G120 variants as documented by Siemens',
+  sourceSection: 'Faults and alarms',
+}
+
 const yaskawaSource = {
   sourceName: 'Yaskawa V1000 Technical Manual',
   sourceUrl: 'https://www.yaskawa.com/delegate/getAttachment?cmd=documents&documentId=SIEPC71060618&documentName=SIEPC71060618.pdf',
@@ -64,6 +72,18 @@ const turkishDescriptions: Record<string, string> = {
   'SINAMICS G120:F30005': 'Güç ünitesi I²t aşırı yükü bildiriyor.',
   'SINAMICS G120:F30011': 'Ana devrede besleme fazı kaybı bildiriliyor.',
   'SINAMICS G120:F30021': 'Güç ünitesi toprak hatası bildiriyor.',
+  'SINAMICS G120:F01018': 'Sürücü açılışı birden fazla kez başarısız oldu.',
+  'SINAMICS G120:F01122': 'Probe giriş frekansının çok yüksek olduğu bildiriliyor.',
+  'SINAMICS G120:F30015': 'Motor kablosunda faz kaybı bildiriliyor.',
+  'SINAMICS G120:F30022': 'Power Module güç anahtarı izleme hatası bildiriliyor.',
+  'SINAMICS G120:F30027': 'DC bara ön şarj zaman aşımı bildiriliyor.',
+  'SINAMICS G120:F30035': 'Giriş havası aşırı sıcaklığı bildiriliyor.',
+  'SINAMICS G120:F30036': 'Güç ünitesi iç bölge aşırı sıcaklığı bildiriliyor.',
+  'SINAMICS G120:F30037': 'Doğrultucu aşırı sıcaklığı bildiriliyor.',
+  'SINAMICS G120:F30052': 'Power Module verilerinin hatalı olduğu bildiriliyor.',
+  'SINAMICS G120:F30053': 'Power Module FPGA veri hatası bildiriliyor.',
+  'SINAMICS G120:F30059': 'Dahili fan arızası bildiriliyor.',
+  'SINAMICS G120:F30074': 'Control Unit ile Power Module arasında haberleşme hatası bildiriliyor.',
   'V1000:Uv1': 'Sürücü DC bara düşük gerilimi bildiriyor.',
   'V1000:GF': 'Sürücü motor tarafında toprak hatası bildiriyor.',
   'V1000:oC': 'Sürücü aşırı akım bildiriyor.',
@@ -104,6 +124,18 @@ const rawManufacturerFaultCodes: Array<Omit<ManufacturerFaultCode, 'descriptionT
   { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30005', title: 'Power unit: Overload I2t', titleTr: 'Güç ünitesi I²t aşırı yükü', description: 'The power unit reports an I2t overload condition.', recommendedChecks: ['Yük profilini ve çalışma çevrimini değerlendirin.', 'Sürücü boyutlandırmasını ve akım limitlerini yetkili personelle gözden geçirin.'], ...siemensSource },
   { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30011', title: 'Power unit: Line phase failure in main circuit', titleTr: 'Ana devrede besleme fazı kaybı', description: 'The power unit reports line phase failure in the main circuit.', recommendedChecks: ['Üç faz giriş beslemesini kontrol edin.', 'Sigorta, kontaktör ve güç bağlantılarını yetkili personelle değerlendirin.'], ...siemensSource },
   { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30021', title: 'Power unit: Ground fault', titleTr: 'Güç ünitesi toprak hatası', description: 'The power unit reports a ground fault.', recommendedChecks: ['Motor kablosu ve motor izolasyonunun yetkili personel tarafından uygun test yöntemleriyle değerlendirilmesini sağlayın.', 'Enerji izolasyonu altında kablo ve bağlantıları inceleyin.'], ...siemensSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F01018', title: 'Power-up aborted more than once', titleTr: 'Sürücü açılışı birden fazla kez başarısız oldu', description: 'Drive power-up was aborted more than once.', recommendedChecks: ['Sürücüyü güvenli şekilde yeniden enerjilendirmeden önce hata geçmişini değerlendirin.', 'Parametre ve commissioning durumunu kontrol edin.'], ...siemensBatchTwoSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F01122', title: 'Frequency at the probe input too high', titleTr: 'Probe giriş frekansı çok yüksek', description: 'The frequency at the probe input is too high.', recommendedChecks: ['Probe girişine gelen darbe frekansını kontrol edin.', 'Sensör veya enkoder sinyal koşullarını değerlendirin.'], ...siemensBatchTwoSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30015', title: 'Motor cable phase failure', titleTr: 'Motor kablosunda faz kaybı', description: 'A motor cable phase failure is reported.', recommendedChecks: ['Motor kablosu ve terminal bağlantılarını kontrol edin.', 'Faz sürekliliğini yetkili personel tarafından doğrulayın.'], ...siemensBatchTwoSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30022', title: 'Power Module: Monitoring VCE/UCE', titleTr: 'Power Module güç anahtarı izleme hatası', description: 'The Power Module reports a VCE/UCE monitoring fault.', recommendedChecks: ['Power Module durumunu ve bağlantılarını değerlendirin.', 'Tekrarlayan durumda üretici servisine yönlendirin.'], ...siemensBatchTwoSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30027', title: 'Time monitoring for DC link pre-charging', titleTr: 'DC bara ön şarj zaman aşımı', description: 'DC link pre-charging did not complete within the monitored time.', recommendedChecks: ['Giriş besleme gerilimini kontrol edin.', 'Faz beslemelerini ve ana kontaktör koşullarını değerlendirin.', 'DC bara ön şarj devresiyle ilgili üretici kontrollerini inceleyin.'], ...siemensBatchTwoSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30035', title: 'Overtemperature, intake air', titleTr: 'Giriş havası aşırı sıcaklığı', description: 'The intake air temperature is too high.', recommendedChecks: ['Fan çalışmasını kontrol edin.', 'Hava akışını ve filtreleri kontrol edin.', 'Ortam sıcaklığını değerlendirin.'], ...siemensBatchTwoSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30036', title: 'Overtemperature, inside area', titleTr: 'Güç ünitesi iç bölge aşırı sıcaklığı', description: 'The internal power unit area temperature is too high.', recommendedChecks: ['Fan çalışmasını kontrol edin.', 'Hava akışını ve filtreleri kontrol edin.', 'Ortam sıcaklığını değerlendirin.'], ...siemensBatchTwoSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30037', title: 'Rectifier overtemperature', titleTr: 'Doğrultucu aşırı sıcaklığı', description: 'The rectifier temperature is too high.', recommendedChecks: ['Fan çalışmasını kontrol edin.', 'Hava akışını ve filtreleri kontrol edin.', 'Ortam sıcaklığını değerlendirin.', 'Motor yükünü ve giriş fazlarını kontrol edin.'], ...siemensBatchTwoSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30052', title: 'Incorrect Power Module data', titleTr: 'Power Module verileri hatalı', description: 'The Power Module data is reported as incorrect.', recommendedChecks: ['Firmware / Power Module uyumluluğunu değerlendirin.', 'Gerekirse üretici teknik desteğine yönlendirin.'], ...siemensBatchTwoSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30053', title: 'Error in FPGA data', titleTr: 'Power Module FPGA veri hatası', description: 'An error in Power Module FPGA data is reported.', recommendedChecks: ['Firmware / Power Module uyumluluğunu değerlendirin.', 'Gerekirse üretici teknik desteğine yönlendirin.'], ...siemensBatchTwoSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30059', title: 'Internal fan defective', titleTr: 'Dahili fan arızası', description: 'The internal fan is reported as defective.', recommendedChecks: ['Dahili fan durumunu kontrol edin.'], ...siemensBatchTwoSource },
+  { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30074', title: 'Communications fault between Control Unit and Power Module', titleTr: 'Control Unit ile Power Module arasında haberleşme hatası', description: 'A communication fault between the Control Unit and Power Module is reported.', recommendedChecks: ['Control Unit ve Power Module bağlantısını kontrol edin.', '24 V kontrol beslemesinin kararlılığını değerlendirin.'], ...siemensBatchTwoSource },
 
   { manufacturer: 'Yaskawa', modelFamily: 'V1000', code: 'Uv1', title: 'DC Bus Undervoltage', titleTr: 'DC bara düşük gerilimi', description: 'Drive reports DC bus undervoltage.', recommendedChecks: ['Giriş beslemesini ve bağlantıları yetkili elektrik personeliyle kontrol edin.'], ...yaskawaSource },
   { manufacturer: 'Yaskawa', modelFamily: 'V1000', code: 'GF', title: 'Ground Fault', titleTr: 'Toprak hatası', description: 'Drive reports a ground fault on the motor side.', recommendedChecks: ['Enerji izolasyonu sonrası motor ve kablo devresini yetkili personelle inceleyin.'], ...yaskawaSource },
