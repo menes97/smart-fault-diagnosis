@@ -2,7 +2,7 @@ import type { CommissioningProfile } from './commissioningTypes'
 import { evaluateMotorConnectionConsistency } from './motorConnectionConsistency'
 
 export type CommissioningParameterConfidence = 'verified-direct' | 'conditional' | 'informational'
-export type CommissioningParameterCategory = 'Devreye Alma' | 'Motor Etiketi' | 'Hız / Rampalar' | 'Kumanda / Kontrol' | 'Kumanda ve Analog Hız Referansı' | 'PROFINET / PLC Kumandası' | 'Motor Identification'
+export type CommissioningParameterCategory = 'Devreye Alma' | 'Motor Etiketi' | 'Hız / Rampalar' | 'Kumanda / Kontrol' | 'Kumanda ve Analog Hız Referansı' | 'PROFINET / PLC Kumandası' | 'Devreye Almayı Tamamlama' | 'Motor Identification'
 
 export interface CommissioningParameterRecommendation {
   code: string
@@ -25,6 +25,7 @@ export interface CommissioningParameterPlan {
   analogCommandGuide?: AnalogCommandGuide
   profinetGuide?: ProfinetGuide
   profinetWarning?: string
+  completionGuide: CompletionGuide
 }
 
 export interface AnalogCommandGuide {
@@ -34,6 +35,12 @@ export interface AnalogCommandGuide {
 }
 
 export interface ProfinetGuide {
+  checklist: string[]
+}
+
+export interface CompletionGuide {
+  controlSource: 'analog' | 'PROFINET' | 'terminal'
+  sequence: string[]
   checklist: string[]
 }
 
@@ -103,6 +110,13 @@ export function createCommissioningParameterPlan(profile: CommissioningProfile):
     })
   }
 
+  recommendations.push({
+    code: 'p3900', nameTr: 'Hızlı devreye almayı tamamla', value: 'Seçim gerekli', category: 'Devreye Almayı Tamamlama', source: commissioningSource.name,
+    confidence: 'conditional', requiresUserConfirmation: true,
+    explanationTr: 'Hızlı devreye alma tamamlanır; uygulanacak değer, seçilen CU, firmware ve mevcut makine konfigürasyonuna göre Siemens dokümantasyonundan doğrulanmalıdır.',
+    warningTr: 'Mevcut çalışan bir makinede p3900 seçimi bazı mevcut parametre veya I/O ayarlarını etkileyebilir. Değer seçilmeden önce Siemens dokümantasyonu ve mevcut sürücü konfigürasyonu doğrulanmalıdır.',
+  })
+
   const cannotRotateSafely = profile.identification.rotationIsSafe === 'Hayır' || profile.identification.loadCanBeDisconnected === 'Hayır'
   const canRotateSafely = profile.identification.rotationIsSafe === 'Evet' && profile.identification.loadCanBeDisconnected === 'Evet'
   if (canRotateSafely) {
@@ -126,6 +140,25 @@ export function createCommissioningParameterPlan(profile: CommissioningProfile):
   let analogCommandGuide: AnalogCommandGuide | undefined
   let profinetGuide: ProfinetGuide | undefined
   let profinetWarning: string | undefined
+  const completionGuide: CompletionGuide = {
+    controlSource: isVoltageAnalog || isCurrentAnalog ? 'analog' : isProfinet ? 'PROFINET' : 'terminal',
+    sequence: [
+      'Motor etiketi ve sürücü parametrelerini son kez doğrulayın.',
+      'Motor terminal bağlantısının Y/Δ etiket bilgisiyle uyumlu olduğunu doğrulayın.',
+      `Kumanda kaynağını doğrulayın: ${isVoltageAnalog || isCurrentAnalog ? 'analog' : isProfinet ? 'PROFINET' : 'terminal'}.`,
+      'p3900 için uygulanacak tamamlama yöntemini Siemens dokümantasyonuna göre seçin.',
+      'p3900 değerini uyguladıktan sonra sürücünün dahili hesaplamaları tamamlamasını bekleyin.',
+      'Bu işlem sırasında kısa süreli haberleşme kesintileri olabileceğini kullanıcıya bildirin.',
+      'İşlem tamamlandıktan sonra p3900 = 0 ve p0010 = 0 değerlerini doğrulayın.',
+      'Sürücü commissioning modundan çıktıktan sonra motor identification planına geçin.',
+    ],
+    checklist: [
+      'Motor etiketi doğrulandı', 'Y/Δ terminal bağlantısı doğrulandı', 'Şebeke gerilimi doğrulandı',
+      'Motor akımı / gerilimi / güç / frekans doğrulandı', 'Minimum / maksimum hız doğrulandı',
+      'Rampalar doğrulandı', 'Kumanda kaynağı doğrulandı', 'p3900 tamamlandı', 'p0010 = 0 doğrulandı',
+      'Safety fonksiyonları ayrı olarak doğrulandı', 'Motor identification koşulları güvenli',
+    ],
+  }
   if (isVoltageAnalog || isCurrentAnalog) {
     const isCurrent = isCurrentAnalog
     const category: CommissioningParameterCategory = 'Kumanda ve Analog Hız Referansı'
@@ -198,5 +231,6 @@ export function createCommissioningParameterPlan(profile: CommissioningProfile):
     analogCommandGuide,
     profinetGuide,
     profinetWarning,
+    completionGuide,
   }
 }
