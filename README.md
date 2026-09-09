@@ -36,6 +36,37 @@ Uygulamanın temel yaklaşımı **serbest AI tahmini yapmak yerine deterministik
 
 ---
 
+## 📸 Uygulama görüntüleri
+
+### Bakım Dashboard
+
+<p align="center">
+  <img src="docs/screenshots/dashboard.png" alt="Akıllı Arıza Teşhis Sistemi Bakım Dashboard" width="100%" />
+</p>
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <strong>Arıza Teşhisi</strong><br/><br/>
+      <img src="docs/screenshots/diagnosis.png" alt="Elektrik motoru ve VFD arıza teşhis ekranı" width="100%" />
+    </td>
+    <td width="50%" valign="top">
+      <strong>G120 Hızlı Devreye Alma</strong><br/><br/>
+      <img src="docs/screenshots/commissioning.png" alt="Siemens SINAMICS G120 hızlı devreye alma ekranı" width="100%" />
+    </td>
+  </tr>
+</table>
+
+### Arıza Geçmişi
+
+<p align="center">
+  <img src="docs/screenshots/history.png" alt="Kaydedilmiş arıza teşhis geçmişi" width="100%" />
+</p>
+
+> Canlı sürümü doğrudan denemek için: **[smart-fault-diagnosis.vercel.app](https://smart-fault-diagnosis.vercel.app/)**
+
+---
+
 ## 🧩 Uygulama akışı
 
 ```mermaid
