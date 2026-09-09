@@ -1,3 +1,5 @@
+import { g120ExtendedFaultCodes } from './g120ExtendedFaultCodes'
+
 export type VfdManufacturer = 'siemens' | 'yaskawa' | 'danfoss'
 export type VfdModelFamily = 'SINAMICS G120' | 'V1000' | 'VLT AutomationDrive FC 302'
 
@@ -167,10 +169,13 @@ const rawManufacturerFaultCodes: Array<Omit<ManufacturerFaultCode, 'descriptionT
   { manufacturer: 'Danfoss', modelFamily: 'VLT AutomationDrive FC 302', code: '13', title: 'Overcurrent', titleTr: 'Aşırı akım', description: 'Drive reports overcurrent.', recommendedChecks: ['Motor, kablo ve mekanik yük koşullarını yetkili personelle inceleyin.'], ...danfossSource },
 ]
 
-export const manufacturerFaultCodes: ManufacturerFaultCode[] = rawManufacturerFaultCodes.map((entry) => ({
-  ...entry,
-  descriptionTr: turkishDescriptions[`${entry.modelFamily}:${entry.code}`],
-}))
+export const manufacturerFaultCodes: ManufacturerFaultCode[] = [
+  ...rawManufacturerFaultCodes.map((entry) => ({
+    ...entry,
+    descriptionTr: turkishDescriptions[`${entry.modelFamily}:${entry.code}`],
+  })),
+  ...g120ExtendedFaultCodes,
+]
 
 export function normalizeFaultCode(value: string): string {
   return value.trim().replaceAll(' ', '').toUpperCase()
