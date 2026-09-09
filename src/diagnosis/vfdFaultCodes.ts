@@ -2,6 +2,18 @@ import { g120ExtendedFaultCodes } from './g120ExtendedFaultCodes'
 
 export type VfdManufacturer = 'siemens' | 'yaskawa' | 'danfoss'
 export type VfdModelFamily = 'SINAMICS G120' | 'V1000' | 'VLT AutomationDrive FC 302'
+export type FaultCategory =
+  | 'Motor'
+  | 'Power Module'
+  | 'Besleme / DC Bara'
+  | 'Haberleşme'
+  | 'Analog / Dijital I/O'
+  | 'Safety Integrated'
+  | 'Devreye Alma / Parametre'
+  | 'Sıcaklık / Soğutma'
+  | 'Frenleme'
+  | 'Dahili / Firmware'
+  | 'Diğer'
 
 export interface RelatedParameter {
   code: string
@@ -25,6 +37,7 @@ export interface ManufacturerFaultCode {
   sourceSection?: string
   relatedParameters?: RelatedParameter[]
   safetyNoteTr?: string
+  category: FaultCategory
 }
 
 const siemensSource = {
@@ -114,7 +127,18 @@ const turkishDescriptions: Record<string, string> = {
   'VLT AutomationDrive FC 302:13': 'Sürücü aşırı akım bildiriyor.',
 }
 
-const rawManufacturerFaultCodes: Array<Omit<ManufacturerFaultCode, 'descriptionTr'>> = [
+// Bu eşleme yalnızca kanonik Siemens G120 hata kodlarını kullanır; çalışma
+// zamanında başlık ya da anahtar kelime üzerinden kategori tahmini yapılmaz.
+const g120FaultCategoryByCode: Record<string, FaultCategory> = {
+  F01000: 'Dahili / Firmware', F01001: 'Dahili / Firmware', F01002: 'Dahili / Firmware', F01003: 'Dahili / Firmware', F01005: 'Dahili / Firmware', F01010: 'Devreye Alma / Parametre', F01015: 'Dahili / Firmware', F01018: 'Devreye Alma / Parametre', F01023: 'Dahili / Firmware', F01030: 'Haberleşme', F01033: 'Devreye Alma / Parametre', F01034: 'Devreye Alma / Parametre', F01036: 'Devreye Alma / Parametre', F01038: 'Devreye Alma / Parametre', F01039: 'Devreye Alma / Parametre', F01040: 'Devreye Alma / Parametre', F01042: 'Devreye Alma / Parametre', F01043: 'Devreye Alma / Parametre', F01044: 'Dahili / Firmware', F01054: 'Dahili / Firmware', F01068: 'Dahili / Firmware', F01072: 'Devreye Alma / Parametre',
+  F01105: 'Dahili / Firmware', F01107: 'Dahili / Firmware', F01112: 'Power Module', F01120: 'Analog / Dijital I/O', F01122: 'Analog / Dijital I/O', F01205: 'Dahili / Firmware', F01250: 'Dahili / Firmware', F01257: 'Dahili / Firmware', F01340: 'Devreye Alma / Parametre', F01505: 'Devreye Alma / Parametre', F01510: 'Devreye Alma / Parametre', F01511: 'Devreye Alma / Parametre', F01512: 'Devreye Alma / Parametre', F01513: 'Devreye Alma / Parametre', F01515: 'Devreye Alma / Parametre',
+  F01600: 'Safety Integrated', F01611: 'Safety Integrated', F01625: 'Safety Integrated', F01650: 'Safety Integrated', F01653: 'Safety Integrated', F01658: 'Safety Integrated', F01660: 'Safety Integrated', F01662: 'Safety Integrated', F01665: 'Safety Integrated',
+  F01910: 'Haberleşme', F01946: 'Haberleşme', F01951: 'Haberleşme', F02151: 'Dahili / Firmware', F02152: 'Dahili / Firmware', F03000: 'Dahili / Firmware', F03001: 'Dahili / Firmware', F03505: 'Analog / Dijital I/O', F06310: 'Besleme / DC Bara', F06922: 'Frenleme', F07011: 'Motor', F07016: 'Sıcaklık / Soğutma', F07080: 'Devreye Alma / Parametre', F07082: 'Devreye Alma / Parametre', F07083: 'Devreye Alma / Parametre', F07084: 'Devreye Alma / Parametre', F07086: 'Devreye Alma / Parametre', F07088: 'Devreye Alma / Parametre',
+  F07220: 'Haberleşme', F07300: 'Analog / Dijital I/O', F07320: 'Devreye Alma / Parametre', F07330: 'Devreye Alma / Parametre', F07331: 'Devreye Alma / Parametre', F07404: 'Besleme / DC Bara', F07405: 'Besleme / DC Bara', F07406: 'Besleme / DC Bara', F07410: 'Motor', F07801: 'Motor', F07802: 'Power Module', F07807: 'Power Module', F07900: 'Motor', F07901: 'Motor', F07902: 'Motor', F07950: 'Motor', F07990: 'Motor', F08501: 'Haberleşme', F08502: 'Haberleşme',
+  F30001: 'Power Module', F30002: 'Besleme / DC Bara', F30003: 'Besleme / DC Bara', F30004: 'Sıcaklık / Soğutma', F30005: 'Power Module', F30011: 'Besleme / DC Bara', F30015: 'Motor', F30021: 'Power Module', F30022: 'Power Module', F30027: 'Besleme / DC Bara', F30035: 'Sıcaklık / Soğutma', F30036: 'Sıcaklık / Soğutma', F30037: 'Sıcaklık / Soğutma', F30052: 'Power Module', F30053: 'Power Module', F30059: 'Sıcaklık / Soğutma', F30074: 'Power Module',
+}
+
+const rawManufacturerFaultCodes: Array<Omit<ManufacturerFaultCode, 'descriptionTr' | 'category'>> = [
   { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30002', title: 'Power unit: DC link voltage overvoltage', titleTr: 'DC bara aşırı gerilimi', description: 'DC link voltage is reported above the permitted operating condition.', recommendedChecks: ['Besleme gerilimini değerlendirin.', 'Yavaşlama sırasında rejeneratif enerji koşullarını değerlendirin.', 'Varsa frenleme sistemini üretici dokümantasyonuna göre kontrol edin.'], relatedParameters: [{ code: 'p1121', nameTr: 'Yavaşlama rampası süresi', purposeTr: 'Rejeneratif enerji nedeniyle DC bara gerilimi yükseliyorsa yavaşlama süresini değerlendirmek için.' }, { code: 'p1130', nameTr: 'Rampa yuvarlama süresi başlangıcı', purposeTr: 'Hız rampasının geçişlerini yumuşatmak için.' }, { code: 'p1136', nameTr: 'Rampa yuvarlama süresi sonu', purposeTr: 'Yavaşlama rampasındaki dinamik geçişleri yumuşatmak için.' }, { code: 'p1240', nameTr: 'Vdc kontrol yapılandırması - vektör kontrol', purposeTr: 'DC bara maksimum gerilim kontrolünün vektör kontrolde etkinliğini değerlendirmek için.' }, { code: 'p1280', nameTr: 'Vdc kontrol yapılandırması - U/f', purposeTr: 'DC bara maksimum gerilim kontrolünün U/f kontrolde etkinliğini değerlendirmek için.' }, { code: 'p0210', nameTr: 'Sürücü giriş besleme gerilimi', purposeTr: 'Sürücünün beklediği şebeke gerilimi ayarını kontrol etmek için.' }], ...siemensSource },
   { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F30003', title: 'Power unit: DC link voltage undervoltage', titleTr: 'DC bara düşük gerilimi', description: 'DC link voltage is reported below the expected operating condition.', recommendedChecks: ['Giriş besleme gerilimini ve bağlantıları kontrol edin.', 'DC bara gerilimini doğrulayın.'], ...siemensSource },
   { manufacturer: 'Siemens', modelFamily: 'SINAMICS G120', code: 'F07807', title: 'Drive: Short-circuit / ground fault detected', titleTr: 'Kısa devre / toprak hatası algılandı', description: 'Drive reports a possible output short-circuit or ground fault.', recommendedChecks: ['Enerji izolasyonu sonrası motor ve kablo devresini yetkili personelle inceleyin.', 'İzolasyon ve topraklama kontrollerini üretici prosedürlerine göre planlayın.'], ...siemensSource },
@@ -169,13 +193,38 @@ const rawManufacturerFaultCodes: Array<Omit<ManufacturerFaultCode, 'descriptionT
   { manufacturer: 'Danfoss', modelFamily: 'VLT AutomationDrive FC 302', code: '13', title: 'Overcurrent', titleTr: 'Aşırı akım', description: 'Drive reports overcurrent.', recommendedChecks: ['Motor, kablo ve mekanik yük koşullarını yetkili personelle inceleyin.'], ...danfossSource },
 ]
 
+function withFaultCategory(entry: Omit<ManufacturerFaultCode, 'category'>): ManufacturerFaultCode {
+  const isG120 = entry.manufacturer === 'Siemens' && entry.modelFamily === 'SINAMICS G120'
+
+  return {
+    ...entry,
+    category: isG120 ? g120FaultCategoryByCode[entry.code] : 'Diğer',
+  }
+}
+
 export const manufacturerFaultCodes: ManufacturerFaultCode[] = [
-  ...rawManufacturerFaultCodes.map((entry) => ({
+  ...rawManufacturerFaultCodes.map((entry) => withFaultCategory({
     ...entry,
     descriptionTr: turkishDescriptions[`${entry.modelFamily}:${entry.code}`],
   })),
-  ...g120ExtendedFaultCodes,
+  ...g120ExtendedFaultCodes.map(withFaultCategory),
 ]
+
+function validateG120FaultCategories(): void {
+  const g120Codes = manufacturerFaultCodes
+    .filter((entry) => entry.manufacturer === 'Siemens' && entry.modelFamily === 'SINAMICS G120')
+    .map((entry) => entry.code)
+  const uniqueCodes = new Set(g120Codes)
+  const mappingCodes = Object.keys(g120FaultCategoryByCode)
+  const missingMappings = g120Codes.filter((code) => !g120FaultCategoryByCode[code])
+  const orphanMappings = mappingCodes.filter((code) => !uniqueCodes.has(code))
+
+  if (g120Codes.length !== 100 || uniqueCodes.size !== g120Codes.length || missingMappings.length || orphanMappings.length) {
+    throw new Error('SINAMICS G120 hata kodu kategori eşlemesi doğrulanamadı.')
+  }
+}
+
+if (import.meta.env.DEV) validateG120FaultCategories()
 
 export function normalizeFaultCode(value: string): string {
   return value.trim().replaceAll(' ', '').toUpperCase()

@@ -15,6 +15,7 @@ import {
   manufacturerFaultCodes,
   lookupManufacturerFaultCode,
   type ManufacturerFaultCode,
+  type FaultCategory,
   type VfdManufacturer,
   type VfdModelFamily,
 } from './diagnosis/vfdFaultCodes'
@@ -44,7 +45,9 @@ function KnowledgeBase({ onOpenDiagnosis, initialQuery = '' }: { onOpenDiagnosis
   const [query, setQuery] = useState(initialQuery)
   const [manufacturer, setManufacturer] = useState('all')
   const [modelFamily, setModelFamily] = useState('all')
+  const [category, setCategory] = useState<FaultCategory | 'all'>('all')
   const [expandedCode, setExpandedCode] = useState<string | null>(null)
+  const categoryOptions: FaultCategory[] = ['Motor', 'Power Module', 'Besleme / DC Bara', 'Haberleşme', 'Analog / Dijital I/O', 'Safety Integrated', 'Devreye Alma / Parametre', 'Sıcaklık / Soğutma', 'Frenleme', 'Dahili / Firmware', 'Diğer']
   const manufacturers = [...new Set(manufacturerFaultCodes.map((entry) => entry.manufacturer))]
   const modelFamilies = [...new Set(manufacturerFaultCodes
     .filter((entry) => manufacturer === 'all' || entry.manufacturer === manufacturer)
@@ -59,7 +62,8 @@ function KnowledgeBase({ onOpenDiagnosis, initialQuery = '' }: { onOpenDiagnosis
   }
   const entries = manufacturerFaultCodes
     .filter((entry) => (manufacturer === 'all' || entry.manufacturer === manufacturer) &&
-      (modelFamily === 'all' || entry.modelFamily === modelFamily))
+      (modelFamily === 'all' || entry.modelFamily === modelFamily) &&
+      (category === 'all' || entry.category === category))
     .map((entry) => {
       if (!normalizedQuery) return { entry, rank: 6 }
       const queryCode = compact(query)
@@ -85,11 +89,12 @@ function KnowledgeBase({ onOpenDiagnosis, initialQuery = '' }: { onOpenDiagnosis
       <input aria-label="Hata kodu, arıza veya parametre ara" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Hata kodu, arıza veya parametre ara..." />
       <select aria-label="Üretici filtresi" value={manufacturer} onChange={(event) => { setManufacturer(event.target.value); setModelFamily('all') }}><option value="all">Tümü</option>{manufacturers.map((item) => <option key={item}>{item}</option>)}</select>
       <select aria-label="Model ailesi filtresi" value={modelFamily} onChange={(event) => setModelFamily(event.target.value)}><option value="all">Tümü</option>{modelFamilies.map((item) => <option key={item}>{item}</option>)}</select>
+      <select aria-label="Kategori filtresi" value={category} onChange={(event) => setCategory(event.target.value as FaultCategory | 'all')}><option value="all">Tümü</option>{categoryOptions.map((item) => <option key={item}>{item}</option>)}</select>
     </div>
-    <div className="knowledge-filter-labels"><span>Üretici</span><span>Model ailesi</span></div>
+    <div className="knowledge-filter-labels"><span>Üretici</span><span>Model ailesi</span><span>Kategori</span></div>
     <div className="knowledge-results">
       {entries.map((entry) => <article className="knowledge-card" key={entry.manufacturer + entry.modelFamily + entry.code}>
-        <div className="knowledge-card-top"><div><span className="verified-source">Doğrulanmış üretici kaynağı</span><h2>{entry.code} — {entry.titleTr}</h2><p>{entry.manufacturer} <b>·</b> {entry.modelFamily}</p></div><div className="knowledge-actions"><button type="button" className="open-diagnosis-button" onClick={() => onOpenDiagnosis(entry)}>Yeni Teşhiste Aç</button><button type="button" className="detail-button" onClick={() => setExpandedCode(expandedCode === entry.code ? null : entry.code)}>Ayrıntıları Gör</button></div></div>
+        <div className="knowledge-card-top"><div><span className="verified-source">Doğrulanmış üretici kaynağı</span><h2>{entry.code} — {entry.titleTr}</h2><p>{entry.manufacturer} <b>·</b> {entry.modelFamily}</p><span className="fault-category-badge">{entry.category}</span></div><div className="knowledge-actions"><button type="button" className="open-diagnosis-button" onClick={() => onOpenDiagnosis(entry)}>Yeni Teşhiste Aç</button><button type="button" className="detail-button" onClick={() => setExpandedCode(expandedCode === entry.code ? null : entry.code)}>Ayrıntıları Gör</button></div></div>
         <p className="knowledge-description">{entry.descriptionTr}</p>
         {entry.relatedParameters && <div className="parameter-chips">{entry.relatedParameters.map((parameter) => <span key={parameter.code}>{parameter.code}</span>)}</div>}
         {expandedCode === entry.code && <div className="knowledge-detail"><p>{entry.descriptionTr}</p><div className="checks"><strong>Önerilen kontroller</strong><ul>{entry.recommendedChecks.map((check) => <li key={check}>{check}</li>)}</ul></div>{entry.safetyNoteTr && <p className="entry-safety-note">{entry.safetyNoteTr}</p>}{entry.relatedParameters && <div className="related-parameters"><strong>İlgili Parametreler</strong><ul>{entry.relatedParameters.map((parameter) => <li key={parameter.code}><span><b>{parameter.code}</b> — {parameter.nameTr}</span><small>{parameter.purposeTr}</small></li>)}</ul></div>}{entry.sourceScope && <p className="source-scope">Kaynak kapsamı: {entry.sourceScope}</p>}<a href={entry.sourceUrl} target="_blank" rel="noopener noreferrer">{entry.manufacturer === 'Siemens' ? 'Resmî Siemens kaynağını aç' : 'Resmî üretici kaynağını aç'}</a></div>}
