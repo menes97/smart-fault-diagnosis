@@ -1,4 +1,5 @@
 import { g120ExtendedFaultCodes } from './g120ExtendedFaultCodes'
+import { g120FaultTroubleshootingByCode } from './g120Troubleshooting'
 
 export type VfdManufacturer = 'siemens' | 'yaskawa' | 'danfoss'
 export type VfdModelFamily = 'SINAMICS G120' | 'V1000' | 'VLT AutomationDrive FC 302'
@@ -21,6 +22,21 @@ export interface RelatedParameter {
   purposeTr: string
 }
 
+export interface TroubleshootingStep {
+  order: number
+  titleTr: string
+  detailTr: string
+  parameterCodes?: string[]
+  safetyCritical?: boolean
+}
+
+export interface FaultTroubleshooting {
+  probableCausesTr: string[]
+  steps: TroubleshootingStep[]
+  escalationTr?: string[]
+  safetyNoteTr?: string
+}
+
 export interface ManufacturerFaultCode {
   manufacturer: string
   modelFamily: VfdModelFamily
@@ -38,6 +54,7 @@ export interface ManufacturerFaultCode {
   relatedParameters?: RelatedParameter[]
   safetyNoteTr?: string
   category: FaultCategory
+  troubleshooting?: FaultTroubleshooting
 }
 
 const siemensSource = {
@@ -199,6 +216,7 @@ function withFaultCategory(entry: Omit<ManufacturerFaultCode, 'category'>): Manu
   return {
     ...entry,
     category: isG120 ? g120FaultCategoryByCode[entry.code] : 'Diğer',
+    troubleshooting: isG120 ? g120FaultTroubleshootingByCode[entry.code] : undefined,
   }
 }
 
@@ -218,8 +236,13 @@ function validateG120FaultCategories(): void {
   const mappingCodes = Object.keys(g120FaultCategoryByCode)
   const missingMappings = g120Codes.filter((code) => !g120FaultCategoryByCode[code])
   const orphanMappings = mappingCodes.filter((code) => !uniqueCodes.has(code))
+  const troubleshootingEntries = manufacturerFaultCodes.filter((entry) => entry.manufacturer === 'Siemens' && entry.modelFamily === 'SINAMICS G120' && entry.troubleshooting)
+  const troubleshootingParameterMismatches = troubleshootingEntries.flatMap((entry) => {
+    const relatedCodes = new Set(entry.relatedParameters?.map((parameter) => parameter.code) ?? [])
+    return entry.troubleshooting!.steps.flatMap((step) => (step.parameterCodes ?? []).filter((code) => !relatedCodes.has(code)).map((code) => `${entry.code}:${code}`))
+  })
 
-  if (g120Codes.length !== 100 || uniqueCodes.size !== g120Codes.length || missingMappings.length || orphanMappings.length) {
+  if (g120Codes.length !== 100 || uniqueCodes.size !== g120Codes.length || missingMappings.length || orphanMappings.length || troubleshootingEntries.length !== 16 || troubleshootingParameterMismatches.length) {
     throw new Error('SINAMICS G120 hata kodu kategori eşlemesi doğrulanamadı.')
   }
 }
