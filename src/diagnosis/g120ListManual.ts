@@ -78,10 +78,10 @@ export function withG120Manual(entry: ManufacturerFaultCode, useManualText: bool
   }
 }
 
-/** Manual faults (F codes) the hand-written lists do not cover yet. */
+/** Manual entries (faults, alarms and Safety messages) the hand-written lists do not cover yet. */
 export function g120ManualOnlyFaultCodes(existing: ReadonlySet<string>): ManufacturerFaultCode[] {
   return g120ManualFacts
-    .filter((f) => f.type === 'fault' && !existing.has(f.code) && trByCode.has(f.code))
+    .filter((f) => !existing.has(f.code) && trByCode.has(f.code))
     .map((f) => {
       const tr = trByCode.get(f.code)!
       return withG120Manual(
@@ -95,6 +95,7 @@ export function g120ManualOnlyFaultCodes(existing: ReadonlySet<string>): Manufac
           descriptionTr: tr.descriptionTr,
           recommendedChecks: tr.recommendedChecks,
           category: tr.category,
+          messageType: f.type,
           ...manualSource,
         },
         true,

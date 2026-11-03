@@ -56,6 +56,8 @@ export interface ManufacturerFaultCode {
   safetyNoteTr?: string
   category: FaultCategory
   troubleshooting?: FaultTroubleshooting
+  /** Siemens message type: fault (F), alarm (A) or Safety Integrated message (C). Absent = fault. */
+  messageType?: 'fault' | 'alarm' | 'safety-message'
   /** Attributes from the Siemens List Manual entry (G120 only), with the printed page. */
   manual?: {
     messageClass: string
@@ -256,8 +258,8 @@ function validateG120FaultCategories(): void {
   const mappingCodes = Object.keys(g120FaultCategoryByCode)
   const missingMappings = manufacturerFaultCodes.filter((entry) => isG120(entry) && !entry.category).map((entry) => entry.code)
   const orphanMappings = mappingCodes.filter((code) => !uniqueCodes.has(code))
-  // Every fault (F code) of the List Manual must be in the database.
-  const missingManualFaults = g120ManualFacts.filter((fact) => fact.type === 'fault' && !uniqueCodes.has(fact.code)).map((fact) => fact.code)
+  // Every entry of the List Manual (faults, alarms, Safety messages) must be in the database.
+  const missingManualFaults = g120ManualFacts.filter((fact) => !uniqueCodes.has(fact.code)).map((fact) => fact.code)
   const troubleshootingEntries = manufacturerFaultCodes.filter((entry) => entry.manufacturer === 'Siemens' && entry.modelFamily === 'SINAMICS G120' && entry.troubleshooting)
   const troubleshootingParameterMismatches = troubleshootingEntries.flatMap((entry) => {
     const relatedCodes = new Set(entry.relatedParameters?.map((parameter) => parameter.code) ?? [])

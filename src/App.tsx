@@ -57,6 +57,7 @@ function KnowledgeBase({ onOpenDiagnosis, initialQuery = '' }: { onOpenDiagnosis
   const [manufacturer, setManufacturer] = useState('all')
   const [modelFamily, setModelFamily] = useState('all')
   const [category, setCategory] = useState<FaultCategory | 'all'>('all')
+  const [kind, setKind] = useState<'all' | 'fault' | 'alarm' | 'safety-message'>('all')
   const [expandedCode, setExpandedCode] = useState<string | null>(null)
   const categoryOptions: FaultCategory[] = ['Motor', 'Power Module', 'Besleme / DC Bara', 'Haberleşme', 'Analog / Dijital I/O', 'Safety Integrated', 'Devreye Alma / Parametre', 'Sıcaklık / Soğutma', 'Frenleme', 'Dahili / Firmware', 'Diğer']
   const manufacturers = [...new Set(manufacturerFaultCodes.map((entry) => entry.manufacturer))]
@@ -67,14 +68,15 @@ function KnowledgeBase({ onOpenDiagnosis, initialQuery = '' }: { onOpenDiagnosis
   const compact = (value: string) => value.replaceAll(' ', '').toLocaleLowerCase('tr-TR')
   const siemensCodeVariants = (code: string) => {
     const normalized = compact(code)
-    if (!normalized.startsWith('f0')) return [normalized]
-    const withoutLeadingZero = 'f' + normalized.slice(2)
+    if (!/^[fac]0/.test(normalized)) return [normalized]
+    const withoutLeadingZero = normalized[0] + normalized.slice(2)
     return [normalized, withoutLeadingZero, normalized.slice(1), withoutLeadingZero.slice(1)]
   }
   const entries = manufacturerFaultCodes
     .filter((entry) => (manufacturer === 'all' || entry.manufacturer === manufacturer) &&
       (modelFamily === 'all' || entry.modelFamily === modelFamily) &&
-      (category === 'all' || entry.category === category))
+      (category === 'all' || entry.category === category) &&
+      (kind === 'all' || (entry.messageType ?? 'fault') === kind))
     .map((entry) => {
       if (!normalizedQuery) return { entry, rank: 6 }
       const queryCode = compact(query)
@@ -93,12 +95,13 @@ function KnowledgeBase({ onOpenDiagnosis, initialQuery = '' }: { onOpenDiagnosis
     .filter(({ rank }) => rank > 0)
     .sort((a, b) => a.rank - b.rank || a.entry.code.localeCompare(b.entry.code))
     .map(({ entry }) => entry)
-  const hasActiveFilters = query.trim() !== '' || manufacturer !== 'all' || modelFamily !== 'all' || category !== 'all'
+  const hasActiveFilters = query.trim() !== '' || manufacturer !== 'all' || modelFamily !== 'all' || category !== 'all' || kind !== 'all'
   const clearFilters = () => {
     setQuery('')
     setManufacturer('all')
     setModelFamily('all')
     setCategory('all')
+    setKind('all')
   }
 
   return <section className="knowledge-base" aria-labelledby="knowledge-title">
@@ -108,12 +111,13 @@ function KnowledgeBase({ onOpenDiagnosis, initialQuery = '' }: { onOpenDiagnosis
       <select aria-label="Üretici filtresi" value={manufacturer} onChange={(event) => { setManufacturer(event.target.value); setModelFamily('all') }}><option value="all">Tümü</option>{manufacturers.map((item) => <option key={item}>{item}</option>)}</select>
       <select aria-label="Model ailesi filtresi" value={modelFamily} onChange={(event) => setModelFamily(event.target.value)}><option value="all">Tümü</option>{modelFamilies.map((item) => <option key={item}>{item}</option>)}</select>
       <select aria-label="Kategori filtresi" value={category} onChange={(event) => setCategory(event.target.value as FaultCategory | 'all')}><option value="all">Tümü</option>{categoryOptions.map((item) => <option key={item}>{item}</option>)}</select>
+      <select aria-label="Mesaj türü filtresi" value={kind} onChange={(event) => setKind(event.target.value as typeof kind)}><option value="all">Tümü</option><option value="fault">Arıza (F)</option><option value="alarm">Alarm (A)</option><option value="safety-message">Safety (C)</option></select>
     </div>
-    <div className="knowledge-filter-labels"><span>Üretici</span><span>Model ailesi</span><span>Kategori</span></div>
+    <div className="knowledge-filter-labels"><span>Üretici</span><span>Model ailesi</span><span>Kategori</span><span>Tür</span></div>
     <div className="knowledge-results-summary"><span>{entries.length} kayıt</span>{hasActiveFilters && <button type="button" onClick={clearFilters}>Filtreleri Temizle</button>}</div>
     <div className="knowledge-results">
       {entries.map((entry) => <article className="knowledge-card" key={entry.manufacturer + entry.modelFamily + entry.code}>
-        <div className="knowledge-card-top"><div><span className="verified-source">Doğrulanmış üretici kaynağı</span><h2>{entry.code} — {entry.titleTr}</h2><p>{entry.manufacturer} <b>·</b> {entry.modelFamily}</p><span className="fault-category-badge">{entry.category}</span></div><div className="knowledge-actions"><button type="button" className="open-diagnosis-button" onClick={() => onOpenDiagnosis(entry)}>Teşhiste Kullan</button><button type="button" className="detail-button" onClick={() => setExpandedCode(expandedCode === entry.code ? null : entry.code)}>Ayrıntıları Gör</button></div></div>
+        <div className="knowledge-card-top"><div><span className="verified-source">Doğrulanmış üretici kaynağı</span><h2>{entry.code} — {entry.titleTr}</h2><p>{entry.manufacturer} <b>·</b> {entry.modelFamily}</p><span className="fault-category-badge">{entry.category}</span>{entry.messageType && entry.messageType !== 'fault' && <span className={`message-type-badge ${entry.messageType}`}>{entry.messageType === 'alarm' ? 'Alarm · uyarı' : 'Safety mesajı'}</span>}</div><div className="knowledge-actions"><button type="button" className="open-diagnosis-button" onClick={() => onOpenDiagnosis(entry)}>Teşhiste Kullan</button><button type="button" className="detail-button" onClick={() => setExpandedCode(expandedCode === entry.code ? null : entry.code)}>Ayrıntıları Gör</button></div></div>
         <p className="knowledge-description">{entry.descriptionTr}</p>{entry.manual && <ManualMeta manual={entry.manual} />}
         {expandedCode === entry.code && <div className="knowledge-detail">{entry.troubleshooting ? <>{(entry.safetyNoteTr || entry.troubleshooting.safetyNoteTr) && <p className="entry-safety-note">{entry.safetyNoteTr || entry.troubleshooting.safetyNoteTr}</p>}<div className="troubleshooting-section"><strong>Olası Nedenler</strong><ul>{entry.troubleshooting.probableCausesTr.map((cause) => <li key={cause}>{cause}</li>)}</ul></div><div className="troubleshooting-section"><strong>Kontrol Sırası</strong><div className="troubleshooting-steps">{entry.troubleshooting.steps.map((step) => <article key={step.order} className={step.safetyCritical ? 'safety-critical-step' : ''}><span className="troubleshooting-step-number">{step.order}</span><div><b>{step.titleTr}</b><p>{step.detailTr}</p>{step.parameterCodes && <div className="parameter-chips">{step.parameterCodes.map((code) => <span key={code}>{code}</span>)}</div>}</div></article>)}</div></div>{entry.relatedParameters && <div className="related-parameters"><strong>İlgili Parametreler</strong><ul>{entry.relatedParameters.map((parameter) => <li key={parameter.code}><span><b>{parameter.code}</b> — {parameter.nameTr}</span><small>{parameter.purposeTr}</small></li>)}</ul></div>}{entry.troubleshooting.escalationTr?.length && <div className="troubleshooting-section escalation-section"><strong>Ne Zaman İleri İnceleme / Servis Gerekir</strong><ul>{entry.troubleshooting.escalationTr.map((item) => <li key={item}>{item}</li>)}</ul></div>}</> : <><div className="checks"><strong>Önerilen kontroller</strong><ul>{entry.recommendedChecks.map((check) => <li key={check}>{check}</li>)}</ul></div>{entry.relatedParameters && <div className="related-parameters"><strong>İlgili Parametreler</strong><ul>{entry.relatedParameters.map((parameter) => <li key={parameter.code}><span><b>{parameter.code}</b> — {parameter.nameTr}</span><small>{parameter.purposeTr}</small></li>)}</ul></div>}{entry.safetyNoteTr && <p className="entry-safety-note">{entry.safetyNoteTr}</p>}</>}{entry.sourceScope && <p className="source-scope">Kaynak kapsamı: {entry.sourceScope}</p>}<a href={entry.sourceUrl} target="_blank" rel="noopener noreferrer">{entry.manufacturer === 'Siemens' ? 'Resmî Siemens kaynağını aç' : 'Resmî üretici kaynağını aç'}</a></div>}
       </article>)}
