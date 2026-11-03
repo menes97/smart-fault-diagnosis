@@ -148,6 +148,16 @@ Siemens G120 kayıtlarında uygun hata kodları için ayrıca:
 - güvenli kontrol önerileri,
 - resmi Siemens doküman bağlantıları
 
+### SINAMICS G120: List Manual'ın tüm arıza kodları
+
+**SINAMICS G120 CU240B-2/CU240E-2 List Manual (09/2020, FW 4.7 SP13)** içindeki **193 arıza (F) kodunun tamamı** veritabanında. Her G120 kaydında manual'daki **resmi başlık, reaksiyon (OFF1/OFF2…), onaylama türü, mesaj sınıfı ve sayfa numarası** gösterilir.
+
+- Olgusal bilgiler `scripts/extract-g120-list-manual.mjs` ile doğrudan manual'dan çıkarılır → `src/diagnosis/g120ListManualFacts.json` (330+ kod: arıza, alarm ve Safety mesajları).
+- Türkçe açıklama ve kontroller manual'daki neden/çözüm bölümlerine dayanılarak **kendi cümlelerimizle** yazılmıştır (`src/diagnosis/g120ListManualTr.json`). Manual metni telifli olduğu için repoya kopyalanmaz.
+- Türkçe metinler otomatik denetlenir: manual'da geçmeyen parametre numarası veya sayı eklenmemiş, uzun İngilizce cümle kopyalanmamış olmalı.
+- Elle yazılmış 16 ayrıntılı sorun giderme akışı aynen korunur.
+- İki eski kayıt (F01034, F30053) bu manual'da yer almıyor; kaynak kapsamında bu belirtilir.
+
 gösterilir.
 
 Örnek aramalar:
@@ -328,7 +338,8 @@ Bu uygulama **eğitim ve bakım rehberliği amacıyla** geliştirilmiştir.
 
 - [ ] Yaskawa V1000 hızlı devreye alma rehberi
 - [ ] Danfoss VLT hızlı devreye alma rehberi
-- [ ] G120 doğrulanmış hata kodu kapsamını genişletme
+- [x] G120 hata kodu kapsamını genişletme (List Manual'daki 193 arıza kodunun tamamı)
+- [ ] G120 alarm (A) kodları ve Safety (C) mesajları
 - [ ] Bulut tabanlı kullanıcı hesabı ve teşhis geçmişi
 - [ ] Motor etiket fotoğrafından veri çıkarma
 - [ ] Gelişmiş bakım raporları

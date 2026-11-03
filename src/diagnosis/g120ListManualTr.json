@@ -1,0 +1,1824 @@
+[
+ {
+  "code": "F01000",
+  "titleTr": "Dahili yazılım hatası",
+  "descriptionTr": "Sürücü, kendi yazılımında bir hata oluştuğunu bildirir. r0949 içindeki fault value ayrıntısı yalnızca Siemens'in dahili hata incelemesi içindir.",
+  "recommendedChecks": [
+   "r0945 arıza tamponundaki kayıtları inceleyin.",
+   "Tüm bileşenleri kapatıp yeniden açın.",
+   "Gerekirse bellek kartı gibi kalıcı belleklerdeki verileri kontrol edin.",
+   "firmware'i daha yeni bir sürüme yükseltin.",
+   "Siemens destek hattına danışın; gerekirse kontrol ünitesini (CU) değiştirin."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F01001",
+  "titleTr": "Kayan noktalı işlem istisnası",
+  "descriptionTr": "Kayan noktalı veriyle yapılan bir işlemde istisna oluşmuştur; kaynak, temel sistem veya FBLOCKS ve DCC gibi bir OA uygulaması olabilir. Geçersiz işlem, sıfıra bölme, taşma, alt taşma ya da hassasiyet kaybı görülebilir; r0949 içindeki fault value yalnızca Siemens'in dahili incelemesi içindir, ek tanılama bilgisi r9999 içinde bulunur.",
+  "recommendedChecks": [
+   "Tüm bileşenleri kapatıp yeniden açın.",
+   "FBLOCKS bloklarının yapılandırmasını ve sinyallerini kontrol edin.",
+   "DCC şemalarının yapılandırmasını ve sinyallerini kontrol edin.",
+   "firmware'i daha yeni bir sürüme yükseltin.",
+   "Siemens destek hattına danışın."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F01002",
+  "titleTr": "Dahili yazılım hatası",
+  "descriptionTr": "Sürücünün dahili yazılımında bir hata oluşmuştur. r0949 içindeki fault value, yalnızca Siemens'in dahili hata incelemesinde kullanılır.",
+  "recommendedChecks": [
+   "Tüm bileşenleri kapatıp yeniden açın.",
+   "firmware'i daha yeni bir sürüme yükseltin.",
+   "Siemens destek hattına danışın."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F01003",
+  "titleTr": "Bellek erişiminde yanıt gecikmesi",
+  "descriptionTr": "Erişilen bellek alanı READY yanıtını vermemiştir. r0949 içindeki fault value ayrıntısı yalnızca Siemens'in dahili hata incelemesi içindir.",
+  "recommendedChecks": [
+   "Tüm bileşenleri kapatıp yeniden açın.",
+   "Siemens destek hattına danışın."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F01005",
+  "titleTr": "Dosya yükleme veya indirme hatası",
+  "descriptionTr": "EEPROM verilerinin aktarımı tamamlanamamıştır. Dosyanın eksik, bozuk veya uyumsuz olması, aktarımın kesilmesi, bileşenden yanıt alınamaması ya da donanımın veya yazılımın işlemi desteklememesi olası nedenlerdir.",
+  "recommendedChecks": [
+   "Aktarım için uygun firmware veya EEPROM dosyasını seçin.",
+   "Seçilen dosyayı bellek kartındaki /ee_sac/ klasörüne kaydedin."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F01010",
+  "titleTr": "Sürücü tipi tanınmıyor",
+  "descriptionTr": "Sürücü, tanımadığı bir sürücü tipi algılamıştır. Kaynak metin bunun için daha ayrıntılı bir neden belirtmez.",
+  "recommendedChecks": [
+   "Gerekirse Power Module'ü değiştirin.",
+   "Cihazı kapatıp yeniden açın.",
+   "firmware'i daha yeni bir sürüme yükseltin.",
+   "Siemens destek hattına danışın."
+  ],
+  "category": "Power Module",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan Power Module değişimine başlamayın."
+ },
+ {
+  "code": "F01015",
+  "titleTr": "Dahili yazılım hatası",
+  "descriptionTr": "Sürücü, dahili yazılımında bir hata algılamıştır. r0949 içindeki fault value yalnızca Siemens'in dahili incelemesine yöneliktir.",
+  "recommendedChecks": [
+   "Tüm bileşenleri kapatıp yeniden açın.",
+   "firmware'i daha yeni bir sürüme yükseltin.",
+   "Siemens destek hattına danışın."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F01023",
+  "titleTr": "Dahili yazılımda zaman aşımı",
+  "descriptionTr": "Dahili yazılımda bir işlem zaman aşımına uğramıştır. r0949 içindeki fault value ayrıntısı yalnızca Siemens'in dahili hata incelemesinde kullanılır.",
+  "recommendedChecks": [
+   "Tüm bileşenleri kapatıp yeniden açın.",
+   "firmware'i daha yeni bir sürüme yükseltin.",
+   "Siemens destek hattına danışın."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F01030",
+  "titleTr": "Ana kumandadan yaşam işareti alınamıyor",
+  "descriptionTr": "PC üzerinden ana kumanda etkinken izleme süresi içinde yaşam işareti gelmemiştir. Kumanda, etkin BICO bağlantısına geri verilmiştir.",
+  "recommendedChecks": [
+   "PC'deki izleme süresini artırın; haberleşme kaybına tepkiyi geciktirmemek için süreyi mümkün olduğunca kısa tutun (yetkili personel).",
+   "Gerekliyse PC'deki izleme işlevini tamamen devre dışı bırakın (yetkili personel)."
+  ],
+  "category": "Haberleşme"
+ },
+ {
+  "code": "F01033",
+  "titleTr": "Birim değişimi: Referans parametre değeri geçersiz",
+  "descriptionTr": "Referans değerlerle gösterime geçilirken gerekli bir referans parametresinin 0.0 olması işlemi engellemiştir. r0949, bu değere sahip referans parametresini gösterir.",
+  "recommendedChecks": [
+   "r0949 üzerinden değeri 0.0 olan referans parametresini belirleyin.",
+   "İlgili referans parametresini 0.0 dışında bir değere ayarlayın (yetkili personel)."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F01036",
+  "titleTr": "ACX: Parametre yedek dosyası bulunamıyor",
+  "descriptionTr": "Cihazın parametreleri yüklenirken bir sürücü nesnesine ait PSxxxyyy.ACX yedek dosyası bulunamamıştır.",
+  "recommendedChecks": [
+   "Devreye alma yazılımında kayıtlı proje varsa projeyi yeniden cihaza yükleyin (yetkili personel).",
+   "Copy RAM to ROM işleviyle veya p0971 = 1 ile parametreleri kalıcı belleğe kaydedin (yetkili personel).",
+   "Proje yedeği yoksa ilk devreye alma işlemini yeniden yapın (yetkili personel)."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F01038",
+  "titleTr": "ACX: Parametre yedek dosyası yüklenemedi",
+  "descriptionTr": "Kalıcı bellekteki PSxxxyyy.ACX veya PTxxxyyy.ACX dosyaları yüklenememiştir. Sürücü nesnesi tipinin yanlış olması ya da mevcut topolojide bir bileşenin yanlış tipte, eksik veya etkin olmaması buna yol açabilir.",
+  "recommendedChecks": [
+   "Devreye alma yazılımında kayıtlı proje varsa projeyi yeniden cihaza yükleyin (yetkili personel).",
+   "Copy RAM to ROM işleviyle veya p0971 = 1 ile parametreleri kalıcı belleğe kaydedin (yetkili personel).",
+   "Gerekirse bellek kartını veya kontrol ünitesini (CU) değiştirin."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F01039",
+  "titleTr": "ACX: Parametre yedek dosyasına yazılamadı",
+  "descriptionTr": "Kalıcı bellekteki parametre yedek dosyalarına yazma işlemi tamamlanamamıştır. Dosyaların salt okunur olması, boş alanın yetersizliği veya kalıcı belleğin arızalı olması olası nedenlerdir.",
+  "recommendedChecks": [
+   "PSxxxyyy.***, CAxxxyyy.*** ve CCxxxyyy.*** dosyalarının özniteliklerini kontrol edin; gerekirse salt okunur durumunu kaldırın.",
+   "Kalıcı bellekteki boş alanı kontrol edin; her sürücü nesnesi için yaklaşık 80 kbyte boş alan gerektiğini dikkate alın.",
+   "Gerekirse bellek kartını veya kontrol ünitesini (CU) değiştirin."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F01040",
+  "titleTr": "Parametreleri kaydedip cihazı yeniden başlatın",
+  "descriptionTr": "Değiştirilen bir parametre, ayarların kalıcı olarak kaydedilmesini ve kontrol ünitesinin (CU) kapatılıp yeniden açılmasını gerektirir.",
+  "recommendedChecks": [
+   "Parametreleri p0971 üzerinden kalıcı olarak kaydedin (yetkili personel).",
+   "Kontrol ünitesini (CU) kapatıp yeniden açın."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F01042",
+  "titleTr": "Proje yüklemesinde parametre hatası",
+  "descriptionTr": "Devreye alma yazılımından proje yüklenirken parametreyle ilgili bir hata algılanmıştır. Geçersiz değer, adres veya veri biçimi ya da başka parametrelere bağlı dinamik sınırların aşılması işlemi engellemiş olabilir.",
+  "recommendedChecks": [
+   "Hata bildirilen parametrenin sınırlarını belirleyen diğer parametreyi tespit edin.",
+   "Belirtilen parametreye geçerli değeri girin (yetkili personel)."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F01043",
+  "titleTr": "Proje yüklemesinde kritik hata",
+  "descriptionTr": "Proje yüklemesi sırasında işlemin tamamlanmasını engelleyen kritik bir hata oluşmuştur. Cihazın çalışma durumu, sürücü nesnesi oluşturma sorunları, tutarsız yapılandırma, parametrelerin kabul edilmemesi veya haberleşme kesintisi neden olabilir.",
+  "recommendedChecks": [
+   "Devreye alma yazılımının güncel sürümünü kullanın.",
+   "Çevrimdışı projedeki motor ve Power Module bilgilerini cihazla karşılaştırın; projeyi düzeltip yeniden yükleyin (yetkili personel).",
+   "Sürücünün dönme durumunu ve etkin mesajlarını inceleyerek çalışma durumunu yüklemeye uygun hale getirin.",
+   "Diğer mesaj ve sinyalleri inceleyip bunların nedenlerini giderin.",
+   "Önceden kaydedilmiş dosyalardan başlatmak için cihazı kapatıp yeniden açın veya p0970 kullanın (yetkili personel)."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F01044",
+  "titleTr": "CU: Tanımlama verisi hatası",
+  "descriptionTr": "Kalıcı bellekte saklanan tanımlama verileri yüklenirken hata algılanmıştır.",
+  "recommendedChecks": [
+   "Gerekirse bellek kartını değiştirin.",
+   "Alternatif olarak kontrol ünitesini (CU) değiştirin."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F01054",
+  "titleTr": "CU: Sistem kapasitesi aşıldı",
+  "descriptionTr": "Sistemin işlem yükü veya tepe yükü kapasiteyi aşmıştır; yük bilgileri r9976 üzerinden izlenebilir. Bu hata sürerken p0971 ile parametre kaydı yapılamaz.",
+  "recommendedChecks": [
+   "r9976[1] ve r9976[5] ile izlenen işlem yükünü 100 % altına indirin (yetkili personel).",
+   "p0115, p0799 ve p4099 örnekleme sürelerini kontrol edip gerekirse ayarlayın (yetkili personel).",
+   "İşlev modüllerini veya sürücü nesnelerini devre dışı bırakın; gerekirse sürücü nesnelerini hedef topolojiden çıkarın (yetkili personel).",
+   "DRIVE-CLiQ topoloji kurallarını kontrol edin; gerekirse topolojiyi düzenleyin (yetkili personel).",
+   "DCC için r21005, FBLOCKS için r20005 yüklerini inceleyin; gerekirse p21000 veya p20000 grup atamasını değiştirerek örnekleme süresini artırın ya da çevrimsel blok sayısını azaltın (yetkili personel)."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F01068",
+  "titleTr": "CU: Veri belleği kapasitesi aşıldı",
+  "descriptionTr": "Bir veri belleği alanındaki kullanım kapasiteyi aşmıştır. r0949 içindeki fault value, hangi hızlı veri belleği alanının aşırı yüklendiğini gösterir.",
+  "recommendedChecks": [
+   "İşlev modülünü devre dışı bırakın (yetkili personel).",
+   "Sürücü nesnesini devre dışı bırakın (yetkili personel).",
+   "Sürücü nesnesini hedef topolojiden çıkarın (yetkili personel)."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F01072",
+  "titleTr": "Bellek kartı yedek kopyadan geri yüklendi",
+  "descriptionTr": "Kontrol ünitesi (CU), bellek kartına yazarken kapatıldığı için kartın görünür bölümü bozulmuştur. Yeniden açılışta gizli bölümdeki yedek veriler görünür bölüme geri aktarılmıştır.",
+  "recommendedChecks": [
+   "Geri yüklenen firmware'in güncel olup olmadığını kontrol edin.",
+   "Geri yüklenen parametre ayarlarının güncel olup olmadığını kontrol edin."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F01105",
+  "titleTr": "CU: Bellek yetersiz",
+  "descriptionTr": "Kontrol ünitesinde (CU) yapılandırılan veri setlerinin sayısı fazladır. r0949 içindeki fault value ayrıntısı yalnızca Siemens'in dahili hata incelemesi içindir.",
+  "recommendedChecks": [
+   "Yapılandırılmış veri setlerinin sayısını gözden geçirin.",
+   "Veri seti sayısını azaltın (yetkili personel)."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F01107",
+  "titleTr": "Bellek kartına kaydetme başarısız",
+  "descriptionTr": "Veriler bellek kartına kaydedilememiştir; kartın arızalı olması veya boş alanın yetersizliği olası nedenlerdir. r0949 içindeki fault value, RAM dosyasına erişimde ya da kartta klasör ve dosya oluşturup yazmada hangi aşamanın başarısız olduğunu belirtir.",
+  "recommendedChecks": [
+   "Kaydetme işlemini yeniden deneyin.",
+   "Gerekirse bellek kartını veya kontrol ünitesini (CU) değiştirin."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F01112",
+  "titleTr": "CU: Güç ünitesi uyumlu değil",
+  "descriptionTr": "Bağlı güç ünitesi, bu kontrol ünitesiyle (CU) birlikte kullanılamaz. Kontrol ünitesi (CU), takılı güç ünitesini desteklememektedir.",
+  "recommendedChecks": [
+   "Değişim için kontrol ünitesinin (CU) desteklediği bir güç ünitesi seçin.",
+   "Uyumsuz güç ünitesini desteklenen bileşenle değiştirin."
+  ],
+  "category": "Power Module",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan güç ünitesini değiştirmeyin."
+ },
+ {
+  "code": "F01120",
+  "titleTr": "Terminal işlevleri başlatılamadı",
+  "descriptionTr": "Terminal işlevleri başlangıç durumuna getirilirken dahili yazılım hatası oluşmuştur. r0949 içindeki fault value yalnızca Siemens'in dahili hata incelemesinde kullanılır.",
+  "recommendedChecks": [
+   "Tüm bileşenleri kapatıp yeniden açın.",
+   "firmware'i daha yeni bir sürüme yükseltin.",
+   "Siemens destek hattına danışın.",
+   "Gerekirse kontrol ünitesini (CU) değiştirin."
+  ],
+  "category": "Analog / Dijital I/O"
+ },
+ {
+  "code": "F01152",
+  "titleTr": "CU: Sürücü nesnesi tiplerinin birleşimi geçersiz",
+  "descriptionTr": "SERVO, VECTOR ve HLA sürücü nesnesi tiplerinin tümü aynı kontrol ünitesinde (CU) eşzamanlı çalıştırılamaz. Bu tiplerden en fazla 2 tanesi birlikte kullanılabilir.",
+  "recommendedChecks": [
+   "Cihazı kapatın.",
+   "SERVO, VECTOR ve HLA tiplerinden aynı anda kullanılanları en fazla 2 tip olacak şekilde düzenleyin (yetkili personel).",
+   "Cihazı yeniden devreye alın (yetkili personel)."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F01205",
+  "titleTr": "CU: Ayrılan işlem süresi aşıldı",
+  "descriptionTr": "Hesaplamalar için ayrılan işlem süresi yetersiz kalmıştır. r0949 içindeki fault value yalnızca Siemens'in dahili incelemesi içindir; kaynak metin sahada uygulanacak başka bir kontrol belirtmez.",
+  "recommendedChecks": [
+   "Siemens destek hattına danışın."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F01250",
+  "titleTr": "CU: EEPROM salt okunur verisi hatalı",
+  "descriptionTr": "Kontrol ünitesinin (CU) EEPROM belleğindeki salt okunur veriler okunurken hata oluşmuştur. r0949 içindeki fault value yalnızca Siemens'in dahili hata incelemesine yöneliktir.",
+  "recommendedChecks": [
+   "Cihazı kapatıp yeniden açın.",
+   "Gerekirse kontrol ünitesini (CU) değiştirin."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F01257",
+  "titleTr": "CU: firmware sürümü eski",
+  "descriptionTr": "Kontrol ünitesinin (CU) firmware sürümü, kullanılan kontrol ünitesini (CU) veya Power Module'ü desteklemeyecek kadar eskidir. r0949 içindeki fault value, desteklenmeyen bileşeni belirtir.",
+  "recommendedChecks": [
+   "Kontrol ünitesinin (CU) firmware sürümünü yükseltin.",
+   "fault value = 3 ise gerekirse Power Module'ü desteklenen bir bileşenle değiştirin."
+  ],
+  "category": "Dahili / Firmware",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan Power Module değişimine başlamayın."
+ },
+ {
+  "code": "F01340",
+  "titleTr": "Topoloji: Bir hatta çok fazla bileşen bağlı",
+  "descriptionTr": "Seçilen haberleşme çevrimi için kontrol ünitesinin (CU) bir DRIVE-CLiQ hattında fazla sayıda bileşen vardır. Aktarım kapasitesinin dolması, tampon taşması veya bileşen çevrimlerinin uyumsuzluğu da bu bildirime neden olabilir.",
+  "recommendedChecks": [
+   "DRIVE-CLiQ kablolamasını kontrol edin.",
+   "İlgili hattaki bileşen sayısını azaltıp bileşenleri kontrol ünitesinin (CU) diğer DRIVE-CLiQ bağlantılarına dağıtın.",
+   "fault value 1yy–4yy için p0112, p0115 ve p4099 örnekleme sürelerini artırın; gerekirse DCC veya FBLOCKS grup atamalarını p21000 ve p20000 üzerinden düzenleyin (yetkili personel).",
+   "fault value 8yy için p0112, p0115 ve p4099 çevrim ayarlarının aynı hat üzerinde birbirinin tam sayı katı olduğunu kontrol edin.",
+   "fault value 9yy için p0112, p0115 ve p4099 çevrim ayarlarını ortak katlarının büyüklüğü açısından inceleyin."
+  ],
+  "category": "Haberleşme",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan kablo bağlantılarını değiştirmeyin."
+ },
+ {
+  "code": "F01505",
+  "titleTr": "BICO: Sinyal bağlantısı kurulamıyor",
+  "descriptionTr": "p0922 ile seçilen PROFIdrive telegramındaki bir sinyal bağlantısı kurulamamıştır. r0949 içindeki fault value, değiştirilmesi gereken alıcı parametreyi gösterir.",
+  "recommendedChecks": [
+   "r0949 ile belirtilen alıcı için farklı bir BICO bağlantısı seçin (yetkili personel).",
+   "Seçtiğiniz alternatif BICO bağlantısını kurun (yetkili personel)."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F01510",
+  "titleTr": "BICO: Sinyal kaynağı float tipinde değil",
+  "descriptionTr": "Seçilen konnektör çıkışının veri tipi uygun olmadığı için sinyal bağlantısı kurulmamıştır. r0949 içindeki fault value, bağlanılmak istenen çıkışın parametre numarasını gösterir.",
+  "recommendedChecks": [
+   "Bağlantı için float veri tipinde bir konnektör çıkışı seçin.",
+   "İlgili konnektör girişini bu float çıkışına bağlayın (yetkili personel)."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F01511",
+  "titleTr": "BICO: Farklı ölçeklerle sinyal bağlantısı",
+  "descriptionTr": "Aynı sürücü nesnesindeki BICO giriş ve çıkışının normalize birimleri farklı olsa da bağlantı kurulmuştur. Sinyal, referans değerlerle dönüştürülür; kaynak metne göre düzeltici işlem gerekmez.",
+  "recommendedChecks": [
+   "Manual'a göre ek işlem gerekmez; bu bilgi amaçlı bir mesajdır."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F01512",
+  "titleTr": "BICO: Ölçekleme tanımlı değil",
+  "descriptionTr": "Tanımlı olmayan bir ölçekleme için dönüşüm katsayısı hesaplanmaya çalışılmıştır. r0949 içindeki fault value, katsayısı belirlenemeyen birimi gösterir.",
+  "recommendedChecks": [
+   "Aktarılan değeri kontrol edin.",
+   "Alternatif olarak gerekli ölçeklemeyi uygulayın (yetkili personel)."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F01513",
+  "titleTr": "BICO: Sürücü nesneleri arasında farklı ölçeklerle bağlantı",
+  "descriptionTr": "Farklı sürücü nesneleri arasındaki BICO bağlantısı kurulmuştur; ancak normalize birimler veya aynı birime ait referans değerler farklı olduğundan sinyal dönüştürülür. Kaynak metne göre düzeltici işlem gerekmez.",
+  "recommendedChecks": [
+   "Manual'a göre ek işlem gerekmez; bu bilgi amaçlı bir mesajdır."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F01515",
+  "titleTr": "BICO: Ana kumanda etkinken parametreye yazılamaz",
+  "descriptionTr": "CDS sayısı değiştirilirken veya CDS kopyalanırken ana kumanda etkin kalmıştır. Bu durum istenen parametre yazma işlemini engeller.",
+  "recommendedChecks": [
+   "Gerekirse ana kumanda yetkisini geri verin.",
+   "CDS sayısını değiştirme veya CDS kopyalama işlemini yeniden yapın (yetkili personel)."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F01611",
+  "titleTr": "SI P1 (CU): İzleme kanalında hata",
+  "descriptionTr": "Safety Integrated, izleme kanalları arasındaki veri karşılaştırmasında hata bulup STOP F başlatmıştır; bunun ardından STOP A bildirimi de oluşur. Kanal verisi veya STO durumu uyuşmazlığı, F-DI temas sorunları, sıcaklık, PROFIsafe parametreleri ya da haberleşme hataları neden olabilir.",
+  "recommendedChecks": [
+   "fault value 1–999 için STOP F'ye yol açan çapraz veri karşılaştırmasını kontrol edin ve cihazı kapatıp yeniden açın.",
+   "fault value 1000 veya 2000–2003 için F-DI kablolamasını kontrol edin; p9650/p9850 uyumsuzluk süresini gerekirse artırın (yetkili personel).",
+   "fault value 6064–6072 için ilgili PROFIsafe F parametrelerini kontrol edin; 6064 için F_Dest_Add ile p9610 ve p9810 adreslerini karşılaştırın.",
+   "fault value 6165 veya 6166 için PROFIsafe yapılandırmasını, bağlantısını ve F host ile parametre uyumunu kontrol edin; gerekirse F_WD_Time değerini artırın (yetkili personel).",
+   "fault value 1950 veya 1951 için kontrol ünitesini (CU) izin verilen sıcaklık aralığında çalıştırın; gerekirse kontrol ünitesini (CU) değiştirin."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan emniyet devresinin kablo veya bileşenlerine müdahale etmeyin."
+ },
+ {
+  "code": "F01625",
+  "titleTr": "SI P1 (CU): Emniyet verilerinde yaşam işareti hatası",
+  "descriptionTr": "Safety Integrated, emniyet verilerinin yaşam işaretinde hata algılayıp STOP A başlatmıştır. İşlemciler arasındaki haberleşmenin bozulması veya kesilmesi ya da emniyet yazılımının ayrılan işlem süresini aşması neden olabilir.",
+  "recommendedChecks": [
+   "STO'yu seçip ardından seçimini kaldırın.",
+   "Cihazı kapatıp yeniden açın.",
+   "Başka arızalar olup olmadığını kontrol edin; varsa bunların tanılamasını yapın.",
+   "Pano düzenini ve kablo güzergâhlarını EMC uygunluğu açısından kontrol edin.",
+   "Dijital çıkışlara izin verilmeyen bir gerilim uygulanmadığını ve çıkışların izin verilmeyen akımla yüklenmediğini kontrol edin."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan emniyet devresi veya çıkış kabloları üzerinde çalışmayın."
+ },
+ {
+  "code": "F01640",
+  "titleTr": "SI P1 (CU): Bileşen değişimi algılandı, onay ve kayıt gerekli",
+  "descriptionTr": "Safety Integrated bir bileşenin değiştirildiğini algıladığı için sürücü çalıştırılamaz. Emniyet işlevleri etkinse bileşen değişiminden sonra kısmi kabul testi de gereklidir.",
+  "recommendedChecks": [
+   "Bileşen değişimini p9702 = 29 ile onaylayın (yetkili personel).",
+   "Tüm parametreleri p0977 = 1, p0971 = 1 veya Copy RAM to ROM ile kaydedin (yetkili personel).",
+   "Arızayı, örneğin BI: p2103 üzerinden onaylayın."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan emniyet bileşenlerine müdahale etmeyin; emniyet işlevleri etkinse değişim sonrası kısmi kabul testini yapın."
+ },
+ {
+  "code": "F01641",
+  "titleTr": "SI P1 (CU): Bileşen değişimi algılandı, kayıt gerekli",
+  "descriptionTr": "Safety Integrated bir bileşenin değiştirildiğini algılamıştır; bu bildirim ek bir arıza tepkisi başlatmaz ve sürücünün çalışmasını kısıtlamaz. Emniyet işlevleri etkinse değişim sonrasında kısmi kabul testi gereklidir.",
+  "recommendedChecks": [
+   "Tüm parametreleri p0977 = 1, p0971 = 1 veya Copy RAM to ROM ile kaydedin (yetkili personel).",
+   "Arızayı, örneğin BI: p2103 üzerinden onaylayın."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan emniyet bileşenlerine müdahale etmeyin; emniyet işlevleri etkinse değişim sonrası kısmi kabul testini yapın."
+ },
+ {
+  "code": "F01649",
+  "titleTr": "SI P1 (CU): Dahili yazılım hatası",
+  "descriptionTr": "Safety Integrated yazılımında işlemci 1 üzerinde dahili hata oluşmuş ve onaylanamayan bir STOP A başlatılmıştır. r0949 içindeki fault value yalnızca Siemens'in dahili hata incelemesinde kullanılır.",
+  "recommendedChecks": [
+   "Cihazı kapatıp yeniden açın.",
+   "Safety Integrated işlevini yeniden devreye alıp cihazı kapatın ve yeniden açın (yetkili personel).",
+   "Siemens destek hattına danışın.",
+   "Gerekirse kontrol ünitesini (CU) değiştirin."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan emniyet bileşenlerine müdahale etmeyin."
+ },
+ {
+  "code": "F01650",
+  "titleTr": "SI P1 (CU): Kabul testi gerekiyor",
+  "descriptionTr": "Safety Integrated, güvenlik parametrelerinin ve sağlama toplamlarının doğrulanması için kabul testi istiyor. Parametre değişikliği veya proje yüklenmesi, işlemciler arasındaki ayar farkları ya da güvenlik verilerinin bozulması bu bildirime yol açabilir.",
+  "recommendedChecks": [
+   "fault value 130, 1000 veya 2020 ise güvenlik devreye alma işlemini yeniden uygulayın; 1000 veya 2020 için gerekirse bellek kartını veya kontrol ünitesini (CU) değiştirin (yetkili personel)",
+   "fault value 2000 için işlemci 1 güvenlik parametrelerini kontrol edip p9799 değerini, 2001 için işlemci 2 güvenlik parametrelerini kontrol edip p9899 değerini uyarlayın (yetkili personel)",
+   "fault value 2002 için p9601 = p9801 olacak şekilde işlev etkinleştirmelerini kontrol edip düzeltin; 2010 için p9602 = p9802 uyumunu kontrol edin (yetkili personel)",
+   "fault value 2003, 2004 veya 2005 ise kabul testini yapıp kabul raporunu hazırlayın; 2005 için arızayı onaylamadan önce STO seçimini kaldırın (yetkili personel)",
+   "fault value 9999 ise mevcut diğer güvenlik arızasının tanılamasını yapın."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlik ayarlarını ve kabul testini yalnızca yetkili personel yürütmelidir; donanıma müdahale etmeden önce enerjiyi kesip kilitle-etiketle uygulayın."
+ },
+ {
+  "code": "F01651",
+  "titleTr": "SI P1 (CU): Güvenlik zaman dilimleri eşitlenemedi",
+  "descriptionTr": "Safety Integrated için işlemciler arasındaki güvenlik zaman dilimlerinin eşitlenmesi başarısız oldu. r0949 içindeki fault value yalnızca Siemens'in dahili arıza incelemesi içindir.",
+  "recommendedChecks": [
+   "POWER ON işlemi için cihazı kapatın.",
+   "Cihazı yeniden açarak POWER ON işlemini tamamlayın."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlik işlevlerine müdahaleyi yalnızca yetkili personel yapmalıdır."
+ },
+ {
+  "code": "F01653",
+  "titleTr": "SI P1 (CU): PROFIBUS/PROFINET güvenlik yapılandırması hatalı",
+  "descriptionTr": "Üst kontrol sistemiyle Safety Integrated kullanımı için PROFIBUS/PROFINET yapılandırması uygun değil. Güvenlik veri yuvasının eksik olması, biçim veya uzunluk uyuşmazlığı ya da PROFIsafe etkinleştirmelerinin uyuşmaması olası nedenlerdir.",
+  "recommendedChecks": [
+   "Master tarafındaki güvenlik veri yuvasının PROFIBUS/PROFINET yapılandırmasını kontrol edip gerekirse düzeltin (yetkili personel)",
+   "Kontrol ünitesinin (CU) yazılımını güncelleyin.",
+   "fault value 250 ise üst F kontrol sistemindeki PROFIsafe yapılandırmasını kaldırın veya sürücüde PROFIsafe işlevini etkinleştirin (yetkili personel)",
+   "fault value 231 veya 331 ise F-PLC ayarlarına uygun PROFIsafe telegramını yapılandırın (yetkili personel)",
+   "p9501.30 = 1 için PROFIsafe telegram 900, p9501.30 = 0 için telegram 30 yapılandırın (yetkili personel)"
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlik haberleşmesi ayarlarını yalnızca yetkili personel değiştirmelidir."
+ },
+ {
+  "code": "F01655",
+  "titleTr": "SI P1 (CU): Güvenlik izleme işlevleri eşleştirilemedi",
+  "descriptionTr": "İşlemcilerin ortak desteklediği Safety Integrated izleme işlevleri belirlenemedi. İşlemciler arasındaki haberleşme hatası veya haberleşmenin kesilmesi buna neden olabilir; fault value yalnızca Siemens'in dahili incelemesi içindir.",
+  "recommendedChecks": [
+   "Cihazı kapatıp yeniden açın.",
+   "Pano düzenini ve kablo güzergâhlarını elektromanyetik uyumluluk açısından kontrol edin."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan pano ve kablolara müdahale etmeyin."
+ },
+ {
+  "code": "F01656",
+  "titleTr": "SI P1 (CU): İşlemci 2 güvenlik parametrelerine erişim hatası",
+  "descriptionTr": "İşlemci 2 için kalıcı bellekte tutulan Safety Integrated parametrelerine erişirken hata oluştu. Güvenlik verileri bozulmuş olabilir; dahili yazılım hatası veya parametre aktarımında haberleşme hatası da olasıdır.",
+  "recommendedChecks": [
+   "Güvenlik işlevlerini yeniden devreye alın; gerekirse bellek kartını veya kontrol ünitesini (CU) değiştirin (yetkili personel)",
+   "fault value 129 ise p0010 = 95 ile güvenlik devreye alma modunu açıp PROFIsafe adresini p9610 üzerinden uyarlayın (yetkili personel)",
+   "Aynı durumda p9700 = D0 hex ile güvenlik parametrelerini kopyalayın, p9701 = DC hex ile veri değişikliğini onaylayın ve p0010 = 0 ile devreye alma modundan çıkın (yetkili personel)",
+   "Ardından p0971 = 1 veya RAM'den ROM'a kopyalama ile tüm parametreleri kaydedip kontrol ünitesini (CU) kapatıp açın (yetkili personel)",
+   "fault value 132 ise pano düzenini ve kablo güzergâhlarını elektromanyetik uyumluluk açısından kontrol edin."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlik devreye alma işlemini yetkili personel yürütmelidir; enerjiyi kesip kilitle-etiketle uygulamadan donanıma müdahale etmeyin."
+ },
+ {
+  "code": "F01658",
+  "titleTr": "SI P1 (CU): PROFIsafe telegram numarası uygun değil",
+  "descriptionTr": "p60022 içindeki PROFIsafe telegram seçimi, etkin güvenlik işlevleriyle uyuşmuyor. PROFIsafe etkinliği veya F-DI verilerinin PROFIsafe üzerinden aktarılması için gereken telegram seçimi uygun olmayabilir.",
+  "recommendedChecks": [
+   "p60022 içindeki telegram seçimini etkin güvenlik işlevleriyle karşılaştırın.",
+   "Etkin güvenlik işlevlerine uygun telegram numarasını seçin (yetkili personel)"
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlik telegramı seçimini yalnızca yetkili personel değiştirmelidir."
+ },
+ {
+  "code": "F01659",
+  "titleTr": "SI P1 (CU): Güvenlik parametresine yazma isteği reddedildi",
+  "descriptionTr": "Safety Integrated parametrelerine yazma isteği kabul edilmedi. Parolanın ayarlanmaması, etkin güvenlik işlevleri sırasında sıfırlama denenmesi, güvenlik girişlerinin simülasyonu veya donanımın desteklemediği işlevlerin seçilmesi olası nedenlerdir.",
+  "recommendedChecks": [
+   "fault value 1 için p9761 ile güvenlik parolasını ayarlayın; 2 için p9501 ve p9601 ile Safety Integrated işlevlerini engelleyin veya p0970 = 5 ile güvenlik parametrelerini sıfırlayıp sürücü parametrelerini yeniden sıfırlayın (yetkili personel)",
+   "fault value 3 için p0795 üzerinden ilgili dijital girişin simülasyonunu sonlandırın; 26 için STO, F-DI ve geri bildirim girişli F-DO test durdurmasıyla ilişkili simülasyonları kontrol edip gerektiğinde kapatın (yetkili personel)",
+   "fault value 10, 14, 15 veya 18 için F01655 ve F30655 arızalarını araştırın; gerekirse istenen işlevi destekleyen kontrol ünitesi (CU) kullanın.",
+   "fault value 20 için p9601 etkinleştirme ayarını düzeltin (yetkili personel)",
+   "fault value 21 için Safety Integrated işlevlerini destekleyen Power Module kullanın; 28 için Power Module terminalleri üzerinden STO özelliği bulunan güç ünitesi kullanın."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlik ayarlarını yalnızca yetkili personel değiştirmelidir; enerjiyi kesip kilitle-etiketle uygulamadan Power Module değişimi yapmayın."
+ },
+ {
+  "code": "F01660",
+  "titleTr": "SI P1 (CU): Güvenlik işlevleri desteklenmiyor",
+  "descriptionTr": "Power Module gerekli güvenlik işlevlerini desteklemediği için Safety Integrated devreye alınamıyor.",
+  "recommendedChecks": [
+   "Kullanılacak Power Module'ün gerekli güvenlik işlevlerini desteklediğini doğrulayın.",
+   "Gerekirse bu işlevleri destekleyen bir Power Module kullanın."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan Power Module değişimi yapmayın."
+ },
+ {
+  "code": "F01661",
+  "titleTr": "SI P1 (CU): Güvenlik girişlerinde simülasyon etkin",
+  "descriptionTr": "Kontrol ünitesinin (CU) güvenlik için kullanılan dijital girişlerinde p0795 üzerinden simülasyon etkinleştirilmiş. Güvenlik girişlerinde simülasyona izin verilmez; r0949 bitleri ilgili girişleri gösterir.",
+  "recommendedChecks": [
+   "p0795 üzerinden güvenlik girişlerinin simülasyonunu kapatın (yetkili personel)",
+   "Arızayı onaylayın."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlik girişlerinin ayarlarına yalnızca yetkili personel müdahale etmelidir."
+ },
+ {
+  "code": "F01662",
+  "titleTr": "Modül içi haberleşme hatası",
+  "descriptionTr": "Modülün kendi iç haberleşmesinde hata oluştu. r0949 içindeki fault value yalnızca Siemens'in dahili arıza incelemesi içindir; ayrıntılı neden kullanıcıya açıklanmamıştır.",
+  "recommendedChecks": [
+   "Cihazı kapatıp yeniden açın.",
+   "Pano düzenini ve kablo güzergâhlarını elektromanyetik uyumluluk açısından kontrol edin.",
+   "Dijital çıkışlara izin verilmeyen gerilim uygulanıp uygulanmadığını ve çıkışların izin verilmeyen akımla yüklenip yüklenmediğini kontrol edin.",
+   "firmware sürümünü daha yeni bir sürüme güncelleyin.",
+   "Siemens destek hattına danışın."
+  ],
+  "category": "Dahili / Firmware",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan pano kablolarına ve dijital çıkış bağlantılarına müdahale etmeyin."
+ },
+ {
+  "code": "F01663",
+  "titleTr": "SI P1 (CU): Güvenlik parametrelerinin kopyalanması reddedildi",
+  "descriptionTr": "p9700 içinde kayıtlı veya çevrimdışı girilmiş kopyalama komutu nedeniyle açılışta güvenlik parametreleri kopyalanmaya çalışılıyor. Ancak p9501 ve p9601 ile işlemci 1 üzerinde güvenlik işlevi seçilmediği için kopyalama yapılamıyor.",
+  "recommendedChecks": [
+   "p9700 değerini 0 yapın (yetkili personel)",
+   "p9501 ve p9601 ayarlarını kontrol edip gerekirse düzeltin (yetkili personel)",
+   "p9700 içine uygun değeri girerek kopyalamayı yeniden başlatın (yetkili personel)"
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlik parametrelerinin kopyalama işlemini yalnızca yetkili personel yürütmelidir."
+ },
+ {
+  "code": "F01665",
+  "titleTr": "SI P1 (CU): Sistem hatası algılandı",
+  "descriptionTr": "Mevcut açılışta veya önceki açılıştan önce bir sistem hatası algılandı; sistem yeniden başlatılmış olabilir. Power Module üzerindeki STO_A/STO_B terminallerinin etkin olmasına rağmen ilgili STO işlevinin etkinleştirilmemesi de bu bildirime neden olabilir.",
+  "recommendedChecks": [
+   "Cihazı kapatıp yeniden açın.",
+   "firmware sürümünü daha yeni bir sürüme güncelleyin.",
+   "Siemens destek hattına danışın.",
+   "fault value 40 hex ise STO_A/STO_B için her iki DIP anahtarını OFF konumuna alın veya Power Module terminalleri üzerinden STO işlevini etkinleştirin (yetkili personel)",
+   "fault value 200000 hex, 400000 hex veya 8000yy hex ise kontrol ünitesinin (CU) Power Module'e bağlı olduğunu doğrulayın ve Power Module terminalleri üzerinden STO işlevinin seçimini kaldırın (yetkili personel)"
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan Power Module bağlantılarına veya DIP anahtarlarına müdahale etmeyin; güvenlik ayarlarını yetkili personel değiştirmelidir."
+ },
+ {
+  "code": "F01680",
+  "titleTr": "SI Motion P1 (CU): Güvenlik izleme sağlama toplamı uyuşmuyor",
+  "descriptionTr": "Güvenlik parametrelerinden hesaplanan r9728 sağlama toplamı, son makine kabulünde p9729 içinde saklanan referansla uyuşmuyor. Güvenlik parametreleri değiştirilmiş olabilir veya bir hata bulunabilir.",
+  "recommendedChecks": [
+   "Güvenlik parametrelerini kontrol edip gerekirse düzeltin (yetkili personel)",
+   "RAM'den ROM'a kopyalama işlevini çalıştırın (yetkili personel)",
+   "Yeniden açılış gerektiren güvenlik parametreleri değiştirildiyse cihazı kapatıp açın.",
+   "Kabul testini yapın."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlik parametrelerini ve kabul testini yalnızca yetkili personel ele almalıdır."
+ },
+ {
+  "code": "F01681",
+  "titleTr": "SI Motion P1 (CU): Güvenlik parametresi değeri uygun değil",
+  "descriptionTr": "Bir güvenlik parametresine izin verilmeyen değer girilmiş. Uyuşmayan işlev seçimleri, fazla yüksek dişli kademesi, düşük p9547 değeri veya enkodersiz senkron motor için uygun olmayan p9585 ayarı olası nedenlerdir.",
+  "recommendedChecks": [
+   "r0949 içindeki fault value ile belirtilen parametrenin değerini düzeltin (yetkili personel)",
+   "İlgili parametre 9547 ve p9501.16 = 1 ise p9546 >= 2 x p9547 ve p9346 >= 2 x p9347 koşullarını sağlayacak şekilde ayarlayın (yetkili personel)",
+   "İlgili parametre 9522 veya 9585 ise parametre değerini düzeltin (yetkili personel)"
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlik izleme parametrelerini yalnızca yetkili personel değiştirmelidir."
+ },
+ {
+  "code": "F01682",
+  "titleTr": "SI Motion P1 (CU): Seçilen izleme işlevi desteklenmiyor",
+  "descriptionTr": "p9501, p9601 veya p9801 ile etkinleştirilen güvenlik izleme işlevi desteklenmiyor. firmware sürümü, kontrol ünitesi (CU), motor tipi veya PROFIsafe ile işlevlerin birlikte seçilmesine ilişkin kısıtlar buna neden olabilir.",
+  "recommendedChecks": [
+   "r0949 içindeki fault value ile desteklenmeyen izleme işlevini belirleyin.",
+   "İlgili izleme işlevinin seçimini p9501, p9601 veya p9801 üzerinden kaldırın (yetkili personel)"
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlik izleme işlevlerinin seçimini yalnızca yetkili personel değiştirmelidir."
+ },
+ {
+  "code": "F01683",
+  "titleTr": "SI Motion P1 (CU): SLS etkinleştirilmemiş",
+  "descriptionTr": "Diğer güvenlik izleme işlevleri etkin olduğu halde SLS işlevi p9501 üzerinden etkinleştirilmemiş.",
+  "recommendedChecks": [
+   "p9501.0 üzerinden SLS işlevini etkinleştirin (yetkili personel)",
+   "Değişiklikleri RAM'den ROM'a kopyalayarak kaydedin (yetkili personel)",
+   "Kaydetme işleminin ardından cihazı kapatıp yeniden açın."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "SLS ve diğer güvenlik işlevlerinin ayarlarını yalnızca yetkili personel değiştirmelidir."
+ },
+ {
+  "code": "F01690",
+  "titleTr": "SI Motion: Güvenlik kayıtları NVRAM'e kaydedilemiyor",
+  "descriptionTr": "Güvenlik kayıt defterinin r9781 ve r9782 verilerini saklamak için NVRAM alanı yeterli değil. Sürücüde fiziksel NVRAM bulunmuyor veya kullanılabilir bellek alanı kalmamış olabilir.",
+  "recommendedChecks": [
+   "fault value 0 ise NVRAM bulunan bir kontrol ünitesi (CU) kullanın.",
+   "fault value 1 ise NVRAM alanı kullanan gereksiz işlevlerin seçimini kaldırın (yetkili personel)",
+   "fault value 1 için Siemens destek hattına danışın."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlikle ilişkili işlevlerin seçimini yalnızca yetkili personel değiştirmelidir."
+ },
+ {
+  "code": "F01692",
+  "titleTr": "SI Motion P1 (CU): Parametre değeri enkodersiz izlemeye uygun değil",
+  "descriptionTr": "Enkodersiz hareket izleme işlevleri için izin verilmeyen bir parametre değeri kullanılmış. r0949 içindeki fault value, değeri hatalı olan parametrenin numarasını gösterir.",
+  "recommendedChecks": [
+   "fault value içinde belirtilen parametreyi belirleyin.",
+   "Belirtilen parametrenin değerini düzeltin (yetkili personel)"
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlik izleme parametrelerini yalnızca yetkili personel değiştirmelidir."
+ },
+ {
+  "code": "F01946",
+  "titleTr": "PROFIBUS: Yayıncıyla bağlantı kesildi",
+  "descriptionTr": "Çevrimsel PROFIBUS eşler arası veri aktarımında en az bir yayıncıyla bağlantı kesildi. r0949 içindeki fault value bitleri ve r2077 adresleri, bağlantısı kesilen yayıncıyı belirlemeye yardımcı olur.",
+  "recommendedChecks": [
+   "PROFIBUS kablolarını kontrol edin.",
+   "Bağlantısı kesilen yayıncının durumunu kontrol edin."
+  ],
+  "category": "Haberleşme",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan kablo bağlantılarına müdahale etmeyin."
+ },
+ {
+  "code": "F01951",
+  "titleTr": "CU SYNC: Uygulama çevrimi eşitlemesi eksik",
+  "descriptionTr": "Uygulama çevrimlerinin dahili eşitlenmesi başarısız oldu. r0949 içindeki fault value yalnızca Siemens'in dahili arıza incelemesi içindir.",
+  "recommendedChecks": [
+   "Tüm bileşenleri kapatıp yeniden açın.",
+   "Kontrol ünitesinin (CU) yazılımını güncelleyin."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F02080",
+  "titleTr": "İz kaydı: Birim değişikliği nedeniyle ayarlar silindi",
+  "descriptionTr": "Birim sistemi veya referans parametreleri değiştiği için sürücüdeki iz kaydı ayarları silindi.",
+  "recommendedChecks": [
+   "Yeniden başlatırken önceki iz kaydı ayarlarının silindiğini dikkate alın.",
+   "İz kaydını yeniden başlatın."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F02151",
+  "titleTr": "OA: Dahili yazılım hatası",
+  "descriptionTr": "Bir OA uygulamasında dahili yazılım hatası oluştu. r0949 içindeki fault value yalnızca Siemens'in dahili arıza incelemesi içindir.",
+  "recommendedChecks": [
+   "Tüm bileşenleri kapatıp yeniden açın.",
+   "firmware sürümünü daha yeni bir sürüme güncelleyin.",
+   "Siemens destek hattına danışın.",
+   "Gerekirse kontrol ünitesini (CU) değiştirin."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F02152",
+  "titleTr": "OA: Bellek kapasitesi yetersiz",
+  "descriptionTr": "Kontrol ünitesinde (CU) bellek kapasitesini aşacak kadar çok işlev yapılandırılmış. Fazla sayıda sürücü, işlev modülü, veri kümesi, OA uygulaması veya blok buna neden olabilir; fault value yalnızca Siemens'in dahili incelemesi içindir.",
+  "recommendedChecks": [
+   "Kontrol ünitesindeki (CU) sürücü, işlev modülü, veri kümesi, OA uygulaması veya blok sayısını azaltacak şekilde yapılandırmayı düzenleyin (yetkili personel)",
+   "Ek bir kontrol ünitesi (CU) kullanın."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F03000",
+  "titleTr": "NVRAM veri işlemi sırasında hata",
+  "descriptionTr": "p7770 ile başlatılan NVRAM veri işlemi tamamlanamadı. DCC etkinken işlemin sürüm tarafından desteklenmemesi, yedekle veri uzunluğu uyuşmazlığı, p7774 sağlama toplamının hatalı olması veya yüklenecek veri bulunmaması olası nedenlerdir.",
+  "recommendedChecks": [
+   "Tanılama sonucunda belirlenen nedene uygun düzeltmeyi uygulayın; manual bu adım için ayrıntılı işlem vermiyor.",
+   "Gerekirse işlemi yeniden başlatın (yetkili personel)"
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F03001",
+  "titleTr": "NVRAM sağlama toplamı hatalı",
+  "descriptionTr": "Kontrol ünitesinin (CU) kalıcı NVRAM verileri değerlendirilirken sağlama toplamı hatası bulundu. Hatadan etkilenen NVRAM verileri silindi.",
+  "recommendedChecks": [
+   "POWER ON işlemi için tüm bileşenleri kapatın.",
+   "Tüm bileşenleri yeniden açarak POWER ON işlemini tamamlayın."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F06310",
+  "titleTr": "Besleme gerilimi p0210 ayarı uygun değil",
+  "descriptionTr": "Ön şarj tamamlandıktan sonra ölçülen DC gerilimi, p0210 ile tanımlanan besleme gerilimine göre izin verilen aralığın dışında. Arıza yalnızca sürücü kapalıyken onaylanabilir.",
+  "recommendedChecks": [
+   "p0210 besleme gerilimi ayarını kontrol edip gerekirse değiştirin (yetkili personel)",
+   "Şebeke besleme gerilimini kontrol edin."
+  ],
+  "category": "Besleme / DC Bara",
+  "safetyNoteTr": "Enerji altında gerilim kontrolünü yalnızca yetkili personel yapmalıdır; bağlantılara müdahale etmeden önce enerjiyi kesip kilitle-etiketle uygulayın."
+ },
+ {
+  "code": "F06922",
+  "titleTr": "Frenleme direnci: Faz kaybı algılandı",
+  "descriptionTr": "Frenleme direncinde faz kaybı algılandı. r0949 içindeki fault value, kaybın U, V veya W fazında olduğunu belirtir.",
+  "recommendedChecks": [
+   "Frenleme dirençlerine giden besleme kablolarını kontrol edin.",
+   "Bu kabloların frenleme dirençlerine bağlantılarını kontrol edin."
+  ],
+  "category": "Frenleme",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan frenleme direnci kablolarına müdahale etmeyin."
+ },
+ {
+  "code": "F07016",
+  "titleTr": "Sürücü: Motor sıcaklık sensörü hatası",
+  "descriptionTr": "p0601 ile seçilen motor sıcaklık sensörünün değerlendirilmesinde hata algılandı. Kablo kopukluğu, sensörün bağlı olmaması veya ölçülen direncin sensör tipi için çok düşük olması olası nedenlerdir.",
+  "recommendedChecks": [
+   "Sıcaklık sensörünün doğru bağlandığını kontrol edin.",
+   "p0601 sensör tipi ayarını kontrol edin.",
+   "Asenkron motorlarda sensör arızası bildirimini devre dışı bırakmak için p0607 = 0 ayarını uygulayın (yetkili personel)"
+  ],
+  "category": "Sıcaklık / Soğutma",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan motorun sensör kablolarına müdahale etmeyin."
+ },
+ {
+  "code": "F07080",
+  "titleTr": "Sürücü: Kontrol parametresi hatalı",
+  "descriptionTr": "Kapalı çevrim kontrol parametreleri uygun olmayan değerlerle ayarlanmış. r0949 içindeki fault value, ilgili parametre numarasını gösterir.",
+  "recommendedChecks": [
+   "r0949 içindeki fault value ile hatalı parametreyi belirleyin.",
+   "Belirtilen parametrenin değerini düzeltin (yetkili personel)"
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F07082",
+  "titleTr": "Makro çalıştırılamıyor",
+  "descriptionTr": "Makro; çağrılan dosyanın uygun olmaması, parametreye yazma kısıtları, veri tipi veya değer hataları gibi nedenlerle çalıştırılamıyor. BICO bağlantısının belirlenememesi ya da indeks ve bit işlemlerindeki hatalar da olasıdır.",
+  "recommendedChecks": [
+   "Hatanın işaret ettiği parametreyi kontrol edin.",
+   "Makro dosyasını kontrol edin.",
+   "BICO bağlantısını kontrol edin."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F07083",
+  "titleTr": "Makro: ACX dosyası bulunamadı",
+  "descriptionTr": "Çalıştırılmak istenen ACX makro dosyası ilgili dizinde bulunamadı. r0949 içindeki fault value, çalıştırmayı başlatan parametrenin numarasını gösterir.",
+  "recommendedChecks": [
+   "ACX dosyasının bellek kartında kayıtlı olduğunu kontrol edin.",
+   "Dosyanın bellek kartındaki ilgili dizinde bulunduğunu doğrulayın."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F07084",
+  "titleTr": "Makro: WaitUntil koşulu sağlanmadı",
+  "descriptionTr": "Makrodaki WaitUntil koşulu, yapılan denemeler içinde sağlanamadı. r0949 içindeki fault value, koşulun tanımlandığı parametreyi gösterir.",
+  "recommendedChecks": [
+   "WaitUntil döngüsünün koşullarını kontrol edin.",
+   "Döngü koşullarını düzeltin (yetkili personel)"
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F07086",
+  "titleTr": "Referans değeri değişince parametre sınırı aşıldı",
+  "descriptionTr": "Referans parametresi değişince ilgili parametrelerin bağıl değerleri geçerli sınırlar içinde yeniden hesaplanamadı. Etkilenen değerler, aşılan alt veya üst sınıra ya da fabrika ayarına getirildi.",
+  "recommendedChecks": [
+   "Uyarlanan parametre değerini kontrol edin.",
+   "Gerekirse uyarlanan değeri düzeltin (yetkili personel)"
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F07088",
+  "titleTr": "Birim değişiminde parametre sınırı aşıldı",
+  "descriptionTr": "Birim değişimi sırasında yuvarlama veya kayan nokta veri tipindeki hassasiyet nedeniyle parametre sınırı aşıldı. Sürücü, alt sınırdaki değeri yukarıya veya üst sınırdaki değeri aşağıya yuvarlayarak uyarladı; etkilenen parametreler r9451 ile görülebilir.",
+  "recommendedChecks": [
+   "r9451 ile gösterilen uyarlanmış parametre değerlerini kontrol edin.",
+   "Gerekirse bu parametre değerlerini düzeltin (yetkili personel)"
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F07220",
+  "titleTr": "Sürücü: PLC kontrol yetkisi sinyali yok",
+  "descriptionTr": "Çalışma sırasında PLC'nin kontrol yetkisini bildiren sinyal kayboldu. p0854 bağlantısının hatalı olması, üst kontrol sisteminin sinyali geri çekmesi veya fieldbus veri aktarımının kesilmesi olası nedenlerdir.",
+  "recommendedChecks": [
+   "p0854 üzerindeki PLC kontrol yetkisi binektör giriş bağlantısını kontrol edin.",
+   "PLC kontrol yetkisi sinyalini kontrol edip gerekirse etkinleştirin.",
+   "Master ile sürücü arasındaki fieldbus veri aktarımını kontrol edin."
+  ],
+  "category": "Haberleşme"
+ },
+ {
+  "code": "F07300",
+  "titleTr": "Sürücü: Şebeke kontaktörü geri bildirimi yok",
+  "descriptionTr": "Şebeke kontaktörü p0861 ile belirlenen sürede açılmamış veya kapanmamış, çalışma sırasında bırakmış ya da sürücü kapalıyken kapanmış olabilir. Sürücü kontaktör geri bildiriminin beklenen durumla uyuşmadığını bildiriyor.",
+  "recommendedChecks": [
+   "p0860 ayarını kontrol edin.",
+   "Şebeke kontaktörünün geri bildirim devresini kontrol edin.",
+   "p0861 izleme süresini artırın (yetkili personel)"
+  ],
+  "category": "Besleme / DC Bara",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan kontaktör ve geri bildirim devresine müdahale etmeyin."
+ },
+ {
+  "code": "F07330",
+  "titleTr": "Dönen motoru yakalama: Arama akımı çok düşük",
+  "descriptionTr": "Dönen motoru yakalama sırasında ulaşılan arama akımı yetersiz bulundu. Motor bağlı olmayabilir.",
+  "recommendedChecks": [
+   "Motor besleme kablolarını kontrol edin.",
+   "Motor besleme kablolarının motora bağlantısını kontrol edin."
+  ],
+  "category": "Motor",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan motor ve besleme kablolarına müdahale etmeyin."
+ },
+ {
+  "code": "F07331",
+  "titleTr": "Dönen motoru yakalama işlevi desteklenmiyor",
+  "descriptionTr": "Motor dönerken sürücünün devreye alınması mevcut çalışma biçiminde desteklenmiyor. Kalıcı mıknatıslı senkron motorda U/f karakteristiğiyle veya sensörsüz vektör kontrolüyle çalışma bu kapsamdadır.",
+  "recommendedChecks": [
+   "Dönen motoru yakalama işlevinin p1200 ayarını kontrol edin.",
+   "p1200 = 0 ile dönen motoru yakalama işlevini devre dışı bırakın (yetkili personel)"
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F07332",
+  "titleTr": "Dönen motoru yakalama: Erişilebilir en yüksek hız azaldı",
+  "descriptionTr": "Erişilebilen en yüksek hız azalmıştır ve çok yüksek hızlarda dönen motoru yakalama sorunları görülebilir. Güç ünitesinin motor gücüne oranının fazla yüksek olması olası nedendir.",
+  "recommendedChecks": [
+   "Bu bildirim için parametre değişikliği yapmayın; manual değişiklik gerektirmiyor.",
+   "3000 rpm üzerindeki hızlarda dönen motoru yakalama işleminden kaçının."
+  ],
+  "category": "Motor"
+ },
+ {
+  "code": "F07404",
+  "titleTr": "Sürücü: DC bara gerilim izlemesi Vdc_max devreye girdi",
+  "descriptionTr": "U/f kontrolünde p1284 ile tanımlanan DC bara gerilim izlemesi devreye girdi. Neden metninde bunun dışında ayrıntılı bir arıza nedeni belirtilmiyor.",
+  "recommendedChecks": [
+   "Şebeke besleme gerilimini kontrol edin.",
+   "Frenleme modülünü kontrol edin.",
+   "Cihazın besleme gerilimi ayarını p0210 üzerinden uyarlayın (yetkili personel)",
+   "DC bara gerilim izlemesini p1284 üzerinden uyarlayın (yetkili personel)"
+  ],
+  "category": "Besleme / DC Bara",
+  "safetyNoteTr": "Enerji altında gerilim kontrolünü yalnızca yetkili personel yapmalıdır; bağlantılara müdahale etmeden önce enerjiyi kesip kilitle-etiketle uygulayın."
+ },
+ {
+  "code": "F07405",
+  "titleTr": "Sürücü: Kinetik tamponlamada hız alt sınırın altında",
+  "descriptionTr": "Kinetik tamponlama sırasında şebeke beslemesi geri gelmeden hız alt sınırın altına düşmüştür. Bu sınır p1257 ile, U/f kontrollü vektör sürücülerde ise p1297 ile belirlenir.",
+  "recommendedChecks": [
+   "Vdc_min kontrolörünün hız eşiğini p1257 üzerinden kontrol edin.",
+   "U/f kontrollü vektör sürücülerde hız eşiğini p1297 üzerinden kontrol edin."
+  ],
+  "category": "Besleme / DC Bara"
+ },
+ {
+  "code": "F07406",
+  "titleTr": "Sürücü: Kinetik tamponlama süresi aşıldı",
+  "descriptionTr": "Şebeke beslemesi geri gelmeden kinetik tamponlama için izin verilen süre dolmuştur. Süre sınırı p1255 ile, U/f kontrollü vektör sürücülerde ise p1295 ile ilişkilidir.",
+  "recommendedChecks": [
+   "Vdc_min kontrolörünün süre eşiğini p1255 üzerinden kontrol edin.",
+   "U/f kontrollü vektör sürücülerde süre eşiğini p1295 üzerinden kontrol edin."
+  ],
+  "category": "Besleme / DC Bara"
+ },
+ {
+  "code": "F07410",
+  "titleTr": "Sürücü: Akım kontrolörü çıkışı sınırda",
+  "descriptionTr": "Akım yokken akım kontrolörü çıkışının sınırda kalması algılanmıştır. Motorun bağlı olmaması, kontaktörün açık olması, motor verileriyle yıldız/üçgen bağlantının uyuşmaması, DC bara geriliminin bulunmaması, güç ünitesi arızası veya dönen motoru yakalama işlevinin etkin olmaması buna yol açabilir.",
+  "recommendedChecks": [
+   "Motor bağlantısını tamamlayın veya motor kontaktörünü kontrol edin.",
+   "Motor parametreleriyle yıldız/üçgen bağlantının uyumunu kontrol edin.",
+   "DC bara gerilimini r0070 üzerinden kontrol edin.",
+   "Güç ünitesini kontrol edin.",
+   "Dönen motoru yakalama işlevini p1200 üzerinden etkinleştirin (yetkili personel)"
+  ],
+  "category": "Motor",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan motor bağlantılarına veya kontaktöre müdahale etmeyin."
+ },
+ {
+  "code": "F07411",
+  "titleTr": "Sürücü: Uyartım sırasında akı hedefine ulaşılamadı",
+  "descriptionTr": "Hızlı mıknatıslamada, yüksek akım talebine rağmen hedef akıya ulaşılamamıştır. Hatalı motor verileri veya yıldız/üçgen bağlantı uyumsuzluğu, düşük akım sınırı, asenkron motorda I2t sınırlaması, küçük güç ünitesi ya da kısa mıknatıslama süresi olası nedenlerdir.",
+  "recommendedChecks": [
+   "Motor verilerini düzeltip motor verisi tanımlamasını ve döner ölçümü yapın (yetkili personel)",
+   "Motor bağlantı düzenini ve motor besleme kablosunu kontrol edin.",
+   "Akım sınırını p0640 üzerinden düzeltin; mıknatıslama süresini p0346 üzerinden artırın (yetkili personel)",
+   "Asenkron motorun yükünü azaltın.",
+   "Güç ünitesini kontrol edin; gerekirse daha büyük bir Power Module kullanın."
+  ],
+  "category": "Motor",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan motor, kablo veya Power Module üzerinde çalışmayın."
+ },
+ {
+  "code": "F07426",
+  "titleTr": "Teknoloji kontrolörü: Gerçek değer sınırda",
+  "descriptionTr": "p2264 girişinden alınan gerçek değer, teknoloji kontrolörünün sınırına ulaşmıştır. r0949 içindeki fault value ondalık olarak 1 ise üst sınıra, 2 ise alt sınıra ulaşılmıştır.",
+  "recommendedChecks": [
+   "Gerçek değer sınırlarını p2267 ve p2268 üzerinden sinyal düzeyine uyarlayın (yetkili personel)",
+   "Gerçek değerin ölçeklendirmesini p0595 ve p0596 üzerinden kontrol edin."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F07435",
+  "titleTr": "Sürücü: Sensörsüz vektör kontrolde rampa çıkışının sabit kalması",
+  "descriptionTr": "Sensörsüz vektör kontrolde rampa üreteci p1141 ile durdurulmuştur. Rampa çıkışına verilen dahili ayarlama komutu, hız referansının sabit kalmasına neden olmuştur.",
+  "recommendedChecks": [
+   "Rampa üretecini tutan komutu p1141 üzerinden kaldırın (yetkili personel)",
+   "Jog ile rampa tutulurken hız referansı da engelleniyorsa (r0898.6), arızayı p2101 ve p2119 üzerinden bastırın (yetkili personel)"
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F07445",
+  "titleTr": "PID otomatik ayarı iptal edildi",
+  "descriptionTr": "PID otomatik ayarı bir hata nedeniyle sonlandırılmıştır. Verilen neden metni hatanın kaynağını ayrıntılandırmaz.",
+  "recommendedChecks": [
+   "Ofseti artırın (yetkili personel)",
+   "Sistem yapılandırmasını kontrol edin."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F07754",
+  "titleTr": "Sürücü: Kapatma vanası yapılandırması hatalı",
+  "descriptionTr": "Kapatma vanası ayarları birbiriyle uyumlu değildir. Safety Integrated etkin olduğu halde vana mevcut olarak tanımlanmamış olabilir veya kontrol değişkenini engelleme süresi, açma ya da kapama geri bildirimini değerlendirme süresinden kısa kalmış olabilir.",
+  "recommendedChecks": [
+   "fault value = 100 için Safety Integrated ve vana etkinleştirmelerini p9601/p9801 ile p0218.0 üzerinden kontrol edin.",
+   "fault value = 101 için açma geri bildirim süresine göre p0230 > p9625[0]/p9825[0] koşulunu sağlayın (yetkili personel)",
+   "fault value = 102 için kapama geri bildirim süresine göre p0230 > p9625[1]/p9825[1] koşulunu sağlayın (yetkili personel)"
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Safety Integrated ve vana ayarlarına yalnızca yetkili personel müdahale etmelidir."
+ },
+ {
+  "code": "F07800",
+  "titleTr": "Sürücü: Güç ünitesi algılanamıyor",
+  "descriptionTr": "Güç ünitesindeki parametreler okunamıyor veya ünitede kayıtlı parametre bulunmuyor. Devreye alma yazılımında yanlış topoloji seçilip bu ayarların kontrol ünitesine (CU) yüklenmesi de bu bildirime yol açabilir.",
+  "recommendedChecks": [
+   "Tüm bileşenlerin beslemesini kapatıp yeniden açın.",
+   "Güç ünitesini kontrol edin; gerekirse Power Module'ü değiştirin.",
+   "Kontrol ünitesini (CU) kontrol edin; gerekirse kontrol ünitesini değiştirin.",
+   "Topolojiyi düzeltip parametreleri devreye alma yazılımından yeniden yükleyin (yetkili personel)"
+  ],
+  "category": "Power Module",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan Power Module veya kontrol ünitesini değiştirmeyin."
+ },
+ {
+  "code": "F07806",
+  "titleTr": "Sürücü: Geri besleme gücü sınırı aşıldı",
+  "descriptionTr": "PM250 veya PM260 güç ünitesinde r0206[2] ile belirtilen anma geri besleme gücü, 10 s süresinden uzun aşılmıştır.",
+  "recommendedChecks": [
+   "Yavaşlama rampasının süresini uzatın (yetkili personel)",
+   "Sürücüyü döndüren yükü azaltın.",
+   "Geri besleme kapasitesi daha yüksek bir Power Module kullanın.",
+   "Vektör kontrolde arızanın tetiklenmesini önlemek için p1531 geri besleme gücü sınırını azaltın (yetkili personel)"
+  ],
+  "category": "Frenleme",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan Power Module'ü değiştirmeyin."
+ },
+ {
+  "code": "F07810",
+  "titleTr": "Sürücü: Güç ünitesi EEPROM'unda anma verileri yok",
+  "descriptionTr": "Güç ünitesinin EEPROM belleğinde anma verileri bulunmamaktadır.",
+  "recommendedChecks": [
+   "Gerekirse Power Module'ü değiştirin.",
+   "Siemens destek hattına danışın."
+  ],
+  "category": "Power Module",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan Power Module'ü değiştirmeyin."
+ },
+ {
+  "code": "F07860",
+  "titleTr": "Harici arıza 1",
+  "descriptionTr": "Harici arıza 1 koşulu oluşmuştur. Bildirim, p2106 binektör girişindeki 1/0 geçişiyle tetiklenir; metinde harici arızanın fiziksel nedeni belirtilmez.",
+  "recommendedChecks": [
+   "Harici arızaya yol açan nedeni giderin.",
+   "Arızayı onaylayın."
+  ],
+  "category": "Analog / Dijital I/O"
+ },
+ {
+  "code": "F07861",
+  "titleTr": "Harici arıza 2",
+  "descriptionTr": "Harici arıza 2 koşulu oluşmuştur. Bildirim, p2107 binektör girişindeki 1/0 geçişiyle tetiklenir; metinde harici arızanın fiziksel nedeni belirtilmez.",
+  "recommendedChecks": [
+   "Harici arızaya yol açan nedeni giderin.",
+   "Arızayı onaylayın."
+  ],
+  "category": "Analog / Dijital I/O"
+ },
+ {
+  "code": "F07862",
+  "titleTr": "Harici arıza 3",
+  "descriptionTr": "Harici arıza 3 koşulu oluşmuştur. Tetikleme, p2108, p3111 ve p3112 girişlerinin VE mantığı ile p3110 açılma gecikmesine bağlı 1/0 geçişinden kaynaklanır; fiziksel neden belirtilmez.",
+  "recommendedChecks": [
+   "Harici arızaya yol açan nedeni giderin.",
+   "Arızayı onaylayın."
+  ],
+  "category": "Analog / Dijital I/O"
+ },
+ {
+  "code": "F07894",
+  "titleTr": "Sürücü: Yük izleme pompa veya fan sıkışması algıladı",
+  "descriptionTr": "Pompa veya fan için ayarlanmış yük izleme, sıkışma algılamıştır. Özellikle ağır kalkışta, p2168 sıkışma torku eşiğinin düşük ayarlanması da bu bildirime yol açabilir.",
+  "recommendedChecks": [
+   "Pompa veya fanda sıkışma olup olmadığını kontrol edin; varsa giderin.",
+   "Fanın serbestçe hareket edebildiğini kontrol edin; engeli giderin.",
+   "p2165 ve p2168 ayarlarını yüke uyarlayın (yetkili personel)"
+  ],
+  "category": "Motor",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan pompa veya fanın sıkışmasını gidermeye çalışmayın."
+ },
+ {
+  "code": "F07895",
+  "titleTr": "Sürücü: Pompa veya fan yüksüz çalışıyor",
+  "descriptionTr": "Yük izleme, pompa veya fanın yüksüz çalıştığını algılamıştır. Pompanın kuru çalışması, fan kayışının kopması veya p2191 algılama torku eşiğinin düşük olması olası nedenlerdir.",
+  "recommendedChecks": [
+   "Pompanın bastığı akışkanın mevcut olduğunu kontrol edin; gerekirse akışkan sağlayın.",
+   "Fan kayışını kontrol edin; gerekirse değiştirin.",
+   "Gerekirse algılama torku eşiğini p2191 üzerinden artırın (yetkili personel)"
+  ],
+  "category": "Motor",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan fan kayışına müdahale etmeyin."
+ },
+ {
+  "code": "F07896",
+  "titleTr": "Sürücü: Yük izleme pompa devresinde kaçak algıladı",
+  "descriptionTr": "Pompa için ayarlanmış yük izleme, pompa devresinde kaçak algılamıştır. Kaçak nedeniyle basılan miktar azaldığında pompanın ihtiyaç duyduğu tork normal çalışmaya göre düşer.",
+  "recommendedChecks": [
+   "Pompa devresindeki kaçağı giderin.",
+   "Gereksiz açma oluşuyorsa kaçak karakteristiğinin tork eşiklerini p2186, p2188 ve p2190 üzerinden düşürün (yetkili personel)"
+  ],
+  "category": "Motor"
+ },
+ {
+  "code": "F07923",
+  "titleTr": "Sürücü: Tork veya hız düşük",
+  "descriptionTr": "p2193 = 1 durumunda tork, tork/hız izleme karakteristiğinin altında kalmıştır. p2193 = 2 durumunda ise p3230 ile ilişkili harici enkoder hız sinyali, r2169 hızına göre düşük kalmıştır.",
+  "recommendedChecks": [
+   "Motor ile yük arasındaki bağlantıyı kontrol edin.",
+   "Parametre ayarlarını yüke uygun hale getirin (yetkili personel)"
+  ],
+  "category": "Motor",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan motor ile yük arasındaki bağlantıya müdahale etmeyin."
+ },
+ {
+  "code": "F07924",
+  "titleTr": "Sürücü: Tork veya hız yüksek",
+  "descriptionTr": "p2193 = 1 durumunda tork, tork/hız izleme karakteristiğinin üzerinde kalmıştır. p2193 = 2 durumunda ise p3230 ile ilişkili harici enkoder hız sinyali, r2169 hızına göre yüksek kalmıştır.",
+  "recommendedChecks": [
+   "Motor ile yük arasındaki bağlantıyı kontrol edin.",
+   "Parametre ayarlarını yüke uygun hale getirin (yetkili personel)"
+  ],
+  "category": "Motor",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan motor ile yük arasındaki bağlantıya müdahale etmeyin."
+ },
+ {
+  "code": "F07925",
+  "titleTr": "Sürücü: Tork veya hız tolerans dışında",
+  "descriptionTr": "p2193 = 1 durumunda tork, tork/hız izleme karakteristiğinden sapmıştır. p2193 = 2 durumunda ise p3230 ile ilişkili harici enkoder hız sinyali, r2169 hızından sapmıştır.",
+  "recommendedChecks": [
+   "Motor ile yük arasındaki bağlantıyı kontrol edin.",
+   "Parametre ayarlarını yüke uygun hale getirin (yetkili personel)"
+  ],
+  "category": "Motor",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan motor ile yük arasındaki bağlantıya müdahale etmeyin."
+ },
+ {
+  "code": "F07936",
+  "titleTr": "Sürücü: Yük kaybı algılandı",
+  "descriptionTr": "Yük izleme işlevi bir yük kaybı algılamıştır. Verilen neden metni kaybın kaynağını ayrıntılandırmaz.",
+  "recommendedChecks": [
+   "Sensörü kontrol edin.",
+   "Gerekirse yük izlemeyi p2193 üzerinden devre dışı bırakın (yetkili personel)"
+  ],
+  "category": "Motor"
+ },
+ {
+  "code": "F07963",
+  "titleTr": "Sürücü: Sürtünme karakteristiği kaydı kesildi",
+  "descriptionTr": "Sürtünme karakteristiğini kaydetmek için gereken koşullar sağlanmamıştır. Eksik izinler, hız veya yön kısıtları, uygun olmayan kontrol modu, etkin motor tanımlama ya da optimizasyon işlemleri ve hatalı karakteristik verileri olası nedenlerdir.",
+  "recommendedChecks": [
+   "fault value = 0046 için eksik izin sinyallerini sağlayın.",
+   "fault value = 1082, 1084 veya 1087 için p3829 değerini p1082, r1084 veya r1087 ile belirtilen ilgili üst sınırı aşmayacak şekilde ayarlayıp p0340 = 5 ile hız noktalarını yeniden hesaplayın (yetkili personel)",
+   "fault value = 1110 için p3845 ile pozitif, 1111 için negatif yönü seçin; 1198 için p1110 ve p1111 üzerinden izin verilen yönü etkinleştirin (yetkili personel)",
+   "fault value = 1300 için p1300 = 20, 21 kapalı çevrim hız kontrolünü seçin; 1755 için p3820 değerini p1755 üzerine çıkarıp p0340 = 5 ile yeniden hesaplayın (yetkili personel)",
+   "fault value = 3820 ... 3829 için ilgili p382x hızında yükü ve r0063 hız sinyalindeki salınımı kontrol edin."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F07967",
+  "titleTr": "Sürücü: Kutup konumu tanımlaması hatalı",
+  "descriptionTr": "Kutup konumu tanımlaması sırasında hata oluşmuştur. Manual, ayrıntılı teşhisin yalnızca Siemens'in dahili arıza incelemesi için olduğunu belirtir.",
+  "recommendedChecks": [
+   "Beslemeyi kapatın.",
+   "Beslemeyi yeniden açın."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F07968",
+  "titleTr": "Sürücü: Lq-Ld ölçümü hatalı",
+  "descriptionTr": "Lq-Ld ölçümü tamamlanamamıştır. Ölçülen akım oranının veya ikinci harmoniğin düşük olması, akım sınırının aşılması, sürücünün ölçüm yöntemi için küçük kalması ya da darbe engellemesi olası nedenlerdir.",
+  "recommendedChecks": [
+   "fault value = 10 için motorun doğru bağlandığını kontrol edin; gerekirse ilgili Power Module'ü değiştirin.",
+   "fault value = 12 için girilen motor verilerini kontrol edin.",
+   "fault value = 10, 12 veya 16 için ölçüm yöntemini p1909 üzerinden devre dışı bırakın (yetkili personel)",
+   "fault value = 17 için ölçümü tekrarlayın."
+  ],
+  "category": "Devreye Alma / Parametre",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan motor bağlantılarına müdahale etmeyin veya Power Module'ü değiştirmeyin."
+ },
+ {
+  "code": "F07969",
+  "titleTr": "Sürücü: Kutup konumu belirleme işlemi hatalı",
+  "descriptionTr": "Kutup konumu belirleme işlemi hata vermiştir. Akım sınırlaması veya yetersiz ölçüm akımı, kilitli ya da dönmekte olan motor mili, düşük harmonikler, ölçüm yöntemine göre küçük sürücü ve darbe engellemesi olası nedenlerdir.",
+  "recommendedChecks": [
+   "fault value = 1, 10 veya 11 için motor bağlantısını kontrol edin; gerekirse ilgili Power Module'ü değiştirin.",
+   "fault value = 1, 12 veya 13 için girilen motor verilerini kontrol edin.",
+   "fault value = 2 için motoru yüksüz duruma getirin; 20 için tanımlamadan önce milin tamamen durduğundan emin olun.",
+   "fault value = 10 için p1980 = 4 ise p0325, p1980 = 1 ise p0329 değerini artırın; 12 için aynı seçime göre bu değerleri azaltın (yetkili personel)",
+   "fault value = 16 için ölçüm yöntemini p1980 üzerinden değiştirin; 17 için ölçümü tekrarlayın (yetkili personel)"
+  ],
+  "category": "Devreye Alma / Parametre",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan motor bağlantılarına müdahale etmeyin veya Power Module'ü değiştirmeyin."
+ },
+ {
+  "code": "F07983",
+  "titleTr": "Sürücü: Döner ölçümde doyum karakteristiği belirlenemedi",
+  "descriptionTr": "Doyum karakteristiği ölçümünde hata oluşmuştur. Hız, rotor akısı veya uyarlama devresinin kararlı hale gelmemesi, uyarlamanın etkin olmaması, alan zayıflatma, hız kısıtları ve yüksek yük torku ölçümü engelleyebilir.",
+  "recommendedChecks": [
+   "fault value = 1 ... 4 için motor etiket verilerini ve p0341, p0342 atalet verilerini kontrol edin; değişiklikten sonra p0340 = 3 ile hesaplama yapın (yetkili personel)",
+   "fault value = 1 ... 4 için p1910 motor verisi tanımlamasını yapın; gerekirse p1967 < 25 % olacak şekilde dinamik faktörü azaltın (yetkili personel)",
+   "fault value = 1 ... 2 için p1961 ölçüm hızını artırıp ölçümü tekrarlayın; 5 için p1961 hızını düşürün (yetkili personel)",
+   "fault value = 6 için p1961 veya p1080 ayarını, 7 için p1961 veya p1091 ... p1094, p1101 ayarlarını, 8 için p1961 veya p1082, p1083, p1086 ayarlarını uyarlayın (yetkili personel)",
+   "fault value = 9 veya 10 için p1961 hızını değiştirerek ya da yük torkunu azaltarak uygun ölçüm noktası seçin; ölçüm boyunca yük torkunu sabit tutun (yetkili personel)"
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F07984",
+  "titleTr": "Sürücü: Hız kontrolörü ayarında atalet momenti belirlenemedi",
+  "descriptionTr": "Atalet momenti tanımlaması sırasında hata oluşmuştur. Kararsız hız, hız sınırları veya atlama bantları, yetersiz tork ve hız değişimi, az ölçüm verisi ya da makul olmayan atalet sonucu buna yol açabilir.",
+  "recommendedChecks": [
+   "fault value = 1 için motor etiket verileriyle p0341, p0342 atalet verilerini kontrol edin; değişiklikten sonra p0340 = 3 ile hesaplama yapın (yetkili personel)",
+   "fault value = 2, 5 için p1965 veya p1080 ayarını; 3, 6 için p1965 veya p1091 ... p1094, p1101 ayarlarını; 4, 7 için p1965 veya p1082, p1083, p1086 ayarlarını uyarlayın (yetkili personel)",
+   "fault value = 8 için p1960 döner ölçümünü kaldırıp p0342 atalet değerini girin, p0340 = 4 ile hız kontrolörünü yeniden hesaplayın ve ölçümü tekrarlayın (yetkili personel)",
+   "fault value = 9 veya 10 için p0341 ve p0342 verilerini kontrol edin; değişiklikten sonra 9 için p0340 = 3 veya 4, 10 için p0340 = 3 ile hesaplama yapın (yetkili personel)",
+   "fault value = 11 için p0341 motor ataletini azaltın veya artırın ve ölçümü tekrarlayın (yetkili personel)"
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F07985",
+  "titleTr": "Sürücü: Hız kontrolörü salınım testi hatası",
+  "descriptionTr": "Hız kontrolörünün salınım testi hata ile sonuçlanmıştır. Hızın kararlı hale gelmemesi, hız sınırları veya atlama bantları, düşük tork sınırları ya da uygun kontrolör ayarının bulunamaması olası nedenlerdir.",
+  "recommendedChecks": [
+   "fault value = 1 için motor etiket verileriyle p0341, p0342 atalet verilerini kontrol edin; değişiklikten sonra p0340 = 3 ile hesaplama yapın (yetkili personel)",
+   "fault value = 1 için p1910 motor verisi tanımlamasını yapın; gerekirse p1967 < 25 % olacak şekilde dinamik faktörü azaltın (yetkili personel)",
+   "fault value = 2 için p1965 veya p1080 ayarını, 3 için p1965 veya p1091 ... p1094, p1101 ayarlarını, 4 için p1965 veya p1082, p1083, p1086 ayarlarını uyarlayın (yetkili personel)",
+   "fault value = 5 için p1520 ve p1521 gibi tork sınırlarını artırın (yetkili personel)",
+   "fault value = 6 için p1967 dinamik faktörünü azaltın; p1959.4 = 0 ile testi devre dışı bırakıp döner ölçümü tekrarlayın (yetkili personel)"
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F07986",
+  "titleTr": "Sürücü: Döner ölçümde rampa üreteci sorunu",
+  "descriptionTr": "Döner ölçüm sırasında rampa üreteciyle ilgili sorun oluşmuştur. r0949 içindeki fault value ondalık olarak 1 ise hem pozitif hem negatif yön engellenmiştir.",
+  "recommendedChecks": [
+   "fault value = 1 için p1110 ve p1111 yön engelleme ayarlarını kontrol edin.",
+   "İlgili yönü p1110 veya p1111 üzerinden etkinleştirin (yetkili personel)"
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F07988",
+  "titleTr": "Sürücü: Döner ölçüm için işlev seçilmemiş",
+  "descriptionTr": "Döner ölçüm yapılandırmasında p1959 üzerinden herhangi bir işlev seçilmemiştir.",
+  "recommendedChecks": [
+   "p1959 döner ölçüm yapılandırmasındaki işlev seçimini kontrol edin.",
+   "Hız kontrolörünün otomatik ayarı için p1959 üzerinden en az bir işlev seçin (yetkili personel)"
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F08010",
+  "titleTr": "CU: Analog-dijital dönüştürücü hatası",
+  "descriptionTr": "Kontrol ünitesindeki (CU) analog-dijital dönüştürücü, dönüştürülmüş veri sağlayamamıştır.",
+  "recommendedChecks": [
+   "Beslemeyi kontrol edin.",
+   "Gerekirse kontrol ünitesini (CU) değiştirin."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F08700",
+  "titleTr": "CAN: Haberleşme hatası",
+  "descriptionTr": "CAN haberleşmesi, gönderim hataları nedeniyle BUS OFF durumuna geçmiş veya master düğüm durumunu izin verilen süre içinde sorgulamamıştır. Hat kablosunda kısa devre, kopukluk ya da bağlantı eksikliği, hatalı iletişim hızı veya bit zamanlaması ve master arızası olası nedenlerdir.",
+  "recommendedChecks": [
+   "Haberleşme hattı kablosunu kontrol edin.",
+   "İletişim hızını p8622 üzerinden kontrol edin.",
+   "Bit zamanlamasını p8623 üzerinden kontrol edin.",
+   "Master'ı kontrol edin.",
+   "Arıza nedenini giderdikten sonra CAN kontrolörünü p8608 = 1 ile elle yeniden başlatın (yetkili personel)"
+  ],
+  "category": "Haberleşme"
+ },
+ {
+  "code": "F08701",
+  "titleTr": "CAN: NMT durumu değişti",
+  "descriptionTr": "CANopen NMT durumu, operational durumundan pre-operational veya stopped durumuna geçmiştir. Pre-operational durumunda proses verileri, stopped durumunda ise hem proses hem servis verileri aktarılamaz.",
+  "recommendedChecks": [
+   "Arızayı onaylayın.",
+   "Çalışmaya devam edin."
+  ],
+  "category": "Haberleşme"
+ },
+ {
+  "code": "F08702",
+  "titleTr": "CAN: RPDO zaman aşımı",
+  "descriptionTr": "CANopen RPDO telegramı için izleme süresi dolmuştur. Haberleşme bağlantısının kesilmesi veya CANopen master'ın kapatılması bu duruma yol açabilir.",
+  "recommendedChecks": [
+   "Haberleşme hattı kablosunu kontrol edin.",
+   "Master'ı kontrol edin.",
+   "Gerekirse izleme süresini p8699 üzerinden artırın (yetkili personel)"
+  ],
+  "category": "Haberleşme"
+ },
+ {
+  "code": "F13009",
+  "titleTr": "OA uygulaması için lisans yok",
+  "descriptionTr": "Lisans gerektiren OA uygulamalarından en az birinin lisansı bulunmamaktadır. Kurulu OA uygulamaları hakkındaki bilgiler r4955 ve p4955 üzerinden görülebilir.",
+  "recommendedChecks": [
+   "Lisans gerektiren OA uygulamalarının lisans anahtarını p9920 ve p9921 üzerinden girip etkinleştirin (yetkili personel)",
+   "Gerekirse lisansı bulunmayan OA uygulamalarını p4956 üzerinden devre dışı bırakın (yetkili personel)"
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F13100",
+  "titleTr": "Bilgi birikimi koruması: Kopyalama koruması hatası",
+  "descriptionTr": "Bellek kartı için kopyalama koruması etkinken kart denetimi başarısız olmuştur. Kartın takılı olmaması, geçersiz olması, başka bir kontrol ünitesinde (CU) kullanılması veya hatalı OEM girdileri olası nedenlerdir.",
+  "recommendedChecks": [
+   "fault value = 0 veya 1 için doğru bellek kartını takıp beslemeyi kapatıp yeniden açın.",
+   "fault value = 2, 3, 12 veya 13 için sorumlu OEM'e danışın.",
+   "fault value = 2, 3, 12 veya 13 için p7765 kopyalama korumasını kaldırıp p3981 ile arızayı onaylayın; kopyalama korumasının genellikle bilgi birikimi koruması kaldırıldıktan sonra değiştirilebildiğini dikkate alın (yetkili personel)",
+   "fault value = 2, 3, 12 veya 13 için p7766 ... p7768 üzerinden bilgi birikimi korumasını kaldırıp p3981 ile arızayı onaylayın (yetkili personel)"
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F13101",
+  "titleTr": "Bilgi birikimi koruması: Kopyalama koruması etkinleştirilemiyor",
+  "descriptionTr": "Bellek kartının kopyalama koruması etkinleştirilememiştir. Kartın takılı olmaması veya geçerli bir Siemens kartı olmaması buna yol açabilir.",
+  "recommendedChecks": [
+   "Geçerli bir bellek kartı takın.",
+   "p7765 üzerinden kopyalama korumasını yeniden etkinleştirmeyi deneyin (yetkili personel)"
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F13102",
+  "titleTr": "Bilgi birikimi koruması: Korunan veriler tutarsız",
+  "descriptionTr": "Korunan dosyaların tutarlılık denetimi başarısız olduğu için bellek kartındaki proje çalıştırılamamaktadır. Dosya sağlama toplamı hatası, dosyalar arası tutarsızlık veya karttan yüklenen proje dosyalarının tutarsızlığı olası nedenlerdir.",
+  "recommendedChecks": [
+   "Bellek kartındaki projeyi veya karttan yüklenecek proje dosyalarını yenileriyle değiştirin.",
+   "Fabrika ayarlarını geri yükleyip projeyi yeniden yükleyin (yetkili personel)"
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F30012",
+  "titleTr": "Güç ünitesi: Soğutucu sıcaklık sensörü bağlantısı kopuk",
+  "descriptionTr": "Güç ünitesindeki soğutucu sıcaklık sensörüne giden bağlantı kesilmiştir. r0949 içindeki fault value, onaltılık bit bilgisiyle ilgili bölümü gösterir.",
+  "recommendedChecks": [
+   "Üreticiye danışın.",
+   "Manual'ın bu kod için ek saha kontrolü belirtmediğini dikkate alın."
+  ],
+  "category": "Sıcaklık / Soğutma"
+ },
+ {
+  "code": "F30013",
+  "titleTr": "Güç ünitesi: Soğutucu sıcaklık sensöründe kısa devre",
+  "descriptionTr": "Güç ünitesindeki soğutucu sıcaklık sensöründe kısa devre algılanmıştır. r0949 içindeki fault value, onaltılık bit bilgisiyle ilgili bölümü gösterir.",
+  "recommendedChecks": [
+   "Üreticiye danışın.",
+   "Manual'ın bu kod için ek saha kontrolü belirtmediğini dikkate alın."
+  ],
+  "category": "Sıcaklık / Soğutma"
+ },
+ {
+  "code": "F30017",
+  "titleTr": "Güç ünitesi: Donanımsal akım sınırı çok sık devreye girdi",
+  "descriptionTr": "İlgili fazda donanımsal akım sınırlaması çok sık devreye girmiştir. Hatalı kontrol ayarları, motor veya güç kablosu arızası, izin verilenden uzun kablolar, yüksek motor yükü ya da güç ünitesi arızası buna yol açabilir.",
+  "recommendedChecks": [
+   "Motor verilerini ve yıldız-üçgen bağlantı düzenini kontrol edin.",
+   "Motor yükünü kontrol edin.",
+   "Güç kablolarının bağlantılarını ve uzunluklarını kontrol edin.",
+   "Güç kablolarında kısa devre veya toprak kaçağı olup olmadığını kontrol edin.",
+   "Gerekirse Power Module'ü değiştirin."
+  ],
+  "category": "Power Module",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan motor, güç kabloları veya Power Module üzerinde çalışmayın."
+ },
+ {
+  "code": "F30024",
+  "titleTr": "Güç ünitesi: Termik model aşırı sıcaklık bildiriyor",
+  "descriptionTr": "Soğutucu ile yarı iletken çip arasındaki sıcaklık farkı izin verilen sınırı aşmıştır. Uygun olmayan yük çevrimi, yetersiz soğutma veya fan arızası, aşırı yük, yüksek ortam sıcaklığı ya da yüksek darbe frekansı olası nedenlerdir.",
+  "recommendedChecks": [
+   "Yük çevrimini izin verilen çalışma düzenine uyarlayın.",
+   "Fanın çalışmasını ve fan elemanlarını kontrol edin.",
+   "Ortam sıcaklığının izin verilen aralıkta olduğunu ve motor yükünü kontrol edin.",
+   "Darbe frekansı anma darbe frekansından yüksekse düşürün (yetkili personel).",
+   "DC frenleme etkinse frenleme akımını p1232 üzerinden azaltın (yetkili personel)."
+  ],
+  "category": "Sıcaklık / Soğutma"
+ },
+ {
+  "code": "F30025",
+  "titleTr": "Güç ünitesi: Yarı iletken çip aşırı sıcak",
+  "descriptionTr": "Yarı iletken çipin sıcaklığı izin verilen sınırı aşmıştır. Yük çevrimine uyulmaması, yetersiz soğutma veya fan arızası, aşırı yük, yüksek ortam sıcaklığı ya da yüksek darbe frekansı bu duruma neden olabilir.",
+  "recommendedChecks": [
+   "Yük çevrimini uygun hale getirin ve motor yükünü kontrol edin.",
+   "Fanın çalışmasını ve fan elemanlarını kontrol edin.",
+   "Ortam sıcaklığının izin verilen aralıkta olduğunu kontrol edin.",
+   "Darbe frekansı anma darbe frekansından yüksekse düşürün (yetkili personel).",
+   "Arızayı onaylamadan önce sıcaklığın A05001 alarm eşiğinin altına indiğini kontrol edin."
+  ],
+  "category": "Sıcaklık / Soğutma"
+ },
+ {
+  "code": "F30051",
+  "titleTr": "Güç ünitesi: Motor tutma freninde kısa devre algılandı",
+  "descriptionTr": "Motor tutma freninin terminallerinde kısa devre algılanmıştır. r0949 içindeki fault value yalnızca Siemens'in dahili arıza incelemesine yöneliktir.",
+  "recommendedChecks": [
+   "Motor tutma freninde kısa devre olup olmadığını kontrol edin.",
+   "Motor tutma freninin bağlantısını ve kablosunu kontrol edin."
+  ],
+  "category": "Frenleme",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan motor tutma freni bağlantıları veya kablosu üzerinde çalışmayın."
+ },
+ {
+  "code": "F30055",
+  "titleTr": "Güç ünitesi: Fren kıyıcısında aşırı akım",
+  "descriptionTr": "Fren kıyıcısında aşırı akım oluşmuştur. Arıza onaylandıktan sonra fren kıyıcısı ancak darbe izni verildiğinde yeniden etkinleşir.",
+  "recommendedChecks": [
+   "Fren direncinde kısa devre olup olmadığını kontrol edin.",
+   "Harici fren direnci kullanılıyorsa direncin gereğinden küçük boyutlandırılıp boyutlandırılmadığını kontrol edin."
+  ],
+  "category": "Frenleme",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan fren direnci üzerinde çalışmayın."
+ },
+ {
+  "code": "F30068",
+  "titleTr": "Güç ünitesi: İnverter soğutucusu sıcaklığı çok düşük",
+  "descriptionTr": "İnverter soğutucusunun sıcaklığı izin verilen alt sınırın altındadır. Ortam sıcaklığının çalışma aralığının altında olması veya sıcaklık sensörü değerlendirmesindeki bir arıza bu duruma yol açabilir.",
+  "recommendedChecks": [
+   "Ortam sıcaklığını yükseltin.",
+   "Gerekirse Power Module'ü değiştirin."
+  ],
+  "category": "Sıcaklık / Soğutma",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan Power Module değişimi yapmayın."
+ },
+ {
+  "code": "F30071",
+  "titleTr": "Power Module'den yeni gerçek değerler alınamıyor",
+  "descriptionTr": "Power Module'den birden fazla gerçek değer telegramı alınamamıştır.",
+  "recommendedChecks": [
+   "Power Module arayüzünün doğru oturduğunu kontrol edin.",
+   "Power Module arayüzünün kilitlemesini kontrol edin."
+  ],
+  "category": "Haberleşme"
+ },
+ {
+  "code": "F30072",
+  "titleTr": "Power Module'e referans değerleri aktarılamıyor",
+  "descriptionTr": "Power Module'e gönderilen referans değeri telegramlarının birden fazlası iletilememiştir.",
+  "recommendedChecks": [
+   "Power Module arayüzünün doğru oturduğunu kontrol edin.",
+   "Power Module arayüzünün kilitlemesini kontrol edin."
+  ],
+  "category": "Haberleşme"
+ },
+ {
+  "code": "F30075",
+  "titleTr": "Güç ünitesi yapılandırılamadı",
+  "descriptionTr": "Kontrol ünitesi (CU), güç ünitesini yapılandırırken nedeni kesinleşmeyen bir haberleşme hatasıyla karşılaşmıştır. Çıkış filtresinin başlatılması veya şebekeye enerji geri besleme işlevinin etkinleştirilmesi ya da devreden çıkarılması başarısız olmuş olabilir.",
+  "recommendedChecks": [
+   "Arızayı onaylayıp çalışmaya devam edin.",
+   "Arıza tekrarlarsa sistemi kapatıp yeniden açın (POWER ON).",
+   "Gerekirse Power Module'ü değiştirin."
+  ],
+  "category": "Haberleşme",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan Power Module değişimi yapmayın."
+ },
+ {
+  "code": "F30080",
+  "titleTr": "Güç ünitesi: Akım çok hızlı yükseliyor",
+  "descriptionTr": "Güç ünitesi, aşırı gerilim bölgesinde akımın çok hızlı yükseldiğini algılamıştır. Hatalı kontrol ayarları, motorda kısa devre veya gövdeye kaçak, U/f çalışmada kısa hızlanma rampası ya da motor ile güç ünitesinin anma akımları arasındaki uyumsuzluk, kablo bağlantıları veya uzunluğu ve güç ünitesi arızası olası nedenlerdir.",
+  "recommendedChecks": [
+   "Motor verilerini ve yıldız-üçgen bağlantı düzenini kontrol edin; gerekirse devreye alma işlemini yapın (yetkili personel).",
+   "U/f çalışmada hızlanma rampasını uzatın ve motor ile güç ünitesinin anma akımı uyumunu kontrol edin (yetkili personel).",
+   "Güç kablolarının bağlantılarını ve uzunluklarını kontrol edin.",
+   "Güç kablolarında kısa devre veya toprak kaçağı olup olmadığını kontrol edin.",
+   "Gerekirse Power Module'ü değiştirin."
+  ],
+  "category": "Power Module",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan motor, güç kabloları veya Power Module üzerinde çalışmayın."
+ },
+ {
+  "code": "F30081",
+  "titleTr": "Güç ünitesi: Anahtarlama işlemleri çok sık",
+  "descriptionTr": "Güç ünitesi akımı sınırlamak için çok fazla anahtarlama yapmıştır. Hatalı kontrol ayarları, motorda kısa devre veya gövdeye kaçak, U/f çalışmada kısa hızlanma rampası ya da motorun anma akımının güç ünitesine göre çok yüksek olması, uygunsuz kablo bağlantıları veya uzunluğu ve güç ünitesi arızası olası nedenlerdir.",
+  "recommendedChecks": [
+   "Motor verilerini ve yıldız-üçgen bağlantı düzenini kontrol edin; gerekirse devreye alma işlemini yapın (yetkili personel).",
+   "U/f çalışmada hızlanma rampasını uzatın ve motor ile güç ünitesinin anma akımı uyumunu kontrol edin (yetkili personel).",
+   "Güç kablolarının bağlantılarını ve uzunluklarını kontrol edin.",
+   "Güç kablolarında kısa devre veya toprak kaçağı olup olmadığını kontrol edin.",
+   "Gerekirse Power Module'ü değiştirin."
+  ],
+  "category": "Power Module",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan motor, güç kabloları veya Power Module üzerinde çalışmayın."
+ },
+ {
+  "code": "F30105",
+  "titleTr": "Güç ünitesi: Gerçek değer algılama hatası",
+  "descriptionTr": "Power Stack Adapter (PSA) üzerinde en az bir gerçek değer kanalının hatalı olduğu belirlenmiştir. Hatalı kanallar tanılama parametrelerinde gösterilir.",
+  "recommendedChecks": [
+   "Hatalı kanalı belirlemek için tanılama parametrelerini değerlendirin.",
+   "Gerçek değer kanalı hatalıysa ilgili bileşenleri kontrol edin ve gerekirse değiştirin."
+  ],
+  "category": "Power Module",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan güç ünitesi bileşenlerine müdahale etmeyin."
+ },
+ {
+  "code": "F30600",
+  "titleTr": "SI P2: STOP A başlatıldı",
+  "descriptionTr": "Safety Integrated, işlemci 2 üzerinde hata algılayarak STOP A başlatmıştır. Güvenli kapatma yolunun testinde başarısızlık, darbe izni veya STO geri bildirimlerinde uyumsuzluk, Power Module STO terminal ayarları ya da F30611 arızasına bağlı bir tepki söz konusu olabilir.",
+  "recommendedChecks": [
+   "STO'yu seçip ardından seçimini kaldırın; tüm bileşenleri kapatıp yeniden açın (POWER ON).",
+   "fault value = 1005 ise Power Module üzerindeki STO_A/STO_B DIP anahtarlarını OFF konumuna alın veya Power Module terminalleri üzerinden STO işlevini etkinleştirin (yetkili personel).",
+   "fault value = 1030 ise p9650/p9850 uyumsuzluk süresini kontrol edin, gerekirse artırın ve Power Module STO terminalinde temas sorunu arayın (yetkili personel).",
+   "fault value = 9999 ise F30611 için tanılama yapın.",
+   "Gerekirse ilgili Power Module'ü değiştirin."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan STO bağlantılarına veya Power Module'e müdahale etmeyin."
+ },
+ {
+  "code": "F30611",
+  "titleTr": "SI P2: İzleme kanalında arıza",
+  "descriptionTr": "Safety Integrated, işlemci 2 üzerinde izleme kanalları arasındaki veri karşılaştırmasında hata algılamış ve STOP F başlatmıştır; bunun ardından F30600 da bildirilir. Parametre veya kanal durumu farklılıkları, F-DI ya da PROFIsafe üzerinden çok sık değişen STO seçimi, başlatma hataları veya PROFIsafe kontrol hataları buna yol açabilir.",
+  "recommendedChecks": [
+   "fault value = 1 ... 999 ise STOP F'ye yol açan çapraz veri karşılaştırmasını inceleyin; sistemi kapatıp yeniden açın (POWER ON).",
+   "fault value = 1000 ise F-DI kablolamasını ve PROFIBUS master/PROFINET kontrolöründeki temas veya arıza sorunlarını giderin; p9650/p9850 uyumsuzluk süresini kontrol edip gerekirse artırın (yetkili personel).",
+   "fault value = 2000, 2001, 2002, 2003 ise F-DI kablolamasını ve r9772 içindeki STO seçim nedenlerini kontrol edin; p9650/p9850 uyumsuzluk süresini gerekirse artırın (yetkili personel).",
+   "fault value = 6000 ... 6999 ise F01611 açıklamasındaki ilgili mesaj değerini inceleyin.",
+   "Sistemi kapatıp yeniden açın (POWER ON); Siemens destek hattına danışın ve gerekirse kontrol ünitesini (CU) değiştirin."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan F-DI kablolarına veya kontrol ünitesine (CU) müdahale etmeyin."
+ },
+ {
+  "code": "F30625",
+  "titleTr": "SI P2: Güvenlik verilerinde yaşam işareti hatası",
+  "descriptionTr": "Safety Integrated, işlemci 2 üzerindeki güvenlik verilerinin yaşam işaretinde hata algılamış ve STOP A başlatmıştır. İşlemciler arasındaki haberleşmenin bozulması veya kesilmesi ya da güvenlik yazılımında zaman dilimi taşması olası nedenlerdir.",
+  "recommendedChecks": [
+   "STO'yu seçip ardından seçimini kaldırın.",
+   "Sistemi kapatıp yeniden açın (POWER ON).",
+   "Başka arızalar olup olmadığını kontrol edin ve varsa bunlar için tanılama yapın.",
+   "Pano düzeninin ve kablo güzergâhlarının EMC gereklerine uygunluğunu kontrol edin."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan pano içi kablolamaya müdahale etmeyin."
+ },
+ {
+  "code": "F30649",
+  "titleTr": "SI P2: Dahili yazılım hatası",
+  "descriptionTr": "İşlemci 2 üzerindeki Safety Integrated yazılımında dahili hata oluşmuştur ve onayla kaldırılamayan bir STOP A başlatılmıştır. r0949 içindeki fault value yalnızca Siemens'in dahili arıza incelemesi içindir.",
+  "recommendedChecks": [
+   "Sistemi kapatıp yeniden açın (POWER ON).",
+   "Safety Integrated işlevini yeniden devreye alın ve ardından sistemi kapatıp yeniden açın (POWER ON) (yetkili personel).",
+   "Siemens destek hattına danışın.",
+   "Gerekirse kontrol ünitesini (CU) değiştirin."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan kontrol ünitesi (CU) üzerinde çalışmayın."
+ },
+ {
+  "code": "F30650",
+  "titleTr": "SI P2: Kabul testi gerekiyor",
+  "descriptionTr": "Safety Integrated, işlemci 2 için kabul testi istemekte ve onaylanabilen bir STOP A oluşturmaktadır. Eksik veya değişmiş güvenlik parametreleri, sağlama toplamı uyuşmazlığı, izleme kanallarındaki fren kontrol izni farklılığı ya da açılıştaki başka bir güvenlik arızası buna neden olabilir.",
+  "recommendedChecks": [
+   "fault value = 130 ise güvenlik devreye alma işlemini yapın; 1000 ise işlemi tekrarlayıp STARTER ile ilgili sürücünün güvenlik parametrelerini etkinleştirin (yetkili personel).",
+   "fault value = 1000 ise gerekirse bellek kartını veya kontrol ünitesini (CU) değiştirin.",
+   "fault value = 2000 ise işlemci 2 güvenlik parametrelerini kontrol edip p9899 referans sağlama toplamını uyarlayın; 2010 ise fren kontrol izninin p9602 = p9802 koşulunu sağladığını kontrol edin (yetkili personel).",
+   "fault value = 2003 ise kabul testini yapıp kabul raporu oluşturun.",
+   "fault value = 9999 ise mevcut diğer güvenlik arızası için tanılama yapın."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan bellek kartını veya kontrol ünitesini (CU) değiştirmeyin."
+ },
+ {
+  "code": "F30651",
+  "titleTr": "SI P2: Kontrol ünitesi (CU) ile eşzamanlama başarısız",
+  "descriptionTr": "Safety Integrated için işlemci 1 ve işlemci 2 güvenlik zaman dilimleri eşzamanlanamamıştır; bu durum onayla kaldırılamayan bir STOP A oluşturur. r0949 içindeki fault value yalnızca Siemens'in dahili arıza incelemesi içindir.",
+  "recommendedChecks": [
+   "POWER ON işlemi için sistemi kapatın.",
+   "Sistemi yeniden açarak POWER ON işlemini tamamlayın."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Safety Integrated arızası varken yeniden başlatma sırasında makinenin güvenli durumda kalmasını sağlayın."
+ },
+ {
+  "code": "F30655",
+  "titleTr": "SI P2: İzleme işlevlerinin eşleştirilmesi başarısız",
+  "descriptionTr": "İşlemci 1 ve işlemci 2 üzerindeki Safety Integrated izleme işlevleri için ortak desteklenen işlev kümesi belirlenememiştir. İşlemciler arasındaki haberleşme hatası veya kesintisiyle ilişkili olabilen bu durum, onayla kaldırılamayan bir STOP A oluşturur.",
+  "recommendedChecks": [
+   "Sistemi kapatıp yeniden açın (POWER ON).",
+   "Pano düzeninin ve kablo güzergâhlarının EMC gereklerine uygunluğunu kontrol edin."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan pano içi kablolamaya müdahale etmeyin."
+ },
+ {
+  "code": "F30656",
+  "titleTr": "SI P2: İşlemci 2 parametre hatası",
+  "descriptionTr": "İşlemci 2 için kalıcı bellekte tutulan Safety Integrated parametrelerine erişimde hata oluşmuş ve onaylanabilen bir STOP A başlatılmıştır. Güvenlik parametrelerinin bozulması veya işlemcilerde dahili yazılım hatası olası nedenlerdir.",
+  "recommendedChecks": [
+   "Güvenlik işlevlerini yeniden devreye alın (yetkili personel).",
+   "Gerekirse bellek kartını veya kontrol ünitesini (CU) değiştirin.",
+   "fault value = 129 ise p0010 = 95 ile güvenlik devreye alma modunu açıp p9700 = D0 hex ile SI parametrelerini kopyalayın (yetkili personel).",
+   "fault value = 129 ise p9701 = DC hex ile veri değişikliğini onaylayın ve p0010 = 0 ile devreye alma modundan çıkın (yetkili personel).",
+   "fault value = 129 ise p0971 = 1 veya Copy RAM to ROM ile tüm parametreleri kaydedin; ardından kontrol ünitesini (CU) kapatıp yeniden açın (POWER ON) (yetkili personel)."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan bellek kartını veya kontrol ünitesini (CU) değiştirmeyin."
+ },
+ {
+  "code": "F30659",
+  "titleTr": "SI P2: Parametre yazma isteği reddedildi",
+  "descriptionTr": "İşlemci 2 üzerindeki Safety Integrated parametrelerine yazma isteği, desteklenmeyen bir işlev veya birlikte kullanılamayan işlev seçimleri nedeniyle reddedilmiştir. Bu hata kendi başına güvenlik duruş tepkisi oluşturmaz.",
+  "recommendedChecks": [
+   "fault value = 10, 15, 16, 18 ise F01655 veya F30655 işlev eşleştirme arızalarını kontrol edin ve varsa tanılama yapın.",
+   "fault value = 10, 15, 16, 18 ise gereken işlevi destekleyen bir kontrol ünitesi (CU) kullanın.",
+   "fault value = 28 ise Power Module terminalleri üzerinden STO özelliğini destekleyen bir güç ünitesi kullanın."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan kontrol ünitesi (CU) veya Power Module değişimi yapmayın."
+ },
+ {
+  "code": "F30662",
+  "titleTr": "Dahili haberleşme hatası",
+  "descriptionTr": "Modülün kendi iç haberleşmesinde hata oluşmuştur. r0949 içindeki fault value yalnızca Siemens'in dahili arıza incelemesine yöneliktir.",
+  "recommendedChecks": [
+   "Sistemi kapatıp yeniden açın (POWER ON).",
+   "firmware'i daha yeni bir sürüme yükseltin.",
+   "Siemens destek hattına danışın."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F30664",
+  "titleTr": "Açılış sırasında hata",
+  "descriptionTr": "Sistem açılırken hata oluşmuştur. r0949 içindeki fault value yalnızca Siemens'in dahili arıza incelemesine yöneliktir.",
+  "recommendedChecks": [
+   "Sistemi kapatıp yeniden açın (POWER ON).",
+   "firmware'i daha yeni bir sürüme yükseltin.",
+   "Siemens destek hattına danışın."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F30665",
+  "titleTr": "SI P2: Sistem arızası",
+  "descriptionTr": "Önceki açılıştan önce veya mevcut açılışta sistem arızası algılanmıştır; sistem yeniden başlatılmış olabilir. Power Module STO terminallerinin etkin olmasına rağmen ilgili işlevin etkinleştirilmemesi de olası nedenler arasındadır.",
+  "recommendedChecks": [
+   "Sistemi kapatıp yeniden açın (POWER ON).",
+   "firmware'i daha yeni bir sürüme yükseltin.",
+   "Siemens destek hattına danışın.",
+   "fault value = 40 hex ise STO_A/STO_B DIP anahtarlarını OFF konumuna alın veya Power Module terminalleri üzerinden STO işlevini etkinleştirin (yetkili personel).",
+   "fault value = 4000yy hex ise kontrol ünitesinin (CU) Power Module'e bağlı olduğunu kontrol edin ve Power Module terminalleri üzerinden STO işlevinin seçimini kaldırın (yetkili personel)."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan STO terminallerine veya Power Module bağlantısına müdahale etmeyin."
+ },
+ {
+  "code": "F30680",
+  "titleTr": "SI Motion P2: Güvenlik izleme işlevlerinde sağlama toplamı hatası",
+  "descriptionTr": "İşlemci 2 tarafından hesaplanan r9398 sağlama toplamı, son makine kabulünde p9399 içine kaydedilen referansla uyuşmamaktadır. Güvenlikle ilgili parametreler değiştirilmiş olabilir veya bir arıza vardır; bu durum onaylanabilen bir STOP A oluşturur.",
+  "recommendedChecks": [
+   "Güvenlikle ilgili parametreleri kontrol edin ve gerekirse düzeltin (yetkili personel).",
+   "Referans sağlama toplamını mevcut sağlama toplamına eşitleyin (yetkili personel).",
+   "Copy RAM to ROM işlevini çalıştırın (yetkili personel).",
+   "POWER ON gerektiren güvenlik parametreleri değiştirildiyse sistemi kapatıp yeniden açın.",
+   "Kabul testini yapın."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlik parametreleri değiştirilirken ve kabul testi yapılırken makinenin güvenli durumda kalmasını sağlayın."
+ },
+ {
+  "code": "F30681",
+  "titleTr": "SI Motion P1: Geçersiz parametre değeri",
+  "descriptionTr": "Bir parametreye izin verilmeyen değer atanmıştır; p9301.16 ile p9801.5 işlevlerinin birlikte seçilmesi veya enkodersiz güvenlikte senkron motor için p9385 değerinin 4 olmaması buna örnektir. Bu mesaj güvenlik duruş tepkisi oluşturmaz.",
+  "recommendedChecks": [
+   "Geçersiz parametre değerini düzeltin (yetkili personel).",
+   "İzleme kanallarındaki değerler farklıysa p9700 = 57 hex ile SI parametrelerini kopyalayın (yetkili personel)."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlik parametreleri değiştirilirken makinenin güvenli durumda kalmasını sağlayın."
+ },
+ {
+  "code": "F30682",
+  "titleTr": "SI Motion P2: İzleme işlevi desteklenmiyor",
+  "descriptionTr": "p9301, p9501, p9601 veya p9801 üzerinden etkinleştirilen izleme işlevi kullanılan firmware sürümünde desteklenmemektedir. Bu mesaj güvenlik duruş tepkisi oluşturmaz.",
+  "recommendedChecks": [
+   "fault value bilgisinden desteklenmeyen izleme işlevini belirleyin.",
+   "İlgili izleme işlevinin seçimini kaldırın (yetkili personel)."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlik işlevlerinin seçimini değiştirirken makinenin güvenli durumda kalmasını sağlayın."
+ },
+ {
+  "code": "F30683",
+  "titleTr": "SI Motion P2: SLS etkinleştirilmemiş",
+  "descriptionTr": "Diğer güvenlik izleme işlevleri etkin olmasına rağmen SLS işlevi p9301 üzerinden etkinleştirilmemiştir. Bu mesaj güvenlik duruş tepkisi oluşturmaz.",
+  "recommendedChecks": [
+   "p9301.0 üzerinden SLS işlevini etkinleştirin (yetkili personel).",
+   "Değişiklikleri RAM'den ROM'a kopyalayarak kaydedin (yetkili personel).",
+   "Kaydettikten sonra sistemi kapatıp yeniden açın (POWER ON)."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlik işlevi ayarlanırken ve sistem yeniden başlatılırken makinenin güvenli durumda kalmasını sağlayın."
+ },
+ {
+  "code": "F30692",
+  "titleTr": "SI Motion P2: Enkodersiz kullanım için parametre değeri geçersiz",
+  "descriptionTr": "Enkodersiz hareket izleme işlevlerinde bir parametreye izin verilmeyen değer atanmıştır; hatalı parametrenin numarası r0949 içindeki fault value ile gösterilir. Bu mesaj güvenlik duruş tepkisi oluşturmaz.",
+  "recommendedChecks": [
+   "r0949 içindeki fault value bilgisinden hatalı parametreyi belirleyin.",
+   "Belirtilen parametrenin değerini düzeltin (yetkili personel)."
+  ],
+  "category": "Safety Integrated",
+  "safetyNoteTr": "Güvenlik parametreleri değiştirilirken makinenin güvenli durumda kalmasını sağlayın."
+ },
+ {
+  "code": "F30802",
+  "titleTr": "Güç ünitesi: Zaman dilimi taşması",
+  "descriptionTr": "Bir zaman dilimi taşması oluşmuştur. İlgili zaman diliminin numarası r0949 içindeki fault value ile gösterilir.",
+  "recommendedChecks": [
+   "Tüm bileşenleri kapatıp yeniden açın (POWER ON).",
+   "firmware'i daha yeni bir sürüme yükseltin.",
+   "Siemens destek hattına danışın."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F30804",
+  "titleTr": "Güç ünitesi: CRC hatası",
+  "descriptionTr": "Güç ünitesinde sağlama toplamı doğrulaması sırasında CRC hatası oluşmuştur.",
+  "recommendedChecks": [
+   "Tüm bileşenleri kapatıp yeniden açın (POWER ON).",
+   "firmware'i daha yeni bir sürüme yükseltin.",
+   "Siemens destek hattına danışın."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F30805",
+  "titleTr": "Güç ünitesi: EEPROM sağlama toplamı hatası",
+  "descriptionTr": "Dahili parametre verileri bozulmuştur. EEPROM'a erişim hatası veya EEPROM içindeki blok sayısının fazla olması bu duruma neden olabilir.",
+  "recommendedChecks": [
+   "Manual'daki çözümün modül değişimi olduğunu dikkate alın.",
+   "Gerekirse Power Module'ü değiştirin."
+  ],
+  "category": "Dahili / Firmware",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan Power Module değişimi yapmayın."
+ },
+ {
+  "code": "F30809",
+  "titleTr": "Güç ünitesi: Anahtarlama bilgisi geçersiz",
+  "descriptionTr": "3P tetikleme ünitesinde, referans değeri telegramının son anahtarlama durum sözcüğünü işaretleyen bitiş tanımlayıcısı bulunamamıştır.",
+  "recommendedChecks": [
+   "Tüm bileşenleri kapatıp yeniden açın (POWER ON).",
+   "firmware'i daha yeni bir sürüme yükseltin.",
+   "Siemens destek hattına danışın."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F30850",
+  "titleTr": "Güç ünitesi: Dahili yazılım hatası",
+  "descriptionTr": "Güç ünitesinde dahili yazılım hatası oluşmuştur. r0949 içindeki fault value yalnızca Siemens'in dahili arıza incelemesi içindir.",
+  "recommendedChecks": [
+   "Gerekirse Power Module'ü değiştirin.",
+   "Gerekirse güç ünitesinin firmware'ini yükseltin.",
+   "Siemens destek hattına danışın."
+  ],
+  "category": "Dahili / Firmware",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan Power Module değişimi yapmayın."
+ },
+ {
+  "code": "F30903",
+  "titleTr": "Güç ünitesi: I2C veri yolu hatası",
+  "descriptionTr": "EEPROM veya analog/dijital dönüştürücü ile haberleşmede hata oluşmuştur. fault value, dahili yazılım hatası ile modül arızasını ayırt eder.",
+  "recommendedChecks": [
+   "fault value = 80000000 hex ise firmware'i daha yeni bir sürüme yükseltin.",
+   "fault value = 00000001 hex ... 0000FFFF hex ise gerekirse ilgili modülü değiştirin."
+  ],
+  "category": "Dahili / Firmware",
+  "safetyNoteTr": "Enerjiyi kesip kilitle-etiketle uygulamadan güç ünitesinde modül değişimi yapmayın."
+ },
+ {
+  "code": "F30950",
+  "titleTr": "Güç ünitesi: Dahili yazılım hatası",
+  "descriptionTr": "Dahili yazılım hatası oluşmuştur. Hatanın kaynağına ilişkin r0949 fault value bilgisi yalnızca Siemens'in dahili arıza incelemesine yöneliktir.",
+  "recommendedChecks": [
+   "Gerekirse güç ünitesinin firmware'ini daha yeni bir sürüme yükseltin.",
+   "Siemens destek hattına danışın."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F35950",
+  "titleTr": "TM: Dahili yazılım hatası",
+  "descriptionTr": "Dahili yazılım hatası oluşmuştur. Hatanın kaynağına ilişkin r0949 fault value bilgisi yalnızca Siemens'in dahili arıza incelemesine yöneliktir.",
+  "recommendedChecks": [
+   "Gerekirse Terminal Module firmware'ini daha yeni bir sürüme yükseltin.",
+   "Siemens destek hattına danışın."
+  ],
+  "category": "Dahili / Firmware"
+ },
+ {
+  "code": "F50510",
+  "titleTr": "FBLOCKS: Çalışma grubunun kaydı reddedildi",
+  "descriptionTr": "Serbest fonksiyon bloklarının en az bir çalışma grubu, örnekleme zamanı yönetimine kaydedilememiştir. Bloklara çok fazla farklı donanım örnekleme zamanı atanmış olabilir.",
+  "recommendedChecks": [
+   "Kullanılabilir donanım örnekleme zamanlarının sayısını r7903 üzerinden kontrol edin.",
+   "Bu kontrolde T_sample < 8 ms koşulundaki donanım örnekleme zamanlarını esas alın."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F50511",
+  "titleTr": "FBLOCKS: Serbest fonksiyon blokları için bellek yetersiz",
+  "descriptionTr": "Serbest fonksiyon blokları etkinleştirilirken kontrol ünitesinde (CU) bulunandan daha fazla bellek istenmiştir. Manual bu kod için ek işlem gerekmediğini belirtir.",
+  "recommendedChecks": [
+   "Manual'ın bu kod için ek işlem istemediğini dikkate alın.",
+   "Manual'da ayrıca bir kontrol veya düzeltme adımı verilmediğini göz önünde bulundurun."
+  ],
+  "category": "Devreye Alma / Parametre"
+ },
+ {
+  "code": "F50518",
+  "titleTr": "FBLOCKS: İndirmede serbest çalışma grubunun örnekleme zamanı farklı",
+  "descriptionTr": "İndirilen STARTER/SCOUT projesinde bir serbest çalışma grubunun donanım örnekleme zamanı izin verilen aralığın dışında ayarlanmıştır. Sürücü bu değeri uygun bir örnekleme zamanına uyarlarken hatalı grubun p20000 indeksini r0949 içindeki fault value ile bildirir.",
+  "recommendedChecks": [
+   "r0949 içindeki fault value üzerinden örnekleme zamanı hatalı çalışma grubunu belirleyin.",
+   "Çalışma grubunun örnekleme zamanını doğru ayarlayın (yetkili personel).",
+   "Gerekirse çalışma grubundaki tüm blokları çıkarın (yetkili personel).",
+   "Projede p20000[i] düzeltildikten sonra indirmede hata tekrarlarsa r0949 ile ilgili grubu yeniden belirleyip örnekleme zamanını düzeltin (yetkili personel)."
+  ],
+  "category": "Devreye Alma / Parametre"
+ }
+]

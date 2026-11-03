@@ -46,3 +46,9 @@ fieldset { border: 0; padding: 25px 0 0; margin: 0; } legend { width: 100%; } le
 .settings-page { max-width: 900px; }.settings-empty { background: #fff; border: 1px solid #e3e8e9; border-radius: 8px; color: #718087; font-size: 14px; padding: 28px; }
 @media (max-width: 650px) { .knowledge-controls, .knowledge-filter-labels { grid-template-columns: 1fr; }.knowledge-filter-labels { display: none; }.knowledge-card-top { flex-direction: column; }.detail-button, .open-diagnosis-button { align-self: stretch; } }
 @media (max-width: 650px) { .commissioning-card { padding: 24px 20px; }.commissioning-summary { grid-template-columns: 1fr; }.commissioning-actions { gap: 12px; }.commissioning-actions button { flex: 1; } }
+.manual-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 14px; margin: 10px 0 0; padding: 9px 11px; background: #f7f9f9; border: 1px solid #e3e8e9; border-radius: 6px; }
+.manual-meta div { min-width: 0; }
+.manual-meta-wide { grid-column: 1 / -1; }
+.manual-meta dt { color: #8a969b; font-size: 9px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+.manual-meta dd { color: #33454d; font-size: 11px; font-weight: 600; margin: 1px 0 0; overflow-wrap: anywhere; }
+.manual-meta a { color: #8b6818; }

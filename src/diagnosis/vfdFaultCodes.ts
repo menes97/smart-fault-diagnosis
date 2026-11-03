@@ -1,4 +1,5 @@
 import { g120ExtendedFaultCodes } from './g120ExtendedFaultCodes'
+import { g120ManualFacts, g120ManualOnlyFaultCodes, withG120Manual } from './g120ListManual'
 import { g120FaultTroubleshootingByCode } from './g120Troubleshooting'
 
 export type VfdManufacturer = 'siemens' | 'yaskawa' | 'danfoss'
@@ -55,6 +56,14 @@ export interface ManufacturerFaultCode {
   safetyNoteTr?: string
   category: FaultCategory
   troubleshooting?: FaultTroubleshooting
+  /** Attributes from the Siemens List Manual entry (G120 only), with the printed page. */
+  manual?: {
+    messageClass: string
+    reaction: string
+    acknowledge: string
+    pageStart: number
+    pageEnd: number
+  }
 }
 
 const siemensSource = {
@@ -220,12 +229,23 @@ function withFaultCategory(entry: Omit<ManufacturerFaultCode, 'category'>): Manu
   }
 }
 
-export const manufacturerFaultCodes: ManufacturerFaultCode[] = [
+const isG120 = (entry: Pick<ManufacturerFaultCode, 'manufacturer' | 'modelFamily'>) =>
+  entry.manufacturer === 'Siemens' && entry.modelFamily === 'SINAMICS G120'
+
+// Hand-written entries keep their Turkish content; G120 entries get the official title, page and attributes
+// from the List Manual. The extended batch only had placeholder descriptions, so it takes the manual-based
+// Turkish guidance as well. Faults present in the manual but in neither list are appended.
+const handWritten: ManufacturerFaultCode[] = [
   ...rawManufacturerFaultCodes.map((entry) => withFaultCategory({
     ...entry,
     descriptionTr: turkishDescriptions[`${entry.modelFamily}:${entry.code}`],
-  })),
-  ...g120ExtendedFaultCodes.map(withFaultCategory),
+  })).map((entry) => (isG120(entry) ? withG120Manual(entry, false) : entry)),
+  ...g120ExtendedFaultCodes.map(withFaultCategory).map((entry) => withG120Manual(entry, true)),
+]
+
+export const manufacturerFaultCodes: ManufacturerFaultCode[] = [
+  ...handWritten,
+  ...g120ManualOnlyFaultCodes(new Set(handWritten.filter(isG120).map((entry) => entry.code))),
 ]
 
 function validateG120FaultCategories(): void {
@@ -234,16 +254,26 @@ function validateG120FaultCategories(): void {
     .map((entry) => entry.code)
   const uniqueCodes = new Set(g120Codes)
   const mappingCodes = Object.keys(g120FaultCategoryByCode)
-  const missingMappings = g120Codes.filter((code) => !g120FaultCategoryByCode[code])
+  const missingMappings = manufacturerFaultCodes.filter((entry) => isG120(entry) && !entry.category).map((entry) => entry.code)
   const orphanMappings = mappingCodes.filter((code) => !uniqueCodes.has(code))
+  // Every fault (F code) of the List Manual must be in the database.
+  const missingManualFaults = g120ManualFacts.filter((fact) => fact.type === 'fault' && !uniqueCodes.has(fact.code)).map((fact) => fact.code)
   const troubleshootingEntries = manufacturerFaultCodes.filter((entry) => entry.manufacturer === 'Siemens' && entry.modelFamily === 'SINAMICS G120' && entry.troubleshooting)
   const troubleshootingParameterMismatches = troubleshootingEntries.flatMap((entry) => {
     const relatedCodes = new Set(entry.relatedParameters?.map((parameter) => parameter.code) ?? [])
     return entry.troubleshooting!.steps.flatMap((step) => (step.parameterCodes ?? []).filter((code) => !relatedCodes.has(code)).map((code) => `${entry.code}:${code}`))
   })
 
-  if (g120Codes.length !== 100 || uniqueCodes.size !== g120Codes.length || missingMappings.length || orphanMappings.length || troubleshootingEntries.length !== 16 || troubleshootingParameterMismatches.length) {
-    throw new Error('SINAMICS G120 hata kodu kategori eşlemesi doğrulanamadı.')
+  const problems = {
+    duplicates: g120Codes.length - uniqueCodes.size,
+    missingMappings,
+    orphanMappings,
+    missingManualFaults,
+    troubleshootingEntries: troubleshootingEntries.length,
+    troubleshootingParameterMismatches,
+  }
+  if (problems.duplicates || missingMappings.length || orphanMappings.length || missingManualFaults.length || troubleshootingEntries.length !== 16 || troubleshootingParameterMismatches.length) {
+    throw new Error(`SINAMICS G120 hata kodu veritabanı doğrulanamadı: ${JSON.stringify(problems)}`)
   }
 }
 
